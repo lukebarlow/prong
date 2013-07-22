@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<html>
+    <head>
+        <script src="../js/d3.v3.js"></script>
+        <script src="../js/prong.js"></script>
+        <style>
+BODY {
+    font-family:helvetica;
+    background-color:#333;
+    color:white;
+    margin:40px;
+}
+
+.area {
+  fill:steelblue;
+}
+
+.line {
+  stroke:steelblue;
+  fill:none;
+}
+
+        </style>
+    </head>
+    <body>
+        Waveform<br />
+        <br />
+        Load a sound and display it's waveform.
+        <svg id="waveform"></svg>
+        <script>
+        // first load the sound ...
+        prong.sound('../audio/four_devices_android.mp3', function(buffer){
+            var width = 600;
+            // ... then create and display the waveform
+            var x = d3.scale.linear().domain([0, 20]).range([0, width]);
+            var waveform = prong.waveform()
+                .x(x)
+                .height(200);
+
+            d3.select('#waveform')
+                .datum({
+                    buffer : buffer,
+                    channel : buffer.getChannelData(0)
+                })
+                .call(waveform);
+        })
+        </script>
+    </body>
+</html>

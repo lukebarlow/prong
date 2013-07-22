@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<html>
+    <head>
+        <script src="../js/d3.v3.js"></script>
+        <script src="../js/prong.js"></script>
+        <script src="../js/audioMatching.js"></script>
+        <style>
+BODY {
+    font-family:helvetica;
+    background-color:#333;
+    color:white;
+    padding:30px;
+}
+
+A { color : steelblue;}
+
+SVG {
+    height:286px;
+}
+
+TEXT {
+    fill:white;
+    font-size:20pt;
+}
+
+/* timeline */
+
+.timeline path,
+.timeline line {
+  fill: none;
+  stroke: white;
+  shape-rendering: crispEdges;
+}
+
+.timeline text {
+  fill:white;
+  shape-rendering: crispEdges;
+}
+
+/* waveform */
+
+.area {
+  fill:steelblue;
+}
+
+.line {
+  stroke:steelblue;
+  fill:none;
+}
+
+.onsets rect {
+    fill:white;
+}
+        </style>
+    </head>
+    <body>
+        <div id="tests"></div>
+        <script>
+
+tests = [
+    { 
+        a : '../audio/four_devices_android.wav',
+        b : '../audio/four_devices_computer.wav',
+        offset : 5.238
+    },
+    { 
+        a : '../audio/four_devices_android.wav',
+        b : '../audio/four_devices_ipad.wav',
+        offset : 4.603
+    },
+    { 
+        a : '../audio/four_devices_android.wav',
+        b : '../audio/four_devices_iphone.wav',
+        offset : 2.415
+    },
+    { 
+        a : '../audio/four_devices_computer.wav',
+        b : '../audio/four_devices_ipad.wav',
+        offset : 9.841
+    },
+    // { 
+    //     a : '../audio/four_devices_computer.wav',
+    //     b : '../audio/four_devices_iphone.wav',
+    //     offset : 2.812
+    // },
+    // { 
+    //     a : '../audio/four_devices_ipad.wav',
+    //     b : '../audio/four_devices_iphone.wav',
+    //     offset : 7.029
+    // },
+    // { 
+    //     a : '../audio/test1_a.wav',
+    //     b : '../audio/test1_b.wav',
+    //     offset : 22.438
+    // },
+    // { 
+    //     a : '../audio/test2_a.wav',
+    //     b : '../audio/test2_b.wav',
+    //     offset : 6.349
+    // }
+]
+
+testSettings = {
+    compression : 0.9,
+    thinningFactor : 500,
+    threshold : 0.2,
+    noteOffRatio : 0.5
+}
+
+var height = 128;
+
+var y = d3.scale.linear()
+    .range([height,0])
+    .domain([1,-1]);
+
+var width = 1200;
+
+function waveformY(i){
+    return (10 + i * 128)
+}
+
+function applyEffects(channel){
+
+    var thinned = fx.thinOut(channel, 5000);
+    thinned[thinned.length-1] = thinned[thinned.length-2];
+    var min = d3.min(thinned);
+
+    channel = channel.map(function(d){
+        return Math.max(0, d - min)}
+    );
+
+    prong.fx.compression(channel, testSettings.compression)
+    prong.fx.normalise(channel);
+    
+    return channel
+}
+
+function runTest(test, callback){
+
+    var testContainer = d3.select('#tests').append('svg');
+    var x = d3.scale.linear().domain([0, 80]).range([0, width]);
+    var timeline = prong.timeline()
+        .x(x)
+        .scrollZone(testContainer);
+
+    var waveform = prong.waveform()
+        .x(x)
+        .timeline(timeline);
+
+    prong.sounds([test.a, test.b], function(buffers){
+        // draw the tracks
+        var tracks = buffers.map(function(buffer){
+            return {
+                buffer : buffer,
+                channel : applyEffects(buffer.getChannelData(0))
+            }
+        })
+
+        testContainer.append('g').call(timeline);
+        testContainer.append('g').selectAll('g')
+            .data(tracks)
+            .enter()
+            .append('g')
+            .attr('class','waveform')
+            .attr('transform',function(d,i){
+                return 'translate(0,' + waveformY(i) + ')'
+            })
+            .call(waveform)
+
+        // now work out the onsets
+        tracks.forEach(function(track){
+            var onsetTimes = prong.noteOnset(track.channel, track.buffer.sampleRate)
+            var onsetDiffs = d3.map()
+            var decimalPlaces = 3
+
+            for (var i=1;i<onsetTimes.length;i++){
+                for (j=1;j<=i;j++){
+                    onsetDiffs.set(d3.round(onsetTimes[i]-onsetTimes[i-j],decimalPlaces),onsetTimes[i])
+                }
+            }
+
+            track.onsetTimes = onsetTimes
+            track.onsetDiffs = onsetDiffs
+        })
+
+        var time = calculateBestStartTimes(tracks);
+
+        var onsets = prong.onsets()
+            .x(x)
+            .timeline(timeline);
+
+        testContainer.append('g')
+            .attr('class','onsets')
+            .selectAll('g')
+            .data(tracks)
+            .enter()
+            .append('g')
+            .attr('transform',function(d,i){
+                return 'translate(0,' + waveformY(i) + ')'
+            })
+            .call(onsets)
+
+        testContainer.selectAll('g.waveform')
+            // .transition()
+            // .duration(1000)
+            .attr('transform',function(d,i){
+                return 'translate('+x(d.startTime)+',' + waveformY(i) + ')'
+            })
+
+        timeline.on('change.resize' + prong.uid(), function(){
+            testContainer.selectAll('g.waveform').attr('transform',function(d,i){
+                return 'translate(0,' + waveformY(i) + ')'
+            })
+
+            testContainer.selectAll('g.waveform')
+                .append('rect')
+                .attr('fill','red')
+                .attr('height',1)
+                .attr('width',width)
+                .attr('x',0)
+                .attr('y',y(-testSettings.threshold))
+        })
+
+        testContainer.append('text')
+            .attr('width','300')
+            .attr('height','150')
+            .attr('x','150')
+            .attr('y','150')
+            .text(time)
+
+        testContainer.style('background-color',
+            time == test.offset ? '#040' : 
+            (Math.abs(time - test.offset) < 0.025) ? '#dd8C00' :
+            (time == 0) ? 'black' : '#400');
+
+        //console.log(tracks);
+
+        //setTimeout(callback, 1000);
+        callback();
+
+    })
+}
+
+
+function runTests(tests){
+    var testIndex = 0;
+
+    function runNextTest(){
+        var test = tests[testIndex];
+        runTest(test, function(){
+            testIndex++;
+            if (testIndex < tests.length) runNextTest();
+        })
+    }
+    runNextTest();
+}
+
+runTests(tests);
+
+        </script>
+    </body>
+</html>

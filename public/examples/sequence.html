@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<html>
+    <head>
+        <script src="../js/d3.v3.js"></script>
+        <script src="../js/prong.js"></script>
+        <style>
+BODY {
+    font-family:helvetica;
+    background-color:#333;
+    color:white;
+    padding:30px;
+}
+
+A { color : steelblue;}
+
+/* waveform */
+
+.area {
+  fill:steelblue;
+}
+
+.line {
+  stroke:steelblue;
+  fill:none;
+}
+
+/* timeline */
+
+.timeline path,
+.timeline line {
+  fill: none;
+  stroke: white;
+  shape-rendering: crispEdges;
+}
+
+.timeline text {
+  fill:white;
+  shape-rendering: crispEdges;
+}
+
+/* comper */
+
+.comp {
+    fill:white;
+    opacity:0.2;
+}
+
+.inbetween {
+  fill:transparent;
+  cursor:hand;
+}
+
+.resizer {
+    fill:red;
+    opacity:0;
+    cursor:ew-resize;
+}
+
+/* play line */
+
+.playLine {
+    background-color:green;
+    width:1px;
+    height:600px;
+    top:0px;
+    position:absolute;
+}
+
+        </style>
+    </head>
+    <body>
+        Sequence<br />
+        <span>
+        <br />
+        The sequence component takes an array track dictionaries, and lays these out
+        in a multi-track arrangement with a timeline at the top. It also adds a play line, and
+        has methods for starting and stopping.
+        <br />
+        <br />
+        </span>
+        <button id="play">play</button>
+        <button id="stop">stop</button>
+        <br />
+        <br />
+        <div id="sequence"></div>
+
+        <script>
+
+var tracks = [
+    {
+        'type' : 'audio',
+        'src' : '../audio/four_devices_android.mp3'
+    },
+    {
+        'type' : 'audio',
+        'src' : '../audio/four_devices_computer.mp3'
+    },
+    {
+        'type' : 'audio',
+        'src' : '../audio/four_devices_ipad.mp3'
+    },
+    {
+        'type' : 'audio',
+        'src' : '../audio/four_devices_iphone.mp3'
+    }
+]
+
+var x = d3.scale.linear().domain([0, 30]).range([0, 800]);
+
+sequence = prong.sequence()
+    .x(x)
+    .tracks(tracks);
+
+d3.select('#sequence').call(sequence);
+
+d3.select('#play').on('click', function(){sequence.play()});
+d3.select('#stop').on('click', function(){
+    if (sequence.playing()){
+        sequence.stop()
+    }else{
+        // if already stopped, then clicking this button resets to zero
+        sequence.currentTime(0);
+    }
+});
+        </script>
+    </body>
+</html>

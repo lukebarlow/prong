@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<html>
+    <head>
+        <script src="../js/d3.v3.js"></script>
+        <script src="../js/prong.js"></script>
+        <style>
+BODY {
+    font-family:helvetica;
+    background-color:#333;
+    color:white;
+    padding:30px;
+}
+
+A { color : steelblue;}
+
+/* waveform */
+
+.waveform .area {
+  fill:steelblue;
+}
+
+.waveform .line {
+  stroke:steelblue;
+  fill:none;
+}
+
+/* timeline */
+
+.timeline path,
+.timeline line {
+  fill: none;
+  stroke: white;
+  shape-rendering: crispEdges;
+}
+
+.timeline text {
+  fill:white;
+  shape-rendering: crispEdges;
+}
+
+/* comper */
+
+.comp {
+    fill:white;
+    opacity:0.2;
+}
+
+.inbetween {
+  fill:transparent;
+  cursor:hand;
+}
+
+.resizer {
+    fill:red;
+    opacity:0;
+    cursor:ew-resize;
+}
+
+
+        </style>
+    </head>
+    <body>
+        Comper<br />
+        <span>
+        <br />
+        The comper component allows you to make a selection across multiple
+        tracks. It is based on the <a href="http://support.apple.com/kb/VI256">quick swipe
+        comping</a> feature in Logic Pro. It can be used to edit together multiple
+        audio or video tracks.
+        
+        <br />
+        <br />
+        </span>
+        <svg>
+        <g id="timeline" transform="translate(20,10)"></g>
+        <g id="waveforms" transform="translate(20,60)"></g>
+        </svg>
+        <script>
+
+var timeline;
+
+
+// first load the sound
+prong.sounds([
+            '../audio/four_devices_android.mp3',
+            '../audio/four_devices_computer.mp3',
+            '../audio/four_devices_ipad.mp3',
+            '../audio/four_devices_iphone.mp3'
+            ], function(buffers){
+ 
+    var width = 800;
+    var x = d3.scale.linear().domain([0, 20]).range([0, width]);
+    timeline = prong.timeline()
+                        .x(x)
+                        .scrollZone(d3.select('svg'));
+
+    d3.select('#timeline').call(timeline);
+
+    var waveform = prong.waveform()
+                        .x(x)
+                        .timeline(timeline); // bound to the timeline
+
+    var tracks = buffers.map(function(buffer){
+        return {
+                    buffer : buffer,
+                    channel : buffer.getChannelData(0)
+                }
+    });
+
+    d3.select('#waveforms')
+        .selectAll('g')
+        .data(tracks)
+        .enter()
+        .append('g')
+        .attr('class','waveform')
+        .attr('transform',function(d,i){
+            return 'translate(0,' + (i * 128) + ')'
+        })
+        .call(waveform)
+
+    var comper = prong.comper().x(x).timeline(timeline);
+    d3.select('#waveforms').selectAll('.waveform').call(comper);
+})
+        </script>
+    </body>
+</html>

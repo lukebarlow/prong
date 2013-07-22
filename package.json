@@ -1,0 +1,13 @@
+{
+  "name": "Prong",
+  "description": "A JavaScript library for web based audio applications",
+  "version": "0.1.0",
+  "dependencies": {
+    "express": "3.x",
+    "socket.io": "latest"
+  },
+  "devDependencies": {
+     "mocha": "latest", 
+     "should": "latest" 
+  }
+}

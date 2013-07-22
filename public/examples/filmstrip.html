@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<html>
+    <head>
+        <script src="../js/d3.v3.js"></script>
+        <script src="../js/prong.js"></script>
+        <style>
+BODY {
+    font-family:helvetica;
+    background-color:#333;
+    color:white;
+    padding:30px;
+}
+
+A { color : steelblue;}
+
+/* timeline */
+
+.timeline path,
+.timeline line {
+  fill: none;
+  stroke: white;
+  shape-rendering: crispEdges;
+}
+
+.timeline text {
+  fill:white;
+  shape-rendering: crispEdges;
+}
+        </style>
+    </head>
+    <body>
+        Filmstrip<br />
+        <span>
+        <br />
+        The filmstrip component is attached to an HTML5 video component, and will extract
+        frames from the video to display them horizontally along a timeline. Like the waveform,
+        the filmstrip can also be bound to a timeline, so that it will redraw itself when
+        you zoom or scroll the timeline.
+        <br />
+        <br />
+        </span>
+
+        <video controls="true" width="400" height="300">
+            <source type="video/ogg" src="../video/guitar_clip.ogg"></source>
+        </video>
+        <br />
+        <span id="scrollZone" style="position:absolute">
+            <svg id="timeline"></svg>
+            <div id="filmstrip"></div>
+        </span>
+        <script>
+
+var timeline;
+var width = 800;
+var x = d3.scale.linear().domain([0, 90]).range([0, width]);
+
+timeline = prong.timeline()
+    .x(x)
+    .scrollZone(d3.select('#scrollZone'));
+
+d3.select('#timeline').call(timeline);
+
+var filmstrip = prong.filmstrip()
+    .video(d3.select('video'))
+    .height(128)
+    .timeline(timeline)
+    .x(x);
+
+d3.select('#filmstrip')
+    .datum({
+        startTime : 0
+    })
+    .call(filmstrip);
+
+        </script>
+    </body>
+</html>
