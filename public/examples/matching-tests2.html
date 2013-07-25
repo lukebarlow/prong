@@ -71,21 +71,7 @@ function waveformY(i){
 }
 
 function applyEffects(channel){
-
-    // var thinned = fx.thinOut(channel, 5000);
-    // thinned[thinned.length-1] = thinned[thinned.length-2];
-    // var min = d3.min(thinned);
-
-    // console.log(min)
-
-    // channel = channel.map(function(d){
-    //     return Math.max(0, d - min)}
-    // );
-
     prong.fx.normalise(channel);
-    //prong.fx.compression(channel, testSettings.compression)
-    
-    
     return channel
 }
 
@@ -111,7 +97,10 @@ function drawLines(container, timeline, tracks, key, colour){
         .call(onsets)
 }
 
-function runTest(test, callback){
+
+function runTestOnTracks(tracks, test){
+
+    var time1 = new Date();
 
     var testContainer = d3.select('#tests').append('svg')
         .style('height', (2*height+20) + 'px');
@@ -125,121 +114,144 @@ function runTest(test, callback){
         .height(height)
         .timeline(timeline);
 
-    prong.sounds([test.a, test.b], function(buffers){
-        // draw the tracks
-        tracks = buffers.map(function(buffer){
-            return {
-                buffer : buffer,
-                channel : applyEffects(buffer.getChannelData(0))
-            }
+    testContainer.append('g').call(timeline);
+    testContainer.append('g').selectAll('g')
+        .data(tracks)
+        .enter()
+        .append('g')
+        .attr('class','waveform')
+        .attr('transform',function(d,i){
+            return 'translate(0,' + waveformY(i) + ')'
         })
+        .call(waveform)
 
-        testContainer.append('g').call(timeline);
-        testContainer.append('g').selectAll('g')
+    var round3 = function(x){return d3.round(x,3)};
+
+    // now work out the onsets
+    tracks.forEach(function(track){
+        var topology = prong.noteOnset(track.channel, track.buffer.sampleRate)
+        var onsetTimes = topology.onsets;
+        var noteOffTimes = topology.noteOffs;
+        var onsetDiffs = d3.map()
+        var decimalPlaces = 3
+
+        var timesToMatch = onsetTimes;
+
+        for (var i=1;i<timesToMatch.length;i++){
+            //var lookBack = Math.min()
+            for (j=1;j<=Math.min(i,200);j++){
+            //for (j=1;j<=(Math.min(i,20));j++){
+                onsetDiffs.set(d3.round(timesToMatch[i]-timesToMatch[i-j],decimalPlaces),d3.round(timesToMatch[i], decimalPlaces));
+            }
+        }
+
+        // console.log('number of diffs')
+        // console.log(onsetDiffs.values().length)
+
+        //track.mins = mins;
+        //track.maxes = topology.maxes.map(function(a){return a.position});
+        track.onsetTimes = onsetTimes;
+        track.noteOffTimes = noteOffTimes;
+        track.minima = topology.minima;
+        track.maxima = topology.maxima;
+        track.onsetDiffs = onsetDiffs;
+    })
+
+    var time = calculateBestStartTimes(tracks);
+
+    function drawLines(key, colour){
+
+        var component = prong.lines()
+            .x(x)
+            .height(height)
+            .timeline(timeline)
+            .colour(colour)
+            .key(key);
+
+        testContainer.append('g')
+            .attr('class','onsets')
+            .selectAll('g')
             .data(tracks)
             .enter()
             .append('g')
-            .attr('class','waveform')
             .attr('transform',function(d,i){
                 return 'translate(0,' + waveformY(i) + ')'
             })
-            .call(waveform)
+            .call(component)
+    }
 
-        var round3 = function(x){return d3.round(x,3)};
+    drawLines('onsetTimes', 'red')
+    drawLines('noteOffTimes', 'green')
+    drawLines('matchingTimes', 'white')
 
-        // now work out the onsets
-        tracks.forEach(function(track){
-            var topology = prong.noteOnset(track.channel, track.buffer.sampleRate)
-            var onsetTimes = topology.onsets;
-            var noteOffTimes = topology.noteOffs;
-            var onsetDiffs = d3.map()
-            var decimalPlaces = 3
-
-            var timesToMatch = onsetTimes;
-
-            for (var i=1;i<timesToMatch.length;i++){
-                //var lookBack = Math.min()
-                for (j=1;j<=Math.min(i,200);j++){
-                //for (j=1;j<=(Math.min(i,20));j++){
-                    onsetDiffs.set(d3.round(timesToMatch[i]-timesToMatch[i-j],decimalPlaces),d3.round(timesToMatch[i], decimalPlaces));
-                }
-            }
-
-            // console.log('number of diffs')
-            // console.log(onsetDiffs.values().length)
-
-            //track.mins = mins;
-            //track.maxes = topology.maxes.map(function(a){return a.position});
-            track.onsetTimes = onsetTimes;
-            track.noteOffTimes = noteOffTimes;
-            track.minima = topology.minima;
-            track.maxima = topology.maxima;
-            track.onsetDiffs = onsetDiffs;
+    testContainer.selectAll('g.waveform')
+        .attr('transform',function(d,i){
+            return 'translate('+x(d.startTime)+',' + waveformY(i) + ')'
         })
 
-        var time = calculateBestStartTimes(tracks);
-
-        function drawLines(key, colour){
-
-            var component = prong.lines()
-                .x(x)
-                .height(height)
-                .timeline(timeline)
-                .colour(colour)
-                .key(key);
-
-            testContainer.append('g')
-                .attr('class','onsets')
-                .selectAll('g')
-                .data(tracks)
-                .enter()
-                .append('g')
-                .attr('transform',function(d,i){
-                    return 'translate(0,' + waveformY(i) + ')'
-                })
-                .call(component)
-        }
-
-        drawLines('onsetTimes', 'red')
-        drawLines('noteOffTimes', 'green')
-        drawLines('matchingTimes', 'pink')
+    timeline.on('change.resize' + prong.uid(), function(){
+        testContainer.selectAll('g.waveform').attr('transform',function(d,i){
+            return 'translate(0,' + waveformY(i) + ')'
+        })
 
         testContainer.selectAll('g.waveform')
-            .attr('transform',function(d,i){
-                return 'translate('+x(d.startTime)+',' + waveformY(i) + ')'
-            })
+            .append('rect')
+            .attr('fill','red')
+            .attr('height',1)
+            .attr('width',width)
+            .attr('x',0)
+            .attr('y',y(-0.15))
+    })
 
-        timeline.on('change.resize' + prong.uid(), function(){
-            testContainer.selectAll('g.waveform').attr('transform',function(d,i){
-                return 'translate(0,' + waveformY(i) + ')'
-            })
+    testContainer.append('text')
+        .attr('width','300')
+        .attr('height','150')
+        .attr('x','150')
+        .attr('y','64')
+        .text(time)
 
-            testContainer.selectAll('g.waveform')
-                .append('rect')
-                .attr('fill','red')
-                .attr('height',1)
-                .attr('width',width)
-                .attr('x',0)
-                .attr('y',y(-0.15))
+    testContainer.style('background-color',
+        time == test.offset ? '#040' : 
+        (Math.abs(time - test.offset) < 0.025) ? '#dd8C00' :
+        (Math.abs(time - test.offset) < 0.05) ? '#aa5C00' :
+        (time == 0) ? 'black' : '#400');
+
+    var time2 = new Date();
+
+    console.log('---- TEST TIMING ----')
+    console.log(test)
+    var testTime = (time2 - time1) / 1000.0
+    console.log('test time ' + testTime)
+
+    var maxDuration = Math.max(tracks[0].buffer.duration, tracks[1].buffer.duration);
+    console.log('max duration ' + maxDuration);
+    console.log('test time per second ' + 1000 * testTime / maxDuration);
+
+}
+
+
+function runTest(test, callback){
+
+    prong.sounds([test.a, test.b], function(buffers){
+
+        prong.fx.bandpassFilter(buffers[0], 5000, 0.1, function(bufferA){
+            prong.fx.bandpassFilter(buffers[1], 5000, 0.1, function(bufferB){
+                // draw the tracks
+                tracks = [
+                    {
+                        buffer : bufferA,
+                        channel : applyEffects(bufferA.getChannelData(0))
+                    },
+                    {
+                        buffer : bufferB,
+                        channel : applyEffects(bufferB.getChannelData(0))
+                    }
+                ]
+                
+                runTestOnTracks(tracks, test);
+                callback();
+            })
         })
-
-        testContainer.append('text')
-            .attr('width','300')
-            .attr('height','150')
-            .attr('x','150')
-            .attr('y','64')
-            .text(time)
-
-        testContainer.style('background-color',
-            time == test.offset ? '#040' : 
-            (Math.abs(time - test.offset) < 0.025) ? '#dd8C00' :
-            (time == 0) ? 'black' : '#400');
-
-        //console.log(tracks);
-
-        //setTimeout(callback, 1000);
-        callback();
-
     })
 }
 
