@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<html>
+    <head>
+        <script src="../js/d3.v3.js"></script>
+        <script src="../js/prong.js"></script>
+        <style>
+BODY {
+    font-family:helvetica;
+    background-color:#333;
+    color:white;
+    height:100%;
+    padding:0;
+    margin:0;
+}
+
+IFRAME {
+    padding:0;
+    margin:0;
+    border-width:0px;
+    width:300px;
+    height:100%;
+    float:left;
+}
+
+#main {
+    padding:50px;
+    padding-left:350px;
+    height:100%
+}
+
+SVG {
+    height:750px;
+}
+
+/* waveform */
+
+.area {
+  fill:steelblue;
+}
+
+.line {
+  stroke:steelblue;
+  fill:none;
+}
+
+/* timeline */
+
+.timeline path,
+.timeline line {
+  fill: none;
+  stroke: white;
+  shape-rendering: crispEdges;
+}
+
+.timeline text {
+  fill:white;
+  shape-rendering: crispEdges;
+}
+
+        </style>
+    </head>
+    <body>
+        <iframe src="../"></iframe>
+        <div id="main">
+        Least Difference<br />
+        <span>
+        <br />
+        Align audio by taking the least difference between the signals
+        <br />
+        <br />
+        </span>
+        <svg>
+            <g id="timeline" transform="translate(10,10)"></g>
+            <g id="tracks" transform="translate(10,30)"></g>
+            <g id="matches" transform="translate(10,500)"></g>
+        </svg>
+        </div>
+        <script>
+
+        var frequencyBands = [600, 11000, 12000, Infinity],
+            //interval = 0.01;
+            interval = 0.1;
+
+        // should be 5.238
+        //prong.sounds(['../audio/four_devices_android.wav', '../audio/four_devices_computer.wav'], 
+
+        // should be 9.841
+        //prong.sounds(['../audio/four_devices_computer.wav', '../audio/four_devices_ipad.wav'], 
+
+        // should be 14.059 - gets 14.047
+        //prong.sounds(['../audio/drumming_android.wav', '../audio/drumming_computer.wav'],
+
+        // should be 7.982
+        //prong.sounds(['../audio/ron_android.wav', '../audio/ron_computer.wav'],
+
+        // should be 0.692 - gets 2.39 FAIL
+        prong.sounds(['../audio/ron_live_laura_clip1.wav', '../audio/ron_live_luke_android_clip1.wav'],
+
+        //prong.sounds(['../audio/ron_live_laura_clip1.wav', '../audio/ron_live_laura_clip1.wav'],
+
+        // should be 41.451 - PASS
+        //prong.sounds(['../audio/ron_live_laura.wav', '../audio/ron_live_luke_android.wav'],
+
+        // should be 64.025 - gets 82.664 - FAIL
+        //prong.sounds(['../audio/ron_live_laura.wav', '../audio/ron_live_alessandra_iphone.wav'],
+
+        // should be 6.73
+        //prong.sounds(['../audio/drumming_computer.wav', '../audio/drumming_windows_phone.wav'],
+
+        // should be 22.438
+        //prong.sounds(['../audio/test1_a.mp3', '../audio/test1_b.mp3'],
+
+
+        //prong.sounds(['../audio/test2_a.mp3', '../audio/test2_b.mp3'],
+
+            function(buffers){
+
+            tracks = buffers.map(function(buffer){
+                return {
+                    buffer : buffer,
+                    channel : buffer.getChannelData(0)
+                }
+            })
+
+            var contourSampleRate = 1/interval;
+            var width = 800,
+                x = d3.scale.linear().domain([0, 20]).range([0, width]),
+                timeline = prong
+                    .timeline()
+                    .x(x)
+                    .scrollZone(d3.select('svg'));
+
+            d3.select('#timeline').call(timeline);
+
+            var waveform = prong.waveform()
+                .x(x)
+                .timeline(timeline); // bound to the timeline
+
+            var contour = prong.contour()
+                .x(x)
+                .height(30)
+                .timeline(timeline)
+                .sampleRate(contourSampleRate)
+
+            var bandOnsetLines = prong.lines()
+                .x(x)
+                .height(30)
+                .timeline(timeline)
+                .colour('red')
+                .key('onsets');
+
+            var waveOnsetLlines = prong.lines()
+                .x(x)
+                .height(128)
+                .timeline(timeline)
+                .colour('red')
+                .key('onsets');
+
+            var onsetsForTrack = [];
+
+            tracks.forEach(function(track, position){
+
+                var buffer = track.buffer,
+                    channel = track.channel;
+
+                var container = d3.select('#tracks')
+                    .append('g')
+                    .attr('transform', 'translate(0,'+(position*(128 + frequencyBands.length * 30))+')')
+
+                container.append('g')
+                    .attr('transform','translate(0,30)')
+                    .datum({
+                        buffer : buffer,
+                        channel : channel
+                    })
+                    .call(waveform);
+
+                var bands = prong.audioMatching.bands(channel, buffer.sampleRate,
+                        interval, frequencyBands)
+
+                bands.forEach(function(band){
+                    prong.fx.localNormalise(band,1.1);
+                })
+
+                track.bands = bands;
+
+                container.append('g')
+                    .attr('transform','translate(0,158)')
+                    .selectAll('g')
+                    .data(bands)
+                    .enter()
+                    .append('g')
+                    .attr('transform',function(d,i){
+                        return 'translate(0,'+(i*30)+')';
+                    })
+                    .call(contour)
+            }) 
+
+            // min overlap in the least difference calculation should be 40%
+            // of the shortest track
+
+            var minOverlap = d3.min(tracks, function(track){
+                return track.buffer.duration
+            }) * 0.40 * contourSampleRate;
+
+            console.log('min overlap is ' + minOverlap)
+
+            var from = 0,
+                highestConfidence = 0,
+                mostConfidentOffset = null;
+
+            var confidenceOfAnswers = d3.map();
+
+            frequencyBands.forEach(function(frequency,i){
+
+                console.log('...............')
+                console.log('frequencies from ' + from + ' to ' + frequency);
+
+                var leastDiffs = prong.leastDifference(tracks[0].bands[i], tracks[1].bands[i], minOverlap);
+
+                //console.log(leastDiffs);
+
+                var values = leastDiffs.values(),
+                    max = d3.min(values),
+                    maxPosition = values.indexOf(max);
+
+                console.log('max position ' + maxPosition);
+
+                var maxOffset = leastDiffs.keys()[maxPosition],
+                    timeOfMax = d3.round((maxOffset / contourSampleRate),2),
+                    confidence = (d3.mean(values) / max);
+
+                console.log('confidence:' + confidence)
+                console.log('time of max:' + timeOfMax)
+
+                if (confidenceOfAnswers.has(timeOfMax)){
+                    confidenceOfAnswers.set(timeOfMax, confidenceOfAnswers.get(timeOfMax) + confidence);
+                }else{
+                    confidenceOfAnswers.set(timeOfMax, confidence);
+                }
+
+                if (confidence > highestConfidence){
+                    highestConfidence = confidence;
+                    mostConfidentOffset = timeOfMax;
+                }
+
+                from = frequency;
+            })
+
+            //console.log(confidenceOfAnswers)
+            console.log('======= MOST CONFIDENT ANSWER ========')
+            var values = confidenceOfAnswers.values();
+            console.log(confidenceOfAnswers.keys()[values.indexOf(d3.max(values))]);
+
+        })
+        </script>
+    </body>
+</html>

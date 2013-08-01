@@ -2,30 +2,14 @@
 <meta charset="utf-8">
 <html>
     <head>
+        <script src="../js/d3.v3.js"></script>
         <script src="../js/prong.js"></script>
         <style>
 BODY {
     font-family:helvetica;
     background-color:#333;
     color:white;
-    height:100%;
-    padding:0;
-    margin:0;
-}
-
-IFRAME {
-    padding:0;
-    margin:0;
-    border-width:0px;
-    width:300px;
-    height:100%;
-    float:left;
-}
-
-#main {
-    padding:50px;
-    padding-left:350px;
-    height:100%
+    padding:30px;
 }
 
 A { color : steelblue;}
@@ -86,16 +70,12 @@ A { color : steelblue;}
         </style>
     </head>
     <body>
-
-        <iframe src="../"></iframe>
-        <div id="main">
-
-        Sequence<br />
+        Sequence - setting the tracks<br />
         <span>
         <br />
-        The sequence component takes an array track dictionaries, and lays these out
-        in a multi-track arrangement with a timeline at the top. It also adds a play line, and
-        has methods for starting and stopping.
+        The tracks setter for the sequence object can be passed a variety of
+        types of data. If you just pass a list of url strings, then it will
+        guess the track type from the file ending.
         <br />
         <br />
         </span>
@@ -104,34 +84,19 @@ A { color : steelblue;}
         <br />
         <br />
         <div id="sequence"></div>
-        </div>
+
         <script>
 
-var tracks = [
-    {
-        'type' : 'audio',
-        'src' : '../audio/four_devices_android.mp3'
-    },
-    {
-        'type' : 'audio',
-        'src' : '../audio/four_devices_computer.mp3'
-    },
-    {
-        'type' : 'audio',
-        'src' : '../audio/four_devices_ipad.mp3'
-    },
-    {
-        'type' : 'audio',
-        'src' : '../audio/four_devices_iphone.mp3'
-    }
-]
+var tracks = [ 
+    '../audio/four_devices_android.mp3',
+    '../audio/four_devices_computer.mp3'
+    ]
 
 var x = d3.scale.linear().domain([0, 30]).range([0, 800]);
 
 sequence = prong.sequence()
     .x(x)
-    .tracks(tracks)
-    .audioOut(prong.audioContext().destination);
+    .tracks(tracks);
 
 d3.select('#sequence').call(sequence);
 

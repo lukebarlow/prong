@@ -2,7 +2,6 @@
 <meta charset="utf-8">
 <html>
 <head>
-    <script src="../js/d3.v3.js"></script>
     <script src="../js/prong.js"></script>
     <script>
 var g1, g2
@@ -41,7 +40,24 @@ BODY {
     font-family:helvetica;
     background-color:#333;
     color:white;
-    padding:30px;
+    height:100%;
+    padding:0;
+    margin:0;
+}
+
+IFRAME {
+    padding:0;
+    margin:0;
+    border-width:0px;
+    width:300px;
+    height:100%;
+    float:left;
+}
+
+#main {
+    padding:50px;
+    padding-left:350px;
+    height:100%
 }
 
 rect {
@@ -57,6 +73,10 @@ circle {
 
 </head>
 <body onload="init()">
+
+<iframe src="../"></iframe>
+        <div id="main">
+
    Slider<br />
    <br />
    A simple slider component, with flexible range and formatting. Emits
@@ -69,5 +89,7 @@ circle {
             <path d="M 0 0 6 0" style="stroke: black; fill: none;"/>
         </pattern>
     <svg>
+
+    </div>
 </body>
 </html>

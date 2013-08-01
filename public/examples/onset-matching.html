@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<html>
+    <head>
+        <script src="../js/d3.v3.js"></script>
+        <script src="../js/prong.js"></script>
+        <style>
+BODY {
+    font-family:helvetica;
+    background-color:#333;
+    color:white;
+    height:100%;
+    padding:0;
+    margin:0;
+}
+
+IFRAME {
+    padding:0;
+    margin:0;
+    border-width:0px;
+    width:300px;
+    height:100%;
+    float:left;
+}
+
+#main {
+    padding:50px;
+    padding-left:350px;
+    height:100%
+}
+
+A { color : steelblue;}
+
+/* waveform */
+
+.area {
+  fill:steelblue;
+}
+
+.line {
+  stroke:steelblue;
+  fill:none;
+}
+
+/* timeline */
+
+.timeline path,
+.timeline line {
+  fill: none;
+  stroke: white;
+  shape-rendering: crispEdges;
+}
+
+.timeline text {
+  fill:white;
+  shape-rendering: crispEdges;
+}
+
+/* comper */
+
+.comp {
+    fill:white;
+    opacity:0.2;
+}
+
+.inbetween {
+  fill:transparent;
+  cursor:hand;
+}
+
+.resizer {
+    fill:red;
+    opacity:0;
+    cursor:ew-resize;
+}
+
+/* play line */
+
+.playLine {
+    background-color:green;
+    width:1px;
+    height:600px;
+    top:0px;
+    position:absolute;
+}
+
+.onset {
+    fill:red;
+}
+
+        </style>
+    </head>
+    <body>
+
+        <iframe src="../"></iframe>
+        <div id="main">
+
+        Onset Matching<br />
+        <span>
+        <br />
+        By looking at the gaps between note onsets, we can align
+        different recordings of the same audio events. The chart of
+        green and blue dots at the bottom shows the relative likelihood
+        of different offsets between the tracks.
+        <br />
+        <br />
+        </span>
+        <button id="play">play</button>
+        <button id="stop">stop</button>
+        <br />
+        <br />
+        <div id="sequence"></div>
+
+        <svg id="matches" height="300"></svg>
+
+        </div>
+        <script>
+
+var tracks = ['../audio/four_devices_android.mp3',
+            '../audio/four_devices_iphone.mp3'];
+
+var x = d3.scale.linear().domain([0, 20]).range([0, 800]);
+
+sequence = prong.sequence()
+    .x(x)
+    .tracks(tracks)
+    .audioOut(prong.audioContext().destination);
+
+d3.select('#sequence').call(sequence);
+
+d3.select('#play').on('click', function(){sequence.play()});
+d3.select('#stop').on('click', function(){
+    if (sequence.playing()){
+        sequence.stop()
+    }else{
+        // if already stopped, then clicking this button resets to zero
+        sequence.currentTime(0);
+    }
+});
+
+sequence.on('load', function(){
+    tracks = sequence.tracks();
+    tracks.forEach(function(track){
+        var topology = prong.noteOnset(track.channel, track.buffer.sampleRate);
+        track.onsetTimes = topology.onsets;
+        track.onsetDiffs = prong.audioMatching.diffs(topology.onsets, 3, 3);
+    })
+    
+    var diffMatches = prong.audioMatching.diffMatches(tracks[0].onsetDiffs,
+        tracks[1].onsetDiffs)
+
+    //console.log(diffMatches.entries())
+
+    var values = diffMatches.values(),
+        maxMatches = d3.max(values),
+        confidence = d3.round(maxMatches / d3.mean(values),2);
+
+    console.log('match confidence :' + confidence)
+
+    function drawMatches(){
+
+        d3.select('#matches').text('')
+
+        d3.select('#matches')
+            .selectAll('circle')
+            .data(diffMatches.entries())
+            .enter()
+            .append('circle')
+            .attr('r',3)
+            .attr('cx',function(d){
+                return x(Math.abs(parseFloat(d.key)));
+            })
+            .attr('cy', function(d){
+                return 300 - (290 / maxMatches * d.value)
+            })
+            .attr('fill', function(d){
+                return (d.value > 1 && d.value == maxMatches) ? 'orange' :
+                                parseFloat(d.key) > 0 ? 'green' : 'blue';
+            })
+    }
+    
+    sequence.timeline().on('change.drawMatches', drawMatches);
+    prong.audioMatching.calculateBestStartTimes(tracks, true);
+    sequence.timeline().fireChange();
+});
+
+
+        </script>
+    </body>
+</html>

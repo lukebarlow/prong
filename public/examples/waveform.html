@@ -2,15 +2,33 @@
 <meta charset="utf-8">
 <html>
     <head>
-        <script src="../js/d3.v3.js"></script>
         <script src="../js/prong.js"></script>
         <style>
 BODY {
     font-family:helvetica;
     background-color:#333;
     color:white;
-    margin:40px;
+    height:100%;
+    padding:0;
+    margin:0;
 }
+
+IFRAME {
+    padding:0;
+    margin:0;
+    border-width:0px;
+    width:300px;
+    height:100%;
+    float:left;
+}
+
+#main {
+    padding:50px;
+    padding-left:350px;
+    height:100%
+}
+
+/*              */
 
 .area {
   fill:steelblue;
@@ -21,13 +39,19 @@ BODY {
   fill:none;
 }
 
+
+
         </style>
     </head>
     <body>
+        <iframe src="../"></iframe>
+        <div id="main">
         Waveform<br />
         <br />
-        Load a sound and display it's waveform.
-        <svg id="waveform"></svg>
+        Load a sound and display it's waveform.<br />
+        <svg id="waveform" height="200"></svg>
+        <div>
+
         <script>
         // first load the sound ...
         prong.sound('../audio/four_devices_android.mp3', function(buffer){

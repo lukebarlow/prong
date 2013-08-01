@@ -57,10 +57,9 @@ IFRAME {
     <body>
         <iframe src="../"></iframe>
         <div id="main">
-        Note onset detection<br />
+        Notes<br />
         <br />
-        You can detect note onsets by looking for jumps in the amplitude
-        of the waveform.<br />
+        We can also get the dominant pitch at each note onset time.<br />
         <br />
         <br />
         <div style="position:absolute;width:1000px;height:400px">
@@ -115,13 +114,40 @@ IFRAME {
                     .call(component);
             }
 
-            // var topology = prong.noteOnset.bumps(channel, buffer.sampleRate);
-            // drawLines(topology, 'onsets', 'red');
+            function drawNotes(datum, key, colour){
+                var component = prong.note()
+                    .x(x)
+                    .height(200)
+                    .timeline(timeline)
+                    .colour(colour)
+                    .key(key);
+
+                d3.select('#onsetsContainer').append('g')
+                    .attr('class','onsets')
+                    .datum(datum)
+                    .call(component);
+            }
+
             // now do the onsets
             prong.noteOnset(channel, buffer.sampleRate, {}, function(topology){
                 var onsetDiffs = prong.audioMatching.diffs(topology.onsets, 3)
                 drawLines(topology, 'onsets', 'red');
+
+                // now go through and for each onset time, calculate the
+                // dominant frequency at that moment
+                var notes = [];
+                topology.onsets.forEach(function(onset){
+                    notes.push([onset, prong.audioMatching.pitchAtTime(channel, buffer.sampleRate, onset)])
+                })
+
+                topology.notes = notes;
+
+                drawNotes(topology, 'notes', 'pink');
+
             })
+
+            
+            
         })
         </script>
     </body>

@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<html>
+    <head>
+        <script src="../js/prong.js"></script>
+        <script src="../js/d3.v3.js"></script>
+        <style>
+BODY {
+    font-family:helvetica;
+    background-color:#333;
+    color:white;
+    height:100%;
+    padding:0;
+    margin:0;
+}
+
+IFRAME {
+    padding:0;
+    margin:0;
+    border-width:0px;
+    width:300px;
+    height:100%;
+    float:left;
+}
+
+#main {
+    padding:50px;
+    padding-left:350px;
+    height:100%
+}
+
+/* waveform */
+
+.area {
+  fill:steelblue;
+}
+
+.line {
+  stroke:steelblue;
+  fill:none;
+}
+
+/* timeline */
+
+.timeline path,
+.timeline line {
+  fill: none;
+  stroke: white;
+  shape-rendering: crispEdges;
+}
+
+.timeline text {
+  fill:white;
+  shape-rendering: crispEdges;
+}
+
+        </style>
+    </head>
+    <body>
+        <iframe src="../"></iframe>
+        <div id="main">
+        Bands and Contours<br />
+        <span>
+        <br />
+        One way of analysing sound which is to break it into frequency
+        bands, and look at the strength of the signal in each band. These
+        can be drawn on the page using the contour component, which can
+        draw any regularly spaced time series of values.
+        <br />
+        <br />
+        </span>
+        <svg>
+        <g id="timeline" transform="translate(10,10)"></g>
+        <g id="waveform" transform="translate(10,30)"></g>
+        <g id="bands" transform="translate(10,150)"></g>
+        </svg>
+        </div>
+        <script>
+        // first load the sound
+        prong.sound('../audio/four_devices_android.mp3', function(buffer){
+            // then create the timeline
+            var width = 800,
+                x = d3.scale.linear().domain([0, 20]).range([0, width]),
+                channel = buffer.getChannelData(0)
+
+            var timeline = prong
+                .timeline()
+                .x(x)
+                .scrollZone(d3.select('svg'));
+            d3.select('#timeline').call(timeline);
+
+            // then a single waveform
+            var waveform = prong.waveform()
+                .x(x)
+                .timeline(timeline); // bound to the timeline
+
+            d3.select('#waveform')
+                .datum({
+                    buffer : buffer,
+                    channel : channel
+                })
+                .call(waveform);
+
+            var interval = 0.01;
+
+            // now the contours which display the banded frequency information
+            var bands = prong.audioMatching.bands(channel, buffer.sampleRate,
+                interval, [60, 440, 800, 990, 1000, 6000, Infinity])
+
+            var contour = prong.contour()
+                .x(x)
+                .height(30)
+                .timeline(timeline)
+                .sampleRate(1/interval)
+
+            d3.select('#bands')
+                .selectAll('g')
+                .data(bands)
+                .enter()
+                .append('g')
+                .attr('transform',function(d,i){
+                    return 'translate(0,'+(i*30)+')';
+                })
+                .call(contour)
+
+
+
+        })
+        </script>
+    </body>
+</html>

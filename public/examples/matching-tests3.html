@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<html>
+    <head>
+        <script src="../js/d3.v3.js"></script>
+        <script src="../js/prong.js"></script>
+        <script src="../js/audioMatchingTests.js"></script>
+        <style>
+BODY {
+    font-family:helvetica;
+    background-color:#333;
+    color:white;
+    padding:0px;
+    margin:0px;
+}
+
+A { color : steelblue;}
+
+
+TEXT {
+    fill:white;
+    font-size:20pt;
+}
+
+BUTTON {
+    position:relative;
+    top:-15px;
+}
+
+.slider TEXT {
+    fill:black;
+    font-size:10pt;
+}
+
+.slider RECT {
+    stroke:white;
+    stroke-width:1;
+}
+
+/* timeline */
+
+.timeline {
+    height:22px;
+    position:absolute; /* making it absolute means it goes over
+                        the waveforms, rather than taking up more 
+                        vertical space */
+}
+
+.timeline path,
+.timeline line {
+  fill: none;
+  stroke: white;
+  shape-rendering: crispEdges;
+}
+
+.timeline text {
+  fill:white;
+  shape-rendering: crispEdges;
+  font-size:8pt;
+}
+
+/* waveform */
+
+.area {
+  fill:steelblue;
+}
+
+.line {
+  stroke:steelblue;
+  fill:none;
+}
+
+.onsets rect {
+    fill:white;
+}
+
+/* play line */
+
+.playLine {
+    background-color:green;
+    width:1px;
+    height:600px;
+    top:0px;
+    position:absolute;
+}
+        </style>
+    </head>
+    <body>
+        <div id="tests"></div>
+        <script>
+
+var height = 200;
+
+var y = d3.scale.linear()
+    .range([height,0])
+    .domain([1,-1]);
+
+var width = 1200;
+
+function waveformY(i){
+    return (10 + i * height)
+}
+
+function applyEffects(channel){
+    prong.fx.normalise(channel);
+    return channel
+}
+
+var tracks;
+
+function drawLines(container, timeline, tracks, key, colour){
+    var component = prong.lines()
+        .x(x)
+        .height(height)
+        .timeline(timeline)
+        .colour('red')
+        .key('onsetTimes');
+
+    testContainer.append('g')
+        .attr('class','onsets')
+        .selectAll('g')
+        .data(tracks)
+        .enter()
+        .append('g')
+        .attr('transform',function(d,i){
+            return 'translate(0,' + waveformY(i) + ')'
+        })
+        .call(onsets)
+}
+
+var testTimesPerSecond = [];
+
+
+function runTest(test, callback){
+
+    // construct a sequence
+    var x = d3.scale.linear().domain([0, 80]).range([0, width]),
+        sequence = prong.sequence()
+            .x(x)
+            .trackHeight(height)
+            .audioOut(prong.audioContext().destination)
+            .tracks([test.a, test.b]);
+
+    // add play and stop buttons
+    var tests = d3.select('#tests');
+
+    var controls = tests.append('div')
+        .style('white-space','nowrap')
+        .style('height','36px')
+        .style('display','none');
+
+    controls.append('button')
+        .text('play')
+        .on('click', function(){
+            sequence.play();
+        })
+
+    controls.append('button')
+        .text('stop')
+        .on('click', function(){
+            if (sequence.playing()){
+                sequence.stop()
+            }else{
+                // if already stopped, then clicking this button resets to zero
+                sequence.currentTime(0);
+            }
+        })
+
+    var sliderContainer = controls.append('svg').attr('height','36');
+
+    var sliderA =  prong.slider()
+                    .domain([0,100])
+                    .width(30)
+                    .height(140)
+                    .horizontal(true)
+                    .format(d3.format('f'))
+                    .on('change', function(value){
+                        sequence.trackVolume(0, value / 100.0);
+                    });
+
+    var sliderB =  prong.slider()
+                    .domain([0,100])
+                    .width(30)
+                    .height(140)
+                    .horizontal(true)
+                    .format(d3.format('f'))
+                    .on('change', function(value){
+                        sequence.trackVolume(1, value / 100.0)
+                    });
+
+    sliderContainer.append('g').attr('transform','translate(20,3)').call(sliderA);
+    sliderContainer.append('g').attr('transform','translate(200,3)').call(sliderB);
+
+    var sequenceContainer = tests.append('div');
+
+    
+    // and then the sequence
+    sequenceContainer.call(sequence);
+
+    sequence.on('load', function(){
+        var tracks = sequence.tracks();
+        var i =0;
+
+        var time1 = new Date();
+
+        tracks.forEach(function(track){
+            prong.noteOnset(track.channel, track.buffer.sampleRate, {}, function(topology){
+                //track.channel = topology.channel;
+                track.onsetDiffs = prong.audioMatching.diffs(topology.onsets, 3)
+                track.onsetTimes = topology.onsets;
+                track.noteOffTimes = topology.noteOffs;
+                i++;
+                if (i>=tracks.length){
+                    var time = prong.audioMatching.calculateBestStartTimes(tracks, false);
+
+                    console.log('diff time')
+                    console.log(time);
+
+                    sequence.timeline().fireChange();
+
+                    sequenceContainer.style('background-color',
+                        time == test.offset ? '#040' : 
+                        (Math.abs(time - test.offset) < 0.025) ? '#dd8C00' :
+                        (Math.abs(time - test.offset) < 0.05) ? '#aa5C00' :
+                        (time == 0) ? 'black' : '#400');
+
+                    var time2 = new Date();
+
+                    // console.log('---- TEST TIMING ----')
+                    // console.log(test)
+                    var testTime = (time2 - time1) / 1000.0
+                    console.log('test time ' + testTime)
+
+                    var totalDuration = d3.sum(tracks, function(track){
+                        return track.buffer.duration;
+                    })
+
+                    // console.log('max duration ' + totalDuration);
+                    // console.log('test time per second ' + 1000 * testTime / totalDuration);
+
+                    testTimesPerSecond.push(1000 * testTime / totalDuration);
+
+                    console.log('test rate')
+                    console.log(1000 * testTime / totalDuration);
+
+                    callback();
+                }
+            })
+        })
+    })
+
+    tracks = sequence.tracks();
+
+    // // now work out the onsets
+    // tracks.forEach(function(track){
+    //     var topology = prong.noteOnset(track.channel, track.buffer.sampleRate);
+    //     track.onsetDiffs = prong.audioMatching.diffs(topology.onsets, 3);
+    //     track.onsetTimes = topology.onsets;
+    //     track.noteOffTimes = topology.noteOffs;
+    // })
+
+    // var time = prong.audioMatching.calculateBestStartTimes(tracks, true);
+
+    // function drawLines(key, colour){
+    //     var component = prong.lines()
+    //         .x(x)
+    //         .height(height)
+    //         .timeline(timeline)
+    //         .colour(colour)
+    //         .key(key);
+
+    //     testContainer.append('g')
+    //         .attr('class','onsets')
+    //         .selectAll('g')
+    //         .data(tracks)
+    //         .enter()
+    //         .append('g')
+    //         .attr('transform',function(d,i){
+    //             return 'translate(0,' + waveformY(i) + ')'
+    //         })
+    //         .call(component);
+    // }
+
+    // drawLines('onsetTimes', 'red')
+    // drawLines('noteOffTimes', 'green')
+    // drawLines('matchingTimes', 'white')
+
+    // testContainer.selectAll('g.waveform')
+    //     .attr('transform',function(d,i){
+    //         return 'translate('+x(d.startTime)+',' + waveformY(i) + ')'
+    //     })
+
+    // timeline.on('change.resize' + prong.uid(), function(){
+    //     testContainer.selectAll('g.waveform').attr('transform',function(d,i){
+    //         return 'translate(0,' + waveformY(i) + ')'
+    //     })
+
+    //     testContainer.selectAll('g.waveform')
+    //         .append('rect')
+    //         .attr('fill','red')
+    //         .attr('height',1)
+    //         .attr('width',width)
+    //         .attr('x',0)
+    //         .attr('y',y(-0.15))
+    // })
+
+    // testContainer.append('text')
+    //     .attr('width','300')
+    //     .attr('height','150')
+    //     .attr('x','150')
+    //     .attr('y','64')
+    //     .text(time)
+
+    // testContainer.style('background-color',
+    //     time == test.offset ? '#040' : 
+    //     (Math.abs(time - test.offset) < 0.025) ? '#dd8C00' :
+    //     (Math.abs(time - test.offset) < 0.05) ? '#aa5C00' :
+    //     (time == 0) ? 'black' : '#400');
+
+    // var time2 = new Date();
+
+
+
+}
+
+
+function runTests(tests){
+    var testIndex = 0;
+
+    function runNextTest(){
+        var test = tests[testIndex];
+        runTest(test, function(){
+            testIndex++;
+            if (testIndex < tests.length){
+                runNextTest();
+            }else{
+                console.log('avg ms test time per second of test audio');
+                console.log(d3.mean(testTimesPerSecond))
+            }
+        })
+    }
+    runNextTest();
+}
+
+runTests(tests);
+
+        </script>
+    </body>
+</html>

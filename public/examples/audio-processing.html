@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<html>
+    <head>
+        <script src="../js/d3.v3.js"></script>
+        <script src="../js/prong.js"></script>
+        <style>
+BODY {
+    font-family:helvetica;
+    background-color:#333;
+    color:white;
+    padding:30px;
+}
+
+A { color : steelblue;}
+
+/* waveform */
+
+.waveform .area {
+  fill:steelblue;
+}
+
+.waveform .line {
+  stroke:steelblue;
+  fill:none;
+}
+
+/* timeline */
+
+.timeline path,
+.timeline line {
+  fill: none;
+  stroke: white;
+  shape-rendering: crispEdges;
+}
+
+.timeline text {
+  fill:white;
+  shape-rendering: crispEdges;
+}
+
+/* comper */
+
+.comp {
+    fill:white;
+    opacity:0.2;
+}
+
+.inbetween {
+  fill:transparent;
+  cursor:hand;
+}
+
+.resizer {
+    fill:red;
+    opacity:0;
+    cursor:ew-resize;
+}
+
+        </style>
+    </head>
+    <body>
+        Audio Processing<br />
+        <span>
+        <br />
+        Prong provides some convenience methods for doing offline processing
+        of audio using the various Web Audio API nodes.
+        <br />
+        <br />
+        </span>
+        <svg>
+        <g id="timeline" transform="translate(20,10)"></g>
+        <g id="waveforms" transform="translate(20,60)"></g>
+        </svg>
+        <script>
+
+var timeline;
+
+var originalBuffer;
+var renderedBuffer;
+var lastEvent;
+
+
+// first load the sound
+prong.sound('../audio/ron_android.wav', function(buffer){
+ 
+    // now create another buffer which is the first one run through
+    // a 5k boosting filter
+
+    var start = new Date();
+
+    prong.fx.bandpassFilter(buffer, 5000, 0.15, function(filteredBuffer){
+
+        var middle = new Date();
+
+        var filteredChannel = filteredBuffer.getChannelData(0)
+        //prong.fx.normalise(filteredChannel);
+
+        var end = new Date();
+
+        console.log('band pass ' + (middle - start));
+        console.log('normalise ' + (end - middle))
+
+        tracks = [
+            {
+                buffer : buffer,
+                channel : buffer.getChannelData(0)
+            },
+            {
+                buffer : filteredBuffer,
+                channel : filteredChannel
+            }
+        ]
+
+        var width = 800;
+        var x = d3.scale.linear().domain([0, 180]).range([0, width]);
+        timeline = prong.timeline()
+                            .x(x)
+                            .scrollZone(d3.select('svg'));
+
+        d3.select('#timeline').call(timeline);
+
+        var waveform = prong.waveform()
+                            .x(x)
+                            .timeline(timeline); // bound to the timeline
+
+        d3.select('#waveforms')
+            .selectAll('g')
+            .data(tracks)
+            .enter()
+            .append('g')
+            .attr('class','waveform')
+            .attr('transform',function(d,i){
+                return 'translate(0,' + (i * 128) + ')'
+            })
+            .call(waveform)
+    });
+
+})
+        </script>
+    </body>
+</html>

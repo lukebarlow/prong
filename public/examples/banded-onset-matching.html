@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<html>
+    <head>
+        <script src="../js/d3.v3.js"></script>
+        <script src="../js/prong.js"></script>
+        <style>
+BODY {
+    font-family:helvetica;
+    background-color:#333;
+    color:white;
+    height:100%;
+    padding:0;
+    margin:0;
+}
+
+IFRAME {
+    padding:0;
+    margin:0;
+    border-width:0px;
+    width:300px;
+    height:100%;
+    float:left;
+}
+
+#main {
+    padding:50px;
+    padding-left:350px;
+    height:100%
+}
+
+SVG {
+    height:750px;
+}
+
+/* waveform */
+
+.area {
+  fill:steelblue;
+}
+
+.line {
+  stroke:steelblue;
+  fill:none;
+}
+
+/* timeline */
+
+.timeline path,
+.timeline line {
+  fill: none;
+  stroke: white;
+  shape-rendering: crispEdges;
+}
+
+.timeline text {
+  fill:white;
+  shape-rendering: crispEdges;
+}
+
+        </style>
+    </head>
+    <body>
+        <iframe src="../"></iframe>
+        <div id="main">
+        Banded Onset Detection<br />
+        <span>
+        <br />
+        It can be useful to perform onset detection separately on the different
+        frequency bands. This way we can pick out more information
+        <br />
+        <br />
+        </span>
+        <svg>
+            <g id="timeline" transform="translate(10,10)"></g>
+            <g id="tracks" transform="translate(10,30)"></g>
+            <g id="matches" transform="translate(10,500)"></g>
+        </svg>
+        </div>
+        <script>
+
+        var frequencyBands = [440, 446, 475, 489, Infinity],
+            interval = 0.01;
+
+        //prong.sounds(['../audio/drumming_android.wav', '../audio/drumming_computer.wav'], 
+        //prong.sounds(['../audio/ron_live_laura.wav', '../audio/ron_live_alessandra_iphone.wav'], 
+        prong.sounds(['../audio/ron_live_laura.wav', '../audio/ron_live_luke_android.wav'], 
+            function(buffers){
+
+            var sampleRate = 1/interval;
+            var width = 800,
+                x = d3.scale.linear().domain([0, 120]).range([0, width]),
+                timeline = prong
+                    .timeline()
+                    .x(x)
+                    .scrollZone(d3.select('svg'));
+
+            d3.select('#timeline').call(timeline);
+
+            var waveform = prong.waveform()
+                .x(x)
+                .timeline(timeline); // bound to the timeline
+
+            var contour = prong.contour()
+                .x(x)
+                .height(30)
+                .timeline(timeline)
+                .sampleRate(sampleRate)
+
+            var bandOnsetLines = prong.lines()
+                .x(x)
+                .height(30)
+                .timeline(timeline)
+                .colour('red')
+                .key('onsets');
+
+            var waveOnsetLlines = prong.lines()
+                .x(x)
+                .height(128)
+                .timeline(timeline)
+                .colour('red')
+                .key('onsets');
+
+            var onsetsForTrack = [];
+
+            buffers.forEach(function(buffer, position){
+                var channel = buffer.getChannelData(0);
+
+                var container = d3.select('#tracks')
+                    .append('g')
+                    .attr('transform', 'translate(0,'+(position*(128 + frequencyBands.length * 30))+')')
+
+                container.append('g')
+                    .attr('transform','translate(0,30)')
+                    .datum({
+                        buffer : buffer,
+                        channel : channel
+                    })
+                    .call(waveform);
+
+                var bands = prong.audioMatching.bands(channel, buffer.sampleRate,
+                        interval, frequencyBands)
+
+                container.append('g')
+                    .attr('transform','translate(0,158)')
+                    .selectAll('g')
+                    .data(bands)
+                    .enter()
+                    .append('g')
+                    .attr('transform',function(d,i){
+                        return 'translate(0,'+(i*30)+')';
+                    })
+                    .call(contour)
+
+                var bandLines = container.append('g')
+                        .attr('transform','translate(0,158)')
+
+                var bandOnsets = []
+
+                bands.forEach(function(data, i){
+                    var topology = prong.noteOnset.bumps(data, sampleRate);
+                    
+                    bandOnsets.push(topology.onsets);
+
+                    bandLines.append('g')
+                        .attr('class','onsets')
+                        .attr('transform', 'translate(0,'+(i*30)+')')
+                        .datum(topology)
+                        .call(bandOnsetLines);
+                })
+
+                onsetsForTrack.push(bandOnsets);
+            }) 
+
+            // now for each band, we do the diff matching between the two
+            // buffers
+
+            frequencyBands.forEach(function(_,i){
+                var trackADiffs = prong.audioMatching.diffs(onsetsForTrack[0][i], 3, 5);
+                var trackBDiffs = prong.audioMatching.diffs(onsetsForTrack[1][i], 3, 5);
+                var matches = prong.audioMatching.diffMatches(trackADiffs, trackBDiffs);
+                console.log(matches);
+
+                var maxMatches = d3.max(matches.values())
+
+                d3.select('#matches')
+                    .append('g')
+                    .attr('transform','translate(0,' + (i*40) + ')')
+                    .selectAll('circle')
+                    .data(matches.entries())
+                    .enter()
+                    .append('circle')
+                    .attr('r',3)
+                    .attr('cx',function(d){
+                        return x(Math.abs(parseFloat(d.key)));
+                    })
+                    .attr('cy', function(d){
+                        return 40 - (38 / maxMatches * (d.value-1))
+                    })
+                    .attr('fill', function(d){
+                        return (d.value > 1 && d.value == maxMatches) ? 'orange' :
+                                parseFloat(d.key) > 0 ? 'green' : 'blue';
+                    })
+                    .on('click', function(d){
+                        console.log(d)
+                    })
+
+
+            })
+
+        })
+        </script>
+    </body>
+</html>

@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<html>
+    <head>
+        <script src="../js/d3.v3.js"></script>
+        <script src="../js/prong.js"></script>
+        <style>
+BODY {
+    font-family:helvetica;
+    background-color:#333;
+    color:white;
+    padding:30px;
+}
+
+A { color : steelblue;}
+
+/* waveform */
+
+.area {
+  fill:steelblue;
+}
+
+.line {
+  stroke:steelblue;
+  fill:none;
+}
+
+/* timeline */
+
+.timeline path,
+.timeline line {
+  fill: none;
+  stroke: white;
+  shape-rendering: crispEdges;
+}
+
+.timeline text {
+  fill:white;
+  shape-rendering: crispEdges;
+}
+
+/* comper */
+
+.comp {
+    fill:white;
+    opacity:0.2;
+}
+
+.inbetween {
+  fill:transparent;
+  cursor:hand;
+}
+
+.resizer {
+    fill:red;
+    opacity:0;
+    cursor:ew-resize;
+}
+
+/* play line */
+
+.playLine {
+    background-color:green;
+    width:1px;
+    height:600px;
+    top:0px;
+    position:absolute;
+}
+
+        </style>
+    </head>
+    <body>
+        Sequence - setting the tracks<br />
+        <span>
+        <br />
+        The tracks setter for the sequence object can be passed a variety of
+        types of data. If you just pass a list of url strings, then it will
+        guess the track type from the file ending.
+        <br />
+        <br />
+        </span>
+        <button id="play">play</button>
+        <button id="stop">stop</button>
+        <br />
+        <br />
+        <div id="sequence"></div>
+        <div id="bands0"></div>
+        .........................
+        <div id="bands1"></div>
+
+        <script>
+
+var tracks = [ 
+    '../audio/four_devices_android.mp3',
+    // '../audio/four_devices_iphone.mp3'
+
+    // '../audio/ron_live_laura_clip1.wav',
+    // '../audio/ron_live_luke_android_clip1.wav'
+
+    //'../audio/drumming_android.wav',
+    //'../audio/drumming_android_clipped2.wav',
+
+    // '../audio/drumming_computer.mp3',
+    // '../audio/drumming_android.mp3',
+
+    ]
+
+var x = d3.scale.linear().domain([0, 16]).range([0, 1200]);
+
+sequence = prong.sequence()
+    .x(x)
+    .tracks(tracks);
+
+d3.select('#sequence').call(sequence);
+d3.select('#play').on('click', function(){sequence.play()});
+d3.select('#stop').on('click', function(){
+    if (sequence.playing()){
+        sequence.stop()
+    }else{
+        // if already stopped, then clicking this button resets to zero
+        sequence.currentTime(0);
+    }
+});
+
+var interval = 0.01;
+
+sequence.on('load', function(){
+    tracks.forEach(function(track){
+        track.bands = prong.audioMatching.bands(track.channel,
+            track.buffer.sampleRate, interval, [60, 440, 2000, 4000, 6000, null])
+
+        console.log(track.bands)
+    })
+
+    // now draw the band lines
+
+    var line = d3.svg.line()
+        .x(function(d,i){
+            return x(i*interval)
+        })
+        .y(function(d){return 30-d*30})
+        .interpolate('linear')
+
+    d3.select('#bands0').append('svg')
+        .attr('height', 15 * 30)
+        .selectAll('g')
+        .data(tracks[0].bands)
+        .enter()
+        .append('g')
+        .attr('transform',function(d,i){
+            return 'translate(0,'+(i*30)+')';
+        })
+        .attr('class','line')
+        .append('path')
+        .attr('d', line);
+
+    // d3.select('#bands1').append('svg')
+    //     .attr('height', 700)
+    //     .selectAll('g')
+    //     .data(tracks[1].bands)
+    //     .enter()
+    //     .append('g')
+    //     .attr('transform',function(d,i){
+    //         return 'translate(0,'+(i*30)+')';
+    //     })
+    //     .attr('class','line')
+    //     .append('path')
+    //     .attr('d', line);
+
+
+
+    // var times = d3.map();
+
+    // tracks[0].bands.forEach(function(print, i){
+    //     var j = tracks[1].bands.indexOf(print)
+    //     if (j > -1){
+    //         console.log('got a match')
+    //         var diff = d3.round(interval * (i-j),3);
+    //         if (times.has(diff)){
+    //             times.set(diff, times.get(diff)+1)
+    //         }else{
+    //             times.set(diff, 1)
+    //         }
+    //     }
+    // })
+
+    // var top = d3.max(times.values()),
+    //     index = times.values().indexOf(top)
+    //     key = times.keys()[index]
+
+    // console.log(key)
+    // console.log(top)
+    // console.log(times)
+
+})
+
+
+
+// do the 
+
+
+
+        </script>
+    </body>
+</html>

@@ -2,14 +2,30 @@
 <meta charset="utf-8">
 <html>
     <head>
-        <script src="../js/d3.v3.js"></script>
         <script src="../js/prong.js"></script>
         <style>
 BODY {
     font-family:helvetica;
     background-color:#333;
     color:white;
-    padding:40px;
+    height:100%;
+    padding:0;
+    margin:0;
+}
+
+IFRAME {
+    padding:0;
+    margin:0;
+    border-width:0px;
+    width:300px;
+    height:100%;
+    float:left;
+}
+
+#main {
+    padding:50px;
+    padding-left:350px;
+    height:100%
 }
 
 /* waveform */
@@ -40,18 +56,25 @@ BODY {
         </style>
     </head>
     <body>
-        Timeline<br />
-        <span>
-        <br />
-        The timeline is a zoomable scrollable time axis. It is modelled on the time axis elements found in the likes of Logic Pro and Cubase. Click and drag vertically to zoom in and out. Hold shift and scroll to move left and right. Note that the
-        waveform is drawn slightly differently as you zoom in.
-        <br />
-        <br />
-        </span>
-        <svg>
-        <g id="timeline" transform="translate(10,10)"></g>
-        <g id="waveform" transform="translate(10,30)"></g>
-        </svg>
+
+        <iframe src="../"></iframe>
+
+        <div id="main">
+
+            Timeline<br />
+            <span>
+            <br />
+            The timeline is a zoomable scrollable time axis. It is modelled on the time axis elements found in the likes of Logic Pro and Cubase. Click and drag vertically to zoom in and out. Hold shift and scroll to move left and right. Note that the
+            waveform is drawn slightly differently as you zoom in.
+            <br />
+            <br />
+            </span>
+            <svg>
+            <g id="timeline" transform="translate(10,10)"></g>
+            <g id="waveform" transform="translate(10,30)"></g>
+            </svg>
+        </div>
+
         <script>
         // first load the sound
         prong.sound('../audio/four_devices_android.mp3', function(buffer){
@@ -59,14 +82,14 @@ BODY {
             var width = 800;
             var x = d3.scale.linear().domain([0, 20]).range([0, width]);
             var timeline = prong
-                                .timeline()
-                                .x(x)
-                                .scrollZone(d3.select('svg'));
+                .timeline()
+                .x(x)
+                .scrollZone(d3.select('svg'));
             d3.select('#timeline').call(timeline);
             // then a single waveform
             var waveform = prong.waveform()
-                                .x(x)
-                                .timeline(timeline); // bound to the timeline
+                .x(x)
+                .timeline(timeline); // bound to the timeline
             d3.select('#waveform')
                 .datum({
                     buffer : buffer,

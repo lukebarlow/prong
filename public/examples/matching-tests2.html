@@ -11,7 +11,8 @@ BODY {
     font-family:helvetica;
     background-color:#333;
     color:white;
-    padding:30px;
+    padding:0px;
+    margin:0px;
 }
 
 A { color : steelblue;}
@@ -58,7 +59,7 @@ TEXT {
         <script>
 
 
-var height = 32;
+var height = 16;
 
 var y = d3.scale.linear()
     .range([height,0])
@@ -125,42 +126,17 @@ function runTestOnTracks(tracks, test){
         })
         .call(waveform)
 
-    var round3 = function(x){return d3.round(x,3)};
-
     // now work out the onsets
     tracks.forEach(function(track){
-        var topology = prong.noteOnset(track.channel, track.buffer.sampleRate)
-        var onsetTimes = topology.onsets;
-        var noteOffTimes = topology.noteOffs;
-        var onsetDiffs = d3.map()
-        var decimalPlaces = 3
-
-        var timesToMatch = onsetTimes;
-
-        for (var i=1;i<timesToMatch.length;i++){
-            //var lookBack = Math.min()
-            for (j=1;j<=Math.min(i,200);j++){
-            //for (j=1;j<=(Math.min(i,20));j++){
-                onsetDiffs.set(d3.round(timesToMatch[i]-timesToMatch[i-j],decimalPlaces),d3.round(timesToMatch[i], decimalPlaces));
-            }
-        }
-
-        // console.log('number of diffs')
-        // console.log(onsetDiffs.values().length)
-
-        //track.mins = mins;
-        //track.maxes = topology.maxes.map(function(a){return a.position});
-        track.onsetTimes = onsetTimes;
-        track.noteOffTimes = noteOffTimes;
-        track.minima = topology.minima;
-        track.maxima = topology.maxima;
-        track.onsetDiffs = onsetDiffs;
+        var topology = prong.noteOnset(track.channel, track.buffer.sampleRate);
+        track.onsetDiffs = prong.audioMatching.diffs(topology.onsets, 3);
+        track.onsetTimes = topology.onsets;
+        track.noteOffTimes = topology.noteOffs;
     })
 
-    var time = calculateBestStartTimes(tracks);
+    var time = prong.audioMatching.calculateBestStartTimes(tracks, true);
 
     function drawLines(key, colour){
-
         var component = prong.lines()
             .x(x)
             .height(height)
@@ -177,7 +153,7 @@ function runTestOnTracks(tracks, test){
             .attr('transform',function(d,i){
                 return 'translate(0,' + waveformY(i) + ')'
             })
-            .call(component)
+            .call(component);
     }
 
     drawLines('onsetTimes', 'red')
@@ -231,28 +207,25 @@ function runTestOnTracks(tracks, test){
 
 
 function runTest(test, callback){
-
     prong.sounds([test.a, test.b], function(buffers){
-
-        prong.fx.bandpassFilter(buffers[0], 5000, 0.1, function(bufferA){
-            prong.fx.bandpassFilter(buffers[1], 5000, 0.1, function(bufferB){
+        prong.fx.bandpassFilter(buffers[0].getChannelData(0), buffers[0].sampleRate, 5000, 0.1, function(bufferA){
+            prong.fx.bandpassFilter(buffers[1].getChannelData(0), buffers[1].sampleRate, 5000, 0.1, function(bufferB){
                 // draw the tracks
                 tracks = [
                     {
-                        buffer : bufferA,
-                        channel : applyEffects(bufferA.getChannelData(0))
+                        buffer : buffers[0],
+                        channel : applyEffects(bufferA)
                     },
                     {
-                        buffer : bufferB,
-                        channel : applyEffects(bufferB.getChannelData(0))
+                        buffer : buffers[1],
+                        channel : applyEffects(bufferB)
                     }
                 ]
-                
                 runTestOnTracks(tracks, test);
                 callback();
-            })
-        })
-    })
+            });
+        });
+    });
 }
 
 
