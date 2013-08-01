@@ -84,7 +84,7 @@ BUTTON {
         </div>
         <script>
 
-        var height = 10,
+        var height = 20,
             width = 800,
             frequencyBands = [600, 11000, 12000, Infinity],
             interval = 0.03;
@@ -168,7 +168,9 @@ BUTTON {
             sliderContainer.append('g').attr('transform','translate(200,3)').call(sliderB);
             /////////////////// end of controls //////
 
-            var testContainer = tests.append('div').call(sequence);
+            var testContainer = tests.append('div')
+                .style('height', (60 + 2*height) + 'px')
+                .call(sequence);
 
             sequence.on('load', function(){
                 var testResult = prong.audioMatching.matchLeastDiff(sequence.tracks(), interval, frequencyBands);

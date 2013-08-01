@@ -372,7 +372,7 @@ function matchLeastDiff(tracks, interval, frequencyBands){
         // match each track to the first track
         frequencyBands.forEach(function(frequency,j){
             // assumes two tracks
-            var ret = leastDifference(tracks[0].bands[j], tracks[i].bands[j], 0.4),
+            var ret = leastDifference(tracks[0].bands[j], tracks[i].bands[j], 0.5),
                 timeOfMax = d3.round(ret.offset / contourSampleRate, 2);
             confidenceOfAnswers.add(timeOfMax, ret.confidence);
         })
