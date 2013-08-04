@@ -18,12 +18,10 @@ module.exports = function(){
         timelineHeight = 40,
         dispatch = d3.dispatch('scrub','change','play','stop','tick','load','volumeChange');
 
-    
-
     function setPlaylinePosition(){
         // the -1 in the next line ensures the play line is not directly
         // underneath the mouse, so you can click on tracks when scrubbing
-        playLine.style('left', (sequence.x()(currentTime) - 1) + 'px');
+        playLine.style('left', (sequence.x()(currentTime) - 2) + 'px');
     }
 
 	function sequence(_element){
@@ -210,14 +208,13 @@ module.exports = function(){
         playing = true;
         dispatch.play(currentTime);
         var x = sequence.x();
-            endTime = end || x.domain()[1],
             startTimestamp = Date.now(),
             startTime = currentTime;
 
         d3.timer(function(){
             currentTime = ((Date.now() - startTimestamp) / 1000) + startTime;
             setPlaylinePosition();
-            if (currentTime > endTime){
+            if (end && currentTime > end){
                 sequence.stop();
                 return true;
             }else{

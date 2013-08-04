@@ -233,7 +233,7 @@ module.exports = function(){
 
             dispatch.change();
             if (historyTracker){
-                historyTracker.set(encoder.stringify(editList))
+                historyTracker.set(encoder.stringify(editList), 'change edit')
             }
         }
     }

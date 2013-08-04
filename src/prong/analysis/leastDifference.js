@@ -14,13 +14,8 @@ function meanDiff(a, b){
 // calculate the offset between 2 arrays which gives the smallest average
 // difference between values
 module.exports = function(a, b, overlapRatio){
-    var minOverlap = parseInt(d3.min([a.length, b.length]) * overlapRatio);
-
-    // var diffs = d3.map(),
-    //     i = 0,
-    //     vals = []
-
-    var min = Infinity,
+    var minOverlap = parseInt(d3.min([a.length, b.length]) * overlapRatio),
+        min = Infinity,
         minOffset = null,
         totalOffset = 0,
         count = 0;
@@ -37,16 +32,13 @@ module.exports = function(a, b, overlapRatio){
     // the stage where b is to the left of a
     var offsets = d3.range(minOverlap-b.length,-1)
     offsets.forEach(function(offset){
-
         var val = meanDiff(
             a.slice(0, b.length+offset),
             b.slice(-offset)
         )
-
         checkValue(val, offset);
 
         // vals.push(val)
-
         // diffs.set(offset, val)
     })
 
@@ -60,7 +52,6 @@ module.exports = function(a, b, overlapRatio){
     checkValue(val, 0);
 
     // vals.push(val)
-
     // diffs.set(0, val)
 
     offsets = d3.range(1,a.length-minOverlap);

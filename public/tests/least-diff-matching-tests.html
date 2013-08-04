@@ -71,12 +71,13 @@ BUTTON {
         </style>
     </head>
     <body>
-        <iframe src="../"></iframe>
+        <iframe src="./"></iframe>
         <div id="main">
         Least Difference Audio Matching<br />
         <span>
         <br />
-        Test a number of different pairs of sounds
+        Match two audio clips by finding the relative position where the difference
+        between the waveforms is least.
         <br />
         <br />
         </span>
@@ -87,7 +88,7 @@ BUTTON {
         var height = 20,
             width = 800,
             frequencyBands = [600, 11000, 12000, Infinity],
-            interval = 0.03;
+            interval = 0.1;
 
         var passes = 0, fails = 0,
             testIndex = 0,
@@ -173,7 +174,17 @@ BUTTON {
                 .call(sequence);
 
             sequence.on('load', function(){
+
+                var start = new Date();
+
                 var testResult = prong.audioMatching.matchLeastDiff(sequence.tracks(), interval, frequencyBands);
+
+                var end = new Date(),
+                    testTime = end - start,
+                    totalAudioTime = d3.sum(sequence.tracks(), function(track){return track.buffer.duration}),
+                    testRate = testTime / totalAudioTime;
+
+                testRates.push(testRate);
 
                 sequence.timeline().fireChange();
 
@@ -184,10 +195,13 @@ BUTTON {
                     miss == 0 ? '#040' : 
                     (miss < 0.025) ? '#dd8C00' :
                     (miss < 0.05) ? '#aa5C00' :
+                    (miss < 0.5) ? 'pink' :
                     (testResult == 0) ? 'black' : '#400');
 
                 console.log(test.offset + ' - ' + testResult + '(' + d3.round(miss,2) + ') / ' + (passed ? 'PASS' : 'FAIL'));
+                console.log('test rate : ' + testRate);
                 passed ? passes++ : fails++;
+
 
                 callback();
             })

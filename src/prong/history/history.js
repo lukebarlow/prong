@@ -24,7 +24,7 @@ module.exports = function(id){
         }
     }
 
-    function set(value){
+    function set(value, description){
         suppressEvents = true;
         var hash = unescape(window.location.hash)
         var re = new RegExp("([#|&])" + id + "=.*?(&|$)", "i");
@@ -34,7 +34,10 @@ module.exports = function(id){
         }else {
             hash += separator + id + "=" + value;
         }
+        var currentTitle = window.document.title;
+        if (description) window.document.title = currentTitle + ' - ' + description;
         window.location.hash = hash;
+        if (description) window.document.title = currentTitle;
         suppressEvents = false;
     }
 

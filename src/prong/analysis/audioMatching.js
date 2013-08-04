@@ -136,7 +136,6 @@ function calculateBestStartTimes(tracks, withMatchedTimes){
           return s / (n - 1);
         };
 
-
         var values = timeDiffs.values()
         var maxMatches = d3.max(values)
         var variance = calcVariance(values);
@@ -339,6 +338,9 @@ function matchLeastDiff(tracks, interval, frequencyBands){
 
     var contourSampleRate = 1/interval;
 
+    console.log('the band bit')
+    var t1 = new Date();
+
     // first get the bands for each track
     tracks.forEach(function(track, position){
         var buffer = track.buffer,
@@ -352,11 +354,8 @@ function matchLeastDiff(tracks, interval, frequencyBands){
         })
     });
 
-    // do the least diff matching, and sum the confidences
-
-    var from = 0,
-        highestConfidence = 0,
-        mostConfidentOffset = null;
+    console.log('the diff bit')
+    var t2 = new Date();
 
     tracks.forEach(function(track){
         track.previousStartTime = track.startTime || 0;
@@ -380,6 +379,15 @@ function matchLeastDiff(tracks, interval, frequencyBands){
         mostConfident = confidenceOfAnswers.most();
         tracks[i].startTime = parseFloat(mostConfident.key);
     }
+
+    var t3 = new Date(),
+        bandTime = t2 - t1,
+        diffTime = t3 - t2,
+        ratio = d3.round(diffTime / bandTime, 2);
+
+    console.log('band time : ' + bandTime);
+    console.log('diff time : ' + diffTime);
+    console.log('ratio : ' + ratio);
 
     // finally, we move all start times forward so the earliest track
     // starts at zero
