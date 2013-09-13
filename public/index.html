@@ -1,6 +1,13 @@
 <!DOCTYPE html>
 <meta charset="utf-8">
 <html>
+ <script>
+        // must have the slash on the end. Redirects if it doesn't
+        var path = location.pathname;
+        if (path.substr(path.length-1) != '/'){
+            location.href = path + '/' + location.hash + location.search;
+        }
+    </script>
     <head> 
 <style>
 BODY {

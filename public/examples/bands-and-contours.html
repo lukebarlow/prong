@@ -65,7 +65,13 @@ IFRAME {
         Sound can be analysed by breaking it into frequency
         bands and looking at the strength of the signal in each band. These
         can be drawn on the page using the contour component, which
-        draws any regularly spaced time series of values.
+        draws any regularly spaced time series of values. Here we show a sound
+        file split into the following bands:<br />
+        <br />
+        0 - 600 Hz,<br />
+        600 - 800,<br />
+        800 - 15000,<br />
+        15000 - Infinity.
         <br />
         <br />
         </span>
@@ -77,7 +83,7 @@ IFRAME {
         </div>
         <script>
         // first load the sound
-        prong.sound('../audio/four_devices_android.mp3', function(buffer){
+        prong.sound('../audio/four_devices_iphone.wav', function(buffer){
             // then create the timeline
             var width = 800,
                 x = d3.scale.linear().domain([0, 20]).range([0, width]),
@@ -101,15 +107,25 @@ IFRAME {
                 })
                 .call(waveform);
 
-            var interval = 0.01;
+            //var interval = 0.01;
+            var interval = 1024 / 44100;
 
+            console.log('starting bands')
+
+
+            var start = new Date();
             // now the contours which display the banded frequency information
             var bands = prong.audioMatching.bands(channel, buffer.sampleRate,
-                interval, [60, 440, 800, 990, 1000, 6000, Infinity])
+                interval, [600, 800, 1500, Infinity])
+
+            var end = new Date();
+            console.log('end of bands')
+
+            console.log(end - start);
 
             var contour = prong.contour()
                 .x(x)
-                .height(30)
+                .height(50)
                 .timeline(timeline)
                 .sampleRate(1/interval)
 
@@ -119,7 +135,7 @@ IFRAME {
                 .enter()
                 .append('g')
                 .attr('transform',function(d,i){
-                    return 'translate(0,'+(i*30)+')';
+                    return 'translate(0,'+(i*50)+')';
                 })
                 .call(contour)
 

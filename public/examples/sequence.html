@@ -110,27 +110,64 @@ A { color : steelblue;}
 var tracks = [
     {
         'type' : 'audio',
-        'src' : '../audio/four_devices_android.mp3'
+        'src' : '../audio/nino_rota/sax1.mp3'
     },
     {
         'type' : 'audio',
-        'src' : '../audio/four_devices_computer.mp3'
+        'src' : '../audio/nino_rota/sax2.mp3'
     },
     {
         'type' : 'audio',
-        'src' : '../audio/four_devices_ipad.mp3'
+        'src' : '../audio/nino_rota/french_horn.mp3'
     },
     {
         'type' : 'audio',
-        'src' : '../audio/four_devices_iphone.mp3'
+        'src' : '../audio/nino_rota/oboe.mp3'
+    },
+    {
+        'type' : 'audio',
+        'src' : '../audio/nino_rota/clarinet.mp3'
+    },
+    {
+        'type' : 'audio',
+        'src' : '../audio/nino_rota/flute.mp3'
+    },
+    {
+        'type' : 'audio',
+        'src' : '../audio/nino_rota/snare.mp3'
+    },
+    {
+        'type' : 'audio',
+        'src' : '../audio/nino_rota/trombone.mp3'
+    },
+    {
+        'type' : 'audio',
+        'src' : '../audio/nino_rota/muted_trumpet.mp3'
+    },
+    {
+        'type' : 'audio',
+        'src' : '../audio/nino_rota/trumpet.mp3'
+    },
+    {
+        'type' : 'audio',
+        'src' : '../audio/nino_rota/tuba.mp3'
+    },
+    {
+        'type' : 'audio',
+        'src' : '../audio/nino_rota/bass_drum.mp3'
+    },
+    {
+        'type' : 'audio',
+        'src' : '../audio/nino_rota/cymbals.mp3'
     }
 ]
 
-var x = d3.scale.linear().domain([0, 30]).range([0, 800]);
+var x = d3.scale.linear().domain([0, 60]).range([0, 800]);
 
 sequence = prong.sequence()
     .x(x)
     .tracks(tracks)
+    .trackHeight(30)
     .audioOut(prong.audioContext().destination);
 
 d3.select('#sequence').call(sequence);
