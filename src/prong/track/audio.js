@@ -2,6 +2,7 @@ var commonProperties = require('../commonProperties'),
     sound = require('../sound').sound,
     Waveform = require('../components/waveform'),
     Onsets = require('../components/onsets'),
+    //Lines = require('../components/lines'),
     Note = require('../components/note');
 
 // audioTrack is responsible for drawing out the audio tracks. This is a
@@ -48,8 +49,8 @@ module.exports = function(){
             div.append('span').text(d.name).attr('class','trackName');
     
             var svg = div.append('svg')
-                        .attr('height',height)
-                        .attr('width',width);
+                .attr('height',height)
+                .attr('width',width);
 
             var src = d.audioSrc || d.src;
 
@@ -97,7 +98,7 @@ module.exports = function(){
                 source.connect(gain);
                 gain.connect(audioOut);
 
-                var timeOffset = sequence.currentTime() - d.startTime,
+                var timeOffset = sequence.currentTime() - (d.startTime || 0),
                     when = timeOffset < 0 ? audioContext.currentTime - timeOffset : 0,
                     offset = timeOffset > 0 ? timeOffset : 0;
 
