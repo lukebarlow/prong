@@ -69,6 +69,20 @@ module.exports = function(){
         dispatch.change(x);
     }
 
+    function updateMinorLines(x){
+        // minor lines disapped in d3 version 3, so have to be done explicitly
+        var minorLines = selection.selectAll('line.minor').data(x.ticks(64), function(d) { return d; })
+            minorLines.attr('x1', x).attr('x2', x);
+            minorLines.enter()
+                .append('line')
+                .attr('class', 'minor')
+                .attr('y1', 0)
+                .attr('y2', 5)
+                .attr('x1', x)
+                .attr('x2', x);
+            minorLines.exit().remove()
+    }
+
     function timeline(_selection){
         selection = _selection;
         var x = timeline.x();
@@ -116,9 +130,11 @@ module.exports = function(){
             timeline.x(x);
             setSecondsFormatter();
             selection.call(axis.scale(x));
+            updateMinorLines(x);
             dispatch.change(x);
         }
 
+        
         function dragEnd(){
             dragging = false;
             d3.select(window)
@@ -130,9 +146,8 @@ module.exports = function(){
 
         selection.attr('class','timeline')
             .attr('width',width)
-            // .attr('height',20)
-            // .style('overflow', 'visible')
             .call(axis);
+        updateMinorLines(x);
 
         var axisOverlay = selection.append('rect')
             .attr('class','timelineOverlay')
@@ -153,12 +168,14 @@ module.exports = function(){
 
     timeline.fireChange = function(){
         dispatch.change();
+        timeline.redraw();
     }
 
     timeline.redraw = function(){
         var x = timeline.x();
         setSecondsFormatter();
         selection.call(axis.scale(x));
+        updateMinorLines(x);
         return timeline;
     }
 
