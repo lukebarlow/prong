@@ -1,6 +1,6 @@
 // sets up a getter, setter and change listener for a particular 
 // parameter in the url hash string
-module.exports = function(id){
+module.exports = function(id, codec){
 
     var current = get();
     var dispatch = d3.dispatch('change');
@@ -16,15 +16,18 @@ module.exports = function(id){
         var hash = unescape(window.location.hash)
         var re = new RegExp("[#|&]" + id + "=(.*?)(&|$)", "i");
         separator = hash.indexOf('#') !== -1 ? "&" : "#";
-        var match = hash.match(re)
-        if (match) {
-            return match[1];
-        }else {
-            return false
-        }
+        var match = hash.match(re),
+            value = match ? match[1] : null;
+        if (codec) value = codec.parse(value);
+        return value;
     }
 
+    // set the given value on this history token. If a codec is present, then
+    // the value will be stringified with the codec first.
+    // The description is used to temporarily set the title of the browser
+    // while changing the url, so this title will show up in history
     function set(value, description){
+        if (codec) value = codec.stringify(value)
         suppressEvents = true;
         var hash = unescape(window.location.hash)
         var re = new RegExp("([#|&])" + id + "=.*?(&|$)", "i");
