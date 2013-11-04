@@ -10,7 +10,7 @@ module.exports = {
 function sound(url, callback){
     var request = new XMLHttpRequest;
     request.open('GET', url, true);
-    request.responseType = 'arraybuffer'
+    request.responseType = 'arraybuffer';
     request.onload = function(){
         var s = request.status
         audioContext.decodeAudioData(request.response, function(buffer){
