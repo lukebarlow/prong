@@ -64,20 +64,45 @@ function localNormalise(data, gainRatio){
 // number of elements, each element being the maximum of a group of 4 of the
 // original array.
 function thinOut(data, thinningFactor, aggregator){
-    if (thinningFactor == 1) return data;
-    aggregator = aggregator || d3.max;
-    if (typeof(aggregator) == 'string'){
-        aggregator = {
-            max : d3.max,
-            first : function(d){return d[0]}
-        }[aggregator]
-    }
 
-    var thinnedArray = [];
-    for (var i=0;i<data.length;i+=thinningFactor){
-        thinnedArray.push(aggregator(data.slice(i,i+thinningFactor)));
+    if (thinningFactor == 1) return data;
+
+    // for the max aggregator (the default) we have a custom code path
+    if(!aggregator || aggregator == 'max' || aggregator == d3.max){
+        var thinnedArray = [],
+            i = -1,
+            j = 1,
+            n = data.length,
+            max = 0;
+
+        while (++i < n){
+            if (data[i] > max){max = data[i]};
+            j++;
+            if (j == thinningFactor){
+                j = 0;
+                thinnedArray.push(max);
+                max = 0;
+            }
+        }
+
+        return thinnedArray;
+
+    // for other aggregators we have a more generic approach
+    }else{
+
+        if (typeof(aggregator) == 'string'){
+            aggregator = {
+                first : function(d){return d[0]}
+            }[aggregator]
+        }
+
+        var thinnedArray = [];
+        for (var i=0;i<data.length;i+=thinningFactor){
+            thinnedArray.push(aggregator(data.slice(i,i+thinningFactor)));
+        }
+        return thinnedArray;
+
     }
-    return thinnedArray;
 }
 
 // async method. Applies a band pass filter of specified frequency and Q value
