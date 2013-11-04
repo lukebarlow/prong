@@ -5,33 +5,13 @@ module.exports = function(){
         height = 100,
         horizontal = false,
         scale = d3.scale.linear().range(0,height).clamp(true),
-        text,
         format = d3.format('.2f'),
-        circle,
         dispatch = d3.dispatch('change','end'),
         prefix = '',
         title = '',
+        circle, 
+        text,
         value;
-
-    function dragmove(e){
-        if (!dragging) return;
-        if (horizontal){
-            var x = scale(scale.invert(d3.event.x))
-            circle.attr('cx', x);
-            value = scale.invert(d3.event.x);
-            text.text(prefix + format(value));
-            text.attr('x', x);
-        }else{
-            var y = scale(scale.invert(d3.event.y))
-            circle.attr('cy', y);
-            value = scale.invert(d3.event.y);
-            text.text(prefix + format(value));
-            text.attr('y', y + 6);
-        }
-        
-        dispatch.change(value);
-        d3.event.sourceEvent.stopPropagation();
-    }
 
     function dragstart(e){
         dragging = true;
@@ -45,20 +25,21 @@ module.exports = function(){
     }
 
     /* the main function */
-    function slider(g){
-        g.each(function() {
+    function slider(selection){
+        selection.each(function() {
             var g = d3.select(this);
             
-            g.attr('class','slider')
+            g.attr('class','slider');
 
             var drag = d3.behavior.drag()
                     .on('dragstart',dragstart)
                     .on('drag',dragmove)
-                    .on('dragend',dragend)
+                    .on('dragend',dragend);
+            
 
-            var middle = d3.mean(scale.range())
+            var middle = d3.mean(scale.range());
             value = scale.invert(middle)
-            var height = Math.abs(scale.range()[0] - scale.range()[1])
+            var height = Math.abs(scale.range()[0] - scale.range()[1]);
 
             if (horizontal){
                 g.append('rect')
@@ -109,6 +90,28 @@ module.exports = function(){
                     .text(prefix + format(scale.invert(middle)))
                     .call(drag)
             }
+
+            function dragmove(d, i){
+
+                if (!dragging) return;
+                if (horizontal){
+                    var x = scale(scale.invert(d3.event.x))
+                    circle.attr('cx', x);
+                    value = scale.invert(d3.event.x);
+                    text.text(prefix + format(value));
+                    text.attr('x', x);
+                }else{
+                    var y = scale(scale.invert(d3.event.y))
+                    circle.attr('cy', y);
+                    value = scale.invert(d3.event.y);
+                    text.text(prefix + format(value));
+                    text.attr('y', y + 6);
+                }
+                
+                dispatch.change(value);
+                d3.event.sourceEvent.stopPropagation();
+            }
+
         });
     }
 
