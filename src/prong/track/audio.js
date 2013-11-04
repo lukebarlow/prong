@@ -46,11 +46,25 @@ module.exports = function(){
 
             if (!('volume' in d)) d.volume = 1;
 
-            div.append('span').text(d.name).attr('class','trackName');
+            div.append('span').text(prong.trackName).attr('class','trackName');
     
             var svg = div.append('svg')
                 .attr('height',height)
-                .attr('width',width);
+                .attr('width',width)
+                .on('mouseover', function(d){
+                    d3.select(this).classed('over', true);
+                    d.over = true;
+                })
+                .on('mouseout', function(d){
+                    d3.select(this).classed('over', false);
+                    d.over = false;
+                })
+                .each(function(d){
+                    var thiz = d3.select(this);
+                    d.watch('over', function(){
+                        thiz.classed('over', d.over);
+                    })
+                });
 
             var src = d.audioSrc || d.src;
 
@@ -63,7 +77,7 @@ module.exports = function(){
                     .height(height)
                     .timeline(sequence.timeline());
 
-                svg.datum(d).call(waveform);
+                svg.call(waveform);
                 dispatch.load(d);
 
                 var onsets = Onsets()
@@ -79,7 +93,7 @@ module.exports = function(){
                     .colour('pink')
                     .key('notes');
 
-                svg.call(note)
+                svg.call(note);
 
             });
 
@@ -87,16 +101,43 @@ module.exports = function(){
 
             sequence.on('play.audio'+uid, function(){
                 var audioOut = sequence.audioOut();
-                if (!audioOut) return;
+                if (!audioOut || !d.buffer) return;
                 var audioContext = prong.audioContext();
                 var source = audioContext.createBufferSource();
                 source.buffer = d.buffer;
                 
                 var gain = audioContext.createGain();
-                gain.gain.value = d.volume;
+                var panner = audioContext.createPanner();
+
+                function setVolume(){
+                    gain.gain.value = d.volume / 100.0;
+                }
+
+                d.watch('volume', function(){
+                    setVolume();
+                });
+
+                setVolume();
+
+                function setPan(){
+                    // pan numbers are between -64 and +63. We convert this
+                    // into an angle in radians, and then into an x,y position
+                    var angle = d.pan / 64 * Math.PI * 0.5,
+                        x = Math.sin(angle) / 2,
+                        y = Math.cos(angle) / 2;
+
+                    panner.setPosition(x, y, 0);
+                }
+
+                d.watch('pan', function(){
+                    setPan();
+                })
+
+                setPan();
 
                 source.connect(gain);
-                gain.connect(audioOut);
+                gain.connect(panner);
+                panner.connect(audioOut);
 
                 var timeOffset = sequence.currentTime() - (d.startTime || 0),
                     when = timeOffset < 0 ? audioContext.currentTime - timeOffset : 0,
@@ -116,7 +157,7 @@ module.exports = function(){
             });
 
             sequence.on('volumeChange.audio'+uid, function(){
-                d.gain.gain.value = d.volume;
+                d.gain.gain.value = d.volume / 100.0;
             })
 
         })
