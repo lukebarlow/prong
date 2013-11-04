@@ -3,6 +3,7 @@
 <html>
     <head>
         <script src="../js/prong.js"></script>
+        
         <style>
 BODY {
     font-family:helvetica;
@@ -94,44 +95,44 @@ IFRAME {
                 .timeline()
                 .x(x)
                 .scrollZone(d3.select('svg'));
-
+                
             d3.select('#timeline').call(timeline);
 
             // then a single waveform
-            var waveform = prong.waveform()
-                .x(x)
-                .timeline(timeline); // bound to the timeline
+            // var waveform = prong.waveform()
+            //     .x(x)
+            //     .timeline(timeline); // bound to the timeline
 
-            d3.select('#waveform')
-                .datum({
-                    buffer : buffer,
-                    channel : channel
-                })
-                .call(waveform);
+            // d3.select('#waveform')
+            //     .datum({
+            //         buffer : buffer,
+            //         channel : channel
+            //     })
+            //     .call(waveform);
 
-            var interval = 1024 / 44100;
-            var start = new Date();
-            // now the contours which display the banded frequency information
-            var bands = prong.audioMatching.bands(channel, buffer.sampleRate,
-                interval, [600, 800, 1500, Infinity])
+            // var interval = 1024 / 44100;
+            // var start = new Date();
+            // // now the contours which display the banded frequency information
+            // var bands = prong.audioMatching.bands(channel, buffer.sampleRate,
+            //     interval, [600, 800, 1500, Infinity])
 
-            var end = new Date();
+            // var end = new Date();
 
-            var contour = prong.contour()
-                .x(x)
-                .height(50)
-                .timeline(timeline)
-                .sampleRate(1/interval)
+            // var contour = prong.contour()
+            //     .x(x)
+            //     .height(50)
+            //     .timeline(timeline)
+            //     .sampleRate(1/interval)
 
-            d3.select('#bands')
-                .selectAll('g')
-                .data(bands)
-                .enter()
-                .append('g')
-                .attr('transform',function(d,i){
-                    return 'translate(0,'+(i*50)+')';
-                })
-                .call(contour)
+            // d3.select('#bands')
+            //     .selectAll('g')
+            //     .data(bands)
+            //     .enter()
+            //     .append('g')
+            //     .attr('transform',function(d,i){
+            //         return 'translate(0,'+(i*50)+')';
+            //     })
+            //     .call(contour)
 
         })
         </script>

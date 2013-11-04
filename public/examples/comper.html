@@ -94,20 +94,21 @@ A { color : steelblue;}
         The comper component has a history option. If turned on, then it will
         link with the browser history. You can use the browser back and
         forward buttons to undo and redo, and you can bookmark any state of
-        the comper.
+        the comper.<br />
         <br />
-
+        See the comper used for video editing in <a href="http://forkaudio.org/rockpool/">Rockpool</a><br />
+        <br />
+        See the code on <a href="http://jsfiddle.net/lukebarlow/t96Ut/">jsfiddle</a>.
         <br />
         </span>
         <svg>
-        <g id="timeline" transform="translate(20,10)"></g>
+        <g id="timeline" transform="translate(20,10)" class="timeline"></g>
         <g id="waveforms" transform="translate(20,60)"></g>
         </svg>
         </div>
         <script>
 
 var timeline;
-
 
 // first load the sound
 prong.sounds([

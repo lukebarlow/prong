@@ -4,33 +4,37 @@
 <head>
     <script src="../js/prong.js"></script>
     <script>
-var g1, g2
-var marginSlider, discountSlider
+
+var values = [
+    {sliderValue : 1},
+    {sliderValue : 6},
+    {sliderValue : 19}
+]
 
 function init(){
-    marginSlider = prong.slider().domain([-2,2]).width(50).height(150);
 
-    discountSlider = prong.slider()
-        .domain([-100,100])
+    slider = prong.slider2()
+        .domain([1,100])
         .width(50)
         .height(350)
-        .horizontal(true)
+        .horizontal(false)
         .format(d3.format('f'));
 
     var svg = d3.select('svg')
-    g1 = svg.append('g').attr('transform','translate(50,30)')
-    g2 = svg.append('g').attr('transform','translate(150,100)')
-    var g3 = svg.append('g').attr('transform','translate(100,20)')
 
-    // you can do it this way
-    marginSlider(g1);
+    svg.selectAll('.slider')
+        .data(values)
+        .enter()
+        .call(slider)
 
-    // but it's more common to do it this way
-    g2.call(discountSlider);
-
-    marginSlider.on('change',function(value){
-        console.log(value)
+    slider.on('change', function(d,i){
+        console.log('d', d)
+        console.log('i', i)
+        console.log('event', prong.event)
+        console.log('this', this)
     })
+
+    
 }
     
     </script>
@@ -79,8 +83,7 @@ circle {
 
    Slider<br />
    <br />
-   A simple slider component, with flexible range and formatting. Emits
-   'change' and 'end' events.<br />
+   The slider component can also be bound to a selection<br />
    <br />
     <svg width="100%" height="310">
          <pattern id="stripe" 

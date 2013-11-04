@@ -13,6 +13,10 @@ BODY {
     margin:0;
 }
 
+A {
+    color:steelblue;
+}
+
 IFRAME {
     padding:0;
     margin:0;
@@ -64,17 +68,22 @@ IFRAME {
             Timeline<br />
             <span>
             <br />
-            The timeline is a zoomable scrollable time axis. It is modelled on the time axis elements found in the likes of Logic Pro and Cubase. <br />
+            The timeline is a zoomable scrollable time axis. It is modelled on 
+            the time axis elements found in the likes of Logic Pro and Cubase. 
+            <br />
             <br />
             Click and drag vertically to zoom in and out. <br />
             Hold shift and scroll to move left and right. <br />
             <br />
-            The waveform has 3 display modes, and is drawn slightly differently as you zoom in.
+            The waveform is shown as a solid area when zoomed out, and switches
+            to a thin line when zoomed in.
             <br />
+            <br />
+            See the code on <a href="http://jsfiddle.net/lukebarlow/aYTs3/4/">jsfiddle</a>.<br />
             <br />
             </span>
             <svg>
-            <g id="timeline" transform="translate(10,10)"></g>
+            <g id="timeline" transform="translate(10,10)" class="timeline"></g>
             <g id="waveform" transform="translate(10,30)"></g>
             </svg>
         </div>

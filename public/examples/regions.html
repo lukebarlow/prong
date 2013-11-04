@@ -24,7 +24,7 @@ IFRAME {
 
 #main {
     padding:50px;
-    padding-left:350px;
+    padding-left:400px;
     height:100%
 }
 
@@ -36,12 +36,12 @@ A { color : steelblue;}
     width:100px;
     text-align:right;
     font-size:10pt;
-    margin-top:8px;
+    margin-top:10px;
 }
+rel
 
 #sequence {
     height:400px;
-    margin-left:100px;
 }
 
 /* waveform */
@@ -97,22 +97,22 @@ A { color : steelblue;}
     position:absolute;
 }
 
+.audioRegion rect {
+  stroke:steelblue;
+  fill:transparent;
+}
+
         </style>
     </head>
     <body>
-
         <iframe src="../"></iframe>
         <div id="main">
-
-        Sequence<br />
+        Regions<br />
         <span>
         <br />
-        The sequence component takes a list of tracks, and lays these out
-        in a multi-track arrangement with a timeline at the top. It also adds a play line, and
-        has methods for starting and stopping, and actually routes audio to your
-        speakers, so now we can hear the sounds we're seeing.<br />
+        You can have multiple sound clips or regions per track.<br />
         <br />
-        See the code on <a href="http://jsfiddle.net/lukebarlow/DxKb2/1/">jsfiddle</a>.
+        See the code on <a href="http://jsfiddle.net/lukebarlow/4GQTL/">jsfiddle</a>.
         <br />
         <br />
         </span>
@@ -122,73 +122,20 @@ A { color : steelblue;}
         <br />
         <div id="sequence"></div>
         </div>
+    <!-- pool and tracks are defined in here -->
+        <script src="drum_cutup.js"></script>
         <script>
 
-var tracks = [
-    {
-        'type' : 'audio',
-        'src' : '../audio/nino_rota/sax1.mp3'
-    },
-    {
-        'type' : 'audio',
-        'src' : '../audio/nino_rota/sax2.mp3'
-    },
-    {
-        'type' : 'audio',
-        'src' : '../audio/nino_rota/french_horn.mp3'
-    },
-    {
-        'type' : 'audio',
-        'src' : '../audio/nino_rota/oboe.mp3'
-    },
-    {
-        'type' : 'audio',
-        'src' : '../audio/nino_rota/clarinet.mp3'
-    },
-    {
-        'type' : 'audio',
-        'src' : '../audio/nino_rota/flute.mp3'
-    },
-    {
-        'type' : 'audio',
-        'src' : '../audio/nino_rota/snare.mp3'
-    },
-    {
-        'type' : 'audio',
-        'src' : '../audio/nino_rota/trombone.mp3'
-    },
-    {
-        'type' : 'audio',
-        'src' : '../audio/nino_rota/muted_trumpet.mp3'
-    },
-    {
-        'type' : 'audio',
-        'src' : '../audio/nino_rota/trumpet.mp3'
-    },
-    {
-        'type' : 'audio',
-        'src' : '../audio/nino_rota/tuba.mp3'
-    },
-    {
-        'type' : 'audio',
-        'src' : '../audio/nino_rota/bass_drum.mp3'
-    },
-    {
-        'type' : 'audio',
-        'src' : '../audio/nino_rota/cymbals.mp3'
-    }
-]
-
-var x = d3.scale.linear().domain([0, 60]).range([0, 800]);
+var x = d3.scale.linear().domain([0, 15]).range([0, 800]);
 
 sequence = prong.sequence()
     .x(x)
+    .poolResources(pool)
     .tracks(tracks)
     .trackHeight(30)
     .audioOut(prong.audioContext().destination);
 
 d3.select('#sequence').call(sequence);
-
 d3.select('#play').on('click', function(){sequence.play()});
 d3.select('#stop').on('click', function(){
     if (sequence.playing()){
