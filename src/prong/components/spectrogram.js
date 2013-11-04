@@ -27,7 +27,7 @@ module.exports = function(){
                     output = new Float32Array(n * 2),
                     lightness = d3.scale.log().range([100,0]).domain([1,480]),
                     alpha = d3.scale.log().range([0,1]).domain([1,480]),
-                    frequencyHeight = n/4,
+                    frequencyHeight = n/24,
                     y = d3.scale.linear().range([height,0]).domain([0,frequencyHeight]),
                     pixelHeight = height / frequencyHeight;
 

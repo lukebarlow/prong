@@ -144,7 +144,7 @@ module.exports = function(){
             dispatch.end(x);
         }
 
-        selection.attr('class','timeline')
+        selection
             .attr('width',width)
             .call(axis);
         updateMinorLines(x);

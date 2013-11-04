@@ -13,7 +13,7 @@ module.exports = function(){
         }
     }
 
-    map.most = function(){
+    map.peak = function(){
         var values = map.values(),
             max = d3.max(values),
             maxPosition = values.indexOf(max);

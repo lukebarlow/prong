@@ -1,10 +1,12 @@
 var commonProperties = require('../commonProperties'),
     video = require('./video'),
-    audio = require('./audio');
+    audio = require('./audio'),
+    audioRegions = require('./audioRegions');
 
 // the mapping from track type strings to component constructor functions
 var trackTypeMappings = {
     'audio' : audio,
+    'audioRegions' : audioRegions,
     'video' : video
 }
 

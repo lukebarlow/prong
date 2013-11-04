@@ -16,43 +16,77 @@ module.exports = function(){
     var DISPLAY_AS_LINE_CUTOFF = 1;
 
     var waveform = function(){
-
         var selection = this;
-
         function draw(){
 
             selection.each(function(d){
-                
                 var sel = d3.select(this);
+                d.startTime = d.startTime || 0;
+
+                /* there are essentially two scales at play
+                    1. clipScale - this maps the sequence timeline
+                    to the clip timeline. It can also be used to determine which
+                    time slices of the channel are actually visible. The domain
+                    and range will be shrunk to fit what's actually visible
+
+                    2. sequenceScale - this maps the time of the sequence to the
+                    pixels on the screen - the normal x scale. The domain is
+                    sequence time and the range is pixels on screen.
+
+                    by combining the two, we can map clip time to pixels
+                */
 
                 var x = waveform.x(),
                     domain = x.domain(),
                     range = x.range(),
                     channel = d.channel,
                     sampleRate = d.buffer.sampleRate,
-                    startOffset = d.startTime || 0;
+                    startOffset = (d.startTime || 0),
+                    length;
 
-                x = d3.scale.linear().range(range).domain([domain[0] - startOffset, domain[1] - startOffset])
+                d.clipStart = d.clipStart || 0;
+                d.clipEnd = d.clipEnd || (channel.length / sampleRate);
+
+                var length = d.clipEnd - d.clipStart,
+                    clipDomain = [d.clipStart, d.clipEnd],
+                    clipRange = [d.startTime, d.startTime + length],
+                    clipScale = d3.scale.linear().range(clipRange).domain(clipDomain),
+                    clipStart = d.clipStart,
+                    viewStart = clipStart + Math.max(domain[0] - d.startTime, 0),
+                    viewEnd = d.clipEnd - Math.max(d.startTime + length - domain[1], 0);
+
+                // clear any previous areas and lines
+                sel.selectAll('.area').remove();
+                sel.selectAll('.line').remove();
+
+                // if the waveform is out of view, then nothing more to do
+                if (viewStart > viewEnd) return;
 
                 var width = waveform.width(),
                     height = waveform.height() || 128,
-                    startTime = Math.max(x.domain()[0],0);
+                    samplesPerPixel = Math.max(~~((Math.abs(domain[1] - domain[0]) * sampleRate) / width), 1);
 
-                // make a copy, so we can mess with the data without affecting the original
-                var data = new Float32Array(channel),
+                if (!('_cache' in d)){
+                    d._cache = {}
+                }
 
-                    // trim the data according to the range of the x scale
-                    data = data.subarray(startTime * sampleRate, domain[1] * sampleRate);
+                var data;
 
-                var samplesPerPixel = Math.max(~~((Math.abs(domain[1] - domain[0]) * sampleRate) / width), 1);
-
-                data = fx.thinOut(data, samplesPerPixel, 
-                                        samplesPerPixel > DISPLAY_ABOVE_AND_BELOW_CUTOFF
-                                        ? 'max'
-                                        : 'first');
-
-
-                //fx.localNormalise(data);
+                // we cache the thinned data at 1000 samplesPerPixel, so that
+                // the zoomed out view is smoother
+                if (samplesPerPixel >= 1000){
+                    if (!(1000 in d._cache)){
+                        d._cache[1000] = fx.thinOut(channel, 1000)
+                    }
+                    samplesPerPixel = 1000;
+                    data = d._cache[1000].slice(viewStart * sampleRate / 1000,
+                        viewEnd * sampleRate / 1000);
+                }else{
+                    data = channel.subarray(viewStart * sampleRate, viewEnd * sampleRate);
+                    data = fx.thinOut(data, samplesPerPixel, 
+                        samplesPerPixel > DISPLAY_ABOVE_AND_BELOW_CUTOFF
+                        ? 'max' : 'first');
+                }
 
                 var y = d3.scale.linear()
                     .range([height,0])
@@ -61,10 +95,9 @@ module.exports = function(){
                 var translateX = 0;
 
                 function sampleX(d, i){
-                    return x(i*samplesPerPixel/sampleRate + startTime);
+                    return x(clipScale(i*samplesPerPixel/sampleRate + viewStart));
                 }
 
-                sel.text('');
                 // when zoomed out, we do it with an area...
                 if (samplesPerPixel > DISPLAY_AS_LINE_CUTOFF){
                     var area = d3.svg.area()
