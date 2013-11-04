@@ -18,7 +18,6 @@ document.onselectstart = function() { return false; };
 var sound = require('./sound')
 
 module.exports = {
-
     // components
     waveform : require('./components/waveform'),
     spectrogram : require('./components/spectrogram'),
@@ -27,10 +26,12 @@ module.exports = {
     comper : require('./components/comper'),
     timeline : require('./components/timeline'),
     slider : require('./components/slider'),
+    slider2 : require('./components/slider2'),
+    pot : require('./components/pot'),
     note : require('./components/note'),
     contour : require('./components/contour'),
     lines : require('./components/lines'),
-
+    mixer : require('./components/mixer'),
     
     // audio/data manipulation
     fx : require('./analysis/fx'),
@@ -43,6 +44,7 @@ module.exports = {
     
     // history
     history : require('./history/history'),
+    editEncoding : require('./history/editEncoding'),
 
     // sequencer
     sequence : require('./sequence'),
@@ -52,7 +54,16 @@ module.exports = {
     // misc
     taskFeedback : require('./taskFeedback'),
     uid : require('./uid'),
+    guid : require('./guid'),
     audioContext : require('./audioContext'),
     sound : sound.sound,
-    sounds : sound.sounds
+    sounds : sound.sounds,
+    ubiquity : require('./ubiquity/ubiquity'),
+    trackName : function(d, i){
+        if ('name' in d) return d.name;
+        return d.src.slice(d.src.lastIndexOf('/')+1, d.src.lastIndexOf('.'))
+            .replace('_',' ');
+    }
+
+
 }
