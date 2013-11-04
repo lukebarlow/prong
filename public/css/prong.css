@@ -160,3 +160,8 @@ BUTTON {
   padding-bottom: 20px;
   display: block;
 }
+
+.audioRegionOutline {
+  stroke:1px steelblue;
+  fill:transparent;
+}
