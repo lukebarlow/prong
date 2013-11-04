@@ -1,6 +1,7 @@
 var commonProperties = require('./commonProperties'),
 	Track = require('./track/track'),
-	Timeline = require('./components/timeline');
+	Timeline = require('./components/timeline'),
+    Pool = require('./pool');
 
 module.exports = function(){
 
@@ -16,10 +17,11 @@ module.exports = function(){
         trackHeight, // the default height in pixels for tracks (can be overriden for specific tracks)
         trackLoadCount = 0,
         timelineHeight = 40,
+        pool,
         dispatch = d3.dispatch('scrub','change','play','stop','tick','load','volumeChange');
 
     function setPlaylinePosition(){
-        // the -1 in the next line ensures the play line is not directly
+        // the -2 in the next line ensures the play line is not directly
         // underneath the mouse, so you can click on tracks when scrubbing
         playLine.style('left', (sequence.x()(currentTime) - 2) + 'px');
     }
@@ -33,6 +35,10 @@ module.exports = function(){
                 .style('position','absolute'),
             timelineContainer = absoluteContainer.append('svg')
                 .attr('height', timelineHeight)
+                .attr('width', sequence.width())
+                .attr('class','timeline')
+                .append('g')
+                .attr('transform','translate(0,1)')
                 .call(timeline);
 
         tracksContainer = absoluteContainer.append('div')
@@ -40,12 +46,11 @@ module.exports = function(){
 
         var playlineContainer = absoluteContainer.append('div')
                 .style('position','absolute')
-                .style('top', '0px');
+                .style('top', '1px');
             
         function mouse() {
             var touches = d3.event.changedTouches,
                 reference = timelineContainer;
-
 
             window.reference = reference;
             return touches ? d3.touches(referece, touches)[0] : d3.mouse(reference.node());
@@ -94,6 +99,7 @@ module.exports = function(){
                     sequence.stop();
                     sequence.play(time);
                 }
+                dispatch.tick()
             }
         })
 
@@ -137,8 +143,17 @@ module.exports = function(){
         // a path then it will detect the type
         Track.unpackTrackData(_tracks);
 
+        _tracks.forEach(function(track){
+            if (!('volume' in track)) track.volume = 60;
+            if (!('pan' in track)) track.pan = 0;
+        })
+        
         // for now, track id is just the src attribute. May change
-        function id(track){return track.src}
+        function id(track){
+            if ('id' in track) return track.id;
+            if ('src' in track) return track.src;
+            return track.name;
+        }
 
         var newTracks = [];
         var existingIds = tracks.map(id);
@@ -146,7 +161,16 @@ module.exports = function(){
         	var trackId = id(track);
         	var existingTrackIndex = existingIds.indexOf(trackId);
         	if (existingTrackIndex != -1){
-        		newTracks.push(tracks[existingTrackIndex])
+                // copy over any new string or numeric values
+                var oldTrack = tracks[existingTrackIndex];
+                for(var key in track){
+                    if (typeof(track[key]) == 'number' || typeof(track[key]) == 'string'){
+                        if (track[key] != oldTrack){
+                            oldTrack[key] = track[key];
+                        }
+                    }
+                }
+        		newTracks.push(oldTrack)
         	}else{
         		newTracks.push(track);
         	}
@@ -255,6 +279,19 @@ module.exports = function(){
     sequence.trackVolume = function(trackIndex, volume){
         tracks[trackIndex].volume = volume;
         dispatch.volumeChange();
+    }
+
+    sequence.poolResources = function(resources){
+        if (!arguments.length) return pool.resources();
+        pool = Pool(resources);
+        return sequence;
+    }
+
+    sequence.pool = function(){
+        if (arguments.length){
+            throw "Cannot set pool directly. Set the poolResources instead"
+        }
+        return pool;
     }
 
 	return d3.rebind(sequence, commonProperties(), 'x', 'width', 'sequence', 'timeline');
