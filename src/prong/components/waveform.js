@@ -72,12 +72,14 @@ module.exports = function(){
 
                 var data;
 
+                if (!(1000 in d._cache)){
+                    d._cache[1000] = fx.thinOut(channel, 1000)
+                }
+
                 // we cache the thinned data at 1000 samplesPerPixel, so that
                 // the zoomed out view is smoother
                 if (samplesPerPixel >= 1000){
-                    if (!(1000 in d._cache)){
-                        d._cache[1000] = fx.thinOut(channel, 1000)
-                    }
+                    
                     samplesPerPixel = 1000;
                     data = d._cache[1000].slice(viewStart * sampleRate / 1000,
                         viewEnd * sampleRate / 1000);
