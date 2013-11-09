@@ -2,7 +2,6 @@
 <meta charset="utf-8">
 <html>
     <head>
-        <script src="/socket.io/socket.io.js"></script>
         <script src="../js/prong.js"></script>
         <style>
 BODY {
@@ -25,7 +24,7 @@ IFRAME {
 
 #main {
     padding:50px;
-    padding-left:350px;
+    padding-left:400px;
     height:100%
 }
 
@@ -97,8 +96,7 @@ A { color : steelblue;}
 }
 
 #sequence {
-    height:400px;
-    margin-left:100px;
+    height:200px;
 }
 
 #mixer {
@@ -147,6 +145,11 @@ text {
     font-size:10pt;
 }
 
+.audioRegion rect {
+  stroke:steelblue;
+  fill:transparent;
+}
+
         </style>
     </head>
     <body>
@@ -154,15 +157,14 @@ text {
         <iframe src="../"></iframe>
         <div id="main">
 
-        Sequence<br />
+        Mixer<br />
         <span>
         <br />
-        The sequence component takes an array track dictionaries, and lays these out
-        in a multi-track arrangement with a timeline at the top. It also adds a play line, and
-        has methods for starting and stopping.
+        With two extra lines of code, we can add a mixer which binds to the
+        sequence, and allows you to set the gain and pan for each track.
         <br />
         <br />
-        <button id="getARoom">get a room</button>
+        
         <br />
         </span>
         <button id="play">play</button>
@@ -172,74 +174,21 @@ text {
         <div id="sequence"></div>
         <div id="mixer"></div>
         </div>
+        <script src="drum_cutup.js"></script>
         <script>
-
-var tracks = [
-    {
-        'type' : 'audio',
-        'src' : '../audio/nino_rota/sax1.mp3'
-    },
-    {
-        'type' : 'audio',
-        'src' : '../audio/nino_rota/sax2.mp3'
-    },
-    {
-        'type' : 'audio',
-        'src' : '../audio/nino_rota/french_horn.mp3'
-    },
-    {
-        'type' : 'audio',
-        'src' : '../audio/nino_rota/oboe.mp3'
-    },
-    {
-        'type' : 'audio',
-        'src' : '../audio/nino_rota/clarinet.mp3'
-    },
-    {
-        'type' : 'audio',
-        'src' : '../audio/nino_rota/flute.mp3'
-    },
-    {
-        'type' : 'audio',
-        'src' : '../audio/nino_rota/snare.mp3'
-    },
-    {
-        'type' : 'audio',
-        'src' : '../audio/nino_rota/trombone.mp3'
-    },
-    {
-        'type' : 'audio',
-        'src' : '../audio/nino_rota/muted_trumpet.mp3'
-    },
-    {
-        'type' : 'audio',
-        'src' : '../audio/nino_rota/trumpet.mp3'
-    },
-    {
-        'type' : 'audio',
-        'src' : '../audio/nino_rota/tuba.mp3'
-    },
-    {
-        'type' : 'audio',
-        'src' : '../audio/nino_rota/bass_drum.mp3'
-    },
-    {
-        'type' : 'audio',
-        'src' : '../audio/nino_rota/cymbals.mp3'
-    }
-]
 
 tracks.forEach(function(track){
     if (!('volume' in track)) track.volume = 60;
     if (!('pan' in track)) track.pan = 0;
 })
 
-var x = d3.scale.linear().domain([0, 60]).range([0, 800]);
+var x = d3.scale.linear().domain([0, 15]).range([0, 800]);
 
 var sequence = prong.sequence()
     .x(x)
+    .poolResources(pool)
     .tracks(tracks)
-    .trackHeight(20)
+    .trackHeight(40)
     .audioOut(prong.audioContext().destination);
 
 d3.select('#sequence').call(sequence);
@@ -253,21 +202,9 @@ d3.select('#stop').on('click', function(){
     }
 });
 
+// the two extra lines about the mixer
 var mixer = prong.mixer().sequence(sequence);
-
-function redraw(){
-    d3.select('#mixer').text('').call(mixer);
-}
-
-var ub = prong.ubiquity( window, 'tracks', ['channel','buffer']);
-ub.on('change', function(){
-    ub.ignoreChangeEvents(true);
-    sequence.tracks(tracks);
-    tracks = sequence.tracks();
-    ub.ignoreChangeEvents(false);
-    redraw();
-});
-redraw();
+d3.select('#mixer').text('').call(mixer);
 
         </script>
     </body>
