@@ -69,8 +69,7 @@ module.exports = function(parent, key, ignoreList, namespace){
             }
         });
 
-        socket.on('propertyChange', function(path, value){
-            console.log('property change', path, value);       
+        socket.on('propertyChange', function(path, value){    
             ignoreChangeEvents = true;
             var prop = path.slice(path.length - 1),
                 parentPath = path.slice(0, path.length - 1),
