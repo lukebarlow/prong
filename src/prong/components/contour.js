@@ -7,7 +7,8 @@ var commonProperties = require('../commonProperties'),
 // of values
 module.exports = function(){ 
     var startOffset = 0,
-        sampleRate;
+        sampleRate,
+        label = null;
 
     var contour = function(){
 
@@ -15,11 +16,11 @@ module.exports = function(){
 
         function draw(){
 
-            selection.each(function(d){
+            selection.each(function(d,i){
                 
-                var sel = d3.select(this);
-
-                var x = contour.x(),
+                var sel = d3.select(this),
+                    firstOffset = d.firstOffset || 0,
+                    x = contour.x(),
                     domain = x.domain(),
                     range = x.range(),
                     startOffset = d.startTime || 0;
@@ -30,10 +31,12 @@ module.exports = function(){
                     height = contour.height() || 128,
                     startTime = Math.max(x.domain()[0],0);
 
-                var data = d,
-
                 // trim the data according to the range of the x scale
-                data = data.slice(startTime * sampleRate, domain[1] * sampleRate);
+                var data = d.slice(startTime * sampleRate - firstOffset, domain[1] * sampleRate - firstOffset);
+
+                //data = data.slice(startTime * sampleRate, domain[1] * sampleRate);
+                var reverseData = d.slice(0, startTime * sampleRate - firstOffset)
+
 
                 var y = d3.scale.linear()
                     .range([height, 0])
@@ -58,6 +61,30 @@ module.exports = function(){
                     .append('path')
                     .datum(data)
                     .attr('d', line);
+
+                // function reverseSampleX(d, i){
+                //     return x((reverseData.length - i)/sampleRate + startTime);
+                // }
+
+                // var reverseLine = d3.svg.line()
+                //     .x(reverseSampleX)
+                //     .y(y)
+                //     .interpolate('linear');
+
+                // sel.append('g')
+                //     .attr('class','line')
+                //     .attr('transform','translate('+translateX+',0)')
+                //     .append('path')
+                //     .attr('stroke','red')
+                //     .datum(reverseData)
+                //     .attr('d', reverseLine);
+
+
+                sel.append('text')
+                    .attr('x',10)
+                    .attr('y', height/2)
+                    .text(label && label(d,i))
+
             })
         }
 
@@ -92,6 +119,12 @@ module.exports = function(){
                 }    
             })
         }
+    }
+
+    contour.label = function(_label){
+        if (!arguments.length) return label;
+        label = _label;
+        return contour;
     }
 
     contour.sampleRate = function(_sampleRate){

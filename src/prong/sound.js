@@ -1,4 +1,4 @@
-var audioContext = require('./audioContext')();
+var audioContext = require('./audioContext.coffee')();
 
 module.exports = {
     sound : sound, // load a sound into a buffer
@@ -7,16 +7,28 @@ module.exports = {
 
 // modelled on d3.csv() and d3.xhr() as a simple interface to loading sound 
 // buffers.
-function sound(url, callback){
+function sound(url, callback, onprogress){
     var request = new XMLHttpRequest;
     request.open('GET', url, true);
     request.responseType = 'arraybuffer';
     request.onload = function(){
         var s = request.status
+        if (onprogress){
+            onprogress('decoding...')
+        }
         audioContext.decodeAudioData(request.response, function(buffer){
             callback(buffer)
         })
     }
+    if (onprogress){
+        request.onprogress = function(e){
+            if (e.lengthComputable){
+                var percent = 100 * e.loaded / e.total;
+                onprogress('loading (' + parseInt(percent) + '%)');
+            }
+        }
+    }
+    
     request.send(null);
 }
 

@@ -13,34 +13,38 @@ Float32Array.prototype.some = Array.prototype.some
 
 // cancel all default selection behavior
 // TODO : move this behavior inside comper
-document.onselectstart = function() { return false; };
 
 var sound = require('./sound')
 
 module.exports = {
-    // components
-    waveform : require('./components/waveform'),
+    // componentsdocument.onselectstart = function() { return false; };
     spectrogram : require('./components/spectrogram'),
+
+    waveform : require('./components/waveform'),
+    canvasWaveform : require('./components/canvasWaveform'),
     filmstrip : require('./components/filmstrip'),
     onsets : require('./components/onsets'),
     comper : require('./components/comper'),
     timeline : require('./components/timeline'),
+    musicalTimeline : require('./components/musicalTimeline.coffee'),
     slider : require('./components/slider'),
     slider2 : require('./components/slider2'),
     pot : require('./components/pot'),
     note : require('./components/note'),
     contour : require('./components/contour'),
     lines : require('./components/lines'),
-    mixer : require('./components/mixer'),
+    mixer : require('./components/mixer.coffee'),
+    mixPresets : require('./components/mixPresets.coffee'),
+    transport : require('./components/transport'),
     
     // audio/data manipulation
     fx : require('./analysis/fx'),
-    audioMatching : require('./analysis/audioMatching'),
-    leastDifference : require('./analysis/leastDifference'),
-    noteOnset : require('./analysis/noteOnset'),
-    audioMatching : require('./analysis/audioMatching'),
-    counter : require('./analysis/counter'),
-    summer : require('./analysis/summer'),
+    //audioMatching : require('./analysis/audioMatching'),
+    //leastDifference : require('./analysis/leastDifference'),
+    //noteOnset : require('./analysis/noteOnset'),
+    //audioMatching : require('./analysis/audioMatching'),
+    //counter : require('./analysis/counter'),
+    //summer : require('./analysis/summer'),
     
     // history
     history : require('./history/history'),
@@ -48,21 +52,23 @@ module.exports = {
 
     // sequencer
     sequence : require('./sequence'),
-    track : require('./track'),
-    registerTrackType : require('./track/track').registerTrackType,
+    registerTrackType : require('./track/track.coffee').registerTrackType,
 
     // misc
     taskFeedback : require('./taskFeedback'),
     uid : require('./uid'),
     guid : require('./guid'),
-    audioContext : require('./audioContext'),
+    audioContext : require('./audioContext.coffee'),
     sound : sound.sound,
     sounds : sound.sounds,
     ubiquity : require('./ubiquity/ubiquity'),
     trackName : function(d, i){
         if ('name' in d) return d.name;
-        return d.src.slice(d.src.lastIndexOf('/')+1, d.src.lastIndexOf('.'))
-            .replace('_',' ');
+        if ('src' in d){
+            return d.src.slice(d.src.lastIndexOf('/')+1, d.src.lastIndexOf('.'))
+                .replace('_',' ');
+        }
+        return d.type;
     }
 
 

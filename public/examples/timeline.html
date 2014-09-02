@@ -82,7 +82,7 @@ IFRAME {
             See the code on <a href="http://jsfiddle.net/lukebarlow/aYTs3/4/">jsfiddle</a>.<br />
             <br />
             </span>
-            <svg>
+            <svg width="100%" height="300">
             <g id="timeline" transform="translate(10,10)" class="timeline"></g>
             <g id="waveform" transform="translate(10,30)"></g>
             </svg>
@@ -105,8 +105,8 @@ IFRAME {
                 .timeline(timeline); // bound to the timeline
             d3.select('#waveform')
                 .datum({
-                    buffer : buffer,
-                    channel : buffer.getChannelData(0)
+                    _buffer : buffer,
+                    _channel : buffer.getChannelData(0)
                 })
                 .call(waveform);
         })

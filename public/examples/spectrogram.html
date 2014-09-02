@@ -98,8 +98,8 @@ IFRAME {
 
             d3.select('#spectrogram')
                 .datum({
-                    buffer : buffer,
-                    channel : channel
+                    _buffer : buffer,
+                    _channel : channel
                 })
                 .call(spectrogram);
 
@@ -110,8 +110,8 @@ IFRAME {
 
             d3.select('#waveform')
                 .datum({
-                    buffer : buffer,
-                    channel : channel
+                    _buffer : buffer,
+                    _channel : channel
                 })
                 .call(waveform);
 

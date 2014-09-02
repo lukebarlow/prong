@@ -39,7 +39,6 @@ module.exports = function(){
     }
 
 
-
     // if element is in array and not the last element of that array, then this
     // function will return the following element in the array. Otherwise, it
     // will return null
@@ -354,8 +353,6 @@ module.exports = function(){
         if (timeline) timeline.on('change.' + uid(), function(x){
             comper.x(x).redraw();
         });
-
-        
     }
 
     comper.liveTrackAtTime = liveTrackAtTime

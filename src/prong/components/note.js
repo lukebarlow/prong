@@ -4,7 +4,8 @@ var commonProperties = require('../commonProperties'),
 
 module.exports = function(){
     var key,
-        colour;
+        colour,
+        clickHandler = null;
 
     var note = function(){
         var selection = this;
@@ -23,7 +24,7 @@ module.exports = function(){
                     range = x.range(),
                     startOffset = d.startTime || 0,
                     notes = sel.datum()[key] || [], // notes are time, pitch pairs
-                    y = y || d3.scale.linear().range([height, 0]).domain([30, 100]);
+                    y = y || d3.scale.linear().range([height, 0]).domain([60, 90]);
 
                 x = d3.scale.linear().range(range).domain([domain[0] - startOffset, domain[1] - startOffset])
 
@@ -45,16 +46,17 @@ module.exports = function(){
                     .style('fill',colour)
                     .attr('x', function(d){return x(d[0])})
                     .attr('width',10)
-                    .attr('y', function(d){return y(d[1])})
-                    .attr('height', noteHeight)
+                    .attr('y', function(d){
+                        return y(d[1]) - d[2]/10})
+                    .attr('height', function(d){
+                        return 10
+                        //return d[2]/10
+                    })
                     .style('cursor','pointer')
                     .on('click', function(d){
-                        console.log('pitch:' + d[1])
+                        if (clickHandler) clickHandler(d[1])
                     })
-
             })
-
-            
         }
 
         draw();
@@ -105,6 +107,12 @@ module.exports = function(){
     note.colour = function(_colour){
         if (!arguments.length) return colour;
         colour = _colour;
+        return note;
+    }
+
+    note.clickHandler = function(_clickHandler){
+        if (!arguments.length) return clickHandler;
+        clickHandler = _clickHandler;
         return note;
     }
 

@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<html>
+    <head>
+        <script src="../js/prong.js"></script>
+        <style>
+BODY {
+    font-family:helvetica;
+    background-color:#333;
+    color:white;
+    height:100%;
+    padding:0;
+    margin:0;
+}
+
+A {
+    color:steelblue;
+}
+
+IFRAME {
+    padding:0;
+    margin:0;
+    border-width:0px;
+    width:300px;
+    height:100%;
+    float:left;
+}
+
+#main {
+    padding:50px;
+    padding-left:350px;
+    height:100%
+}
+
+/*              */
+
+.area {
+  fill:steelblue;
+}
+
+.line {
+  stroke:steelblue;
+  fill:none;
+}
+
+
+
+        </style>
+    </head>
+    <body>
+        <iframe src="../"></iframe>
+        <div id="main">
+        Waveform<br />
+        <br />
+        Load a sound and display it's waveform.<br />
+        <br />
+        See the code <a href="http://jsfiddle.net/lukebarlow/cupHR/">jsfiddle</a>.
+        <canvas id="waveform" height="200" width="800"></canvas>
+        <div>
+
+        <script>
+        // first load the sound ...
+        prong.sound('../audio/four_devices_android.mp3', function(buffer){
+            var width = 600;
+            // ... then create and display the waveform
+            var x = d3.scale.linear().domain([0, 20]).range([0, width]);
+            var waveform = prong.canvasWaveform()
+                .x(x)
+                .height(200);
+
+            d3.select('#waveform')
+                .datum({
+                    buffer : buffer,
+                    channel : buffer.getChannelData(0)
+                })
+                .call(waveform);
+        })
+        </script>
+    </body>
+</html>

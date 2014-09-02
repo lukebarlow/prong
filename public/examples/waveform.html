@@ -55,7 +55,7 @@ IFRAME {
         Load a sound and display it's waveform.<br />
         <br />
         See the code <a href="http://jsfiddle.net/lukebarlow/cupHR/">jsfiddle</a>.
-        <svg id="waveform" height="200"></svg>
+        <svg id="waveform" height="200" width="100%"></svg>
         <div>
 
         <script>
@@ -70,8 +70,8 @@ IFRAME {
 
             d3.select('#waveform')
                 .datum({
-                    buffer : buffer,
-                    channel : buffer.getChannelData(0)
+                    _buffer : buffer,
+                    _channel : buffer.getChannelData(0)
                 })
                 .call(waveform);
         })

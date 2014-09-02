@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<html>
+    <head>
+        <script src="../js/prong.js"></script>
+        <style>
+BODY {
+    font-family:helvetica;
+    background-color:#333;
+    color:white;
+    height:100%;
+    padding:0;
+    margin:0;
+}
+
+A {
+    color:steelblue;
+}
+
+IFRAME {
+    padding:0;
+    margin:0;
+    border-width:0px;
+    width:300px;
+    height:100%;
+    float:left;
+}
+
+#main {
+    padding:50px;
+    padding-left:350px;
+    height:100%
+}
+
+/* waveform */
+
+.area {
+  fill:steelblue;
+}
+
+.line {
+  stroke:steelblue;
+  fill:none;
+}
+
+/* timeline */
+
+.timeline path,
+.timeline line {
+  fill: none;
+  stroke: white;
+  shape-rendering: crispEdges;
+}
+
+.musicalTimeline line.minor {
+    stroke:#444;
+}
+
+.timeline text {
+  fill:white;
+  shape-rendering: crispEdges;
+}
+
+        </style>
+    </head>
+    <body>
+
+        <iframe src="../"></iframe>
+
+        <div id="main">
+
+            Musical Timeline<br />
+            <span>
+            <br />
+            The musical timeline shows the time in bars and beats rather than minutes and seconds.
+            <br />
+            <br />
+            Click and drag vertically to zoom in and out. <br />
+            Hold shift and scroll to move left and right. <br />
+            <br />
+            The waveform is shown as a solid area when zoomed out, and switches
+            to a thin line when zoomed in.
+            <br />
+            <br />
+            See the code on <a href="http://jsfiddle.net/lukebarlow/aYTs3/4/">jsfiddle</a>.<br />
+            <br />
+            </span>
+            <svg>
+            <g id="timeline" transform="translate(10,10)" class="timeline"></g>
+            <g id="musicalTimeline" transform="translate(10,50)" class="timeline"></g>
+            <g id="waveform" transform="translate(10,50)"></g>
+            </svg>
+        </div>
+
+        <script>
+
+        data = {
+            startTime : 2,
+            bars : [
+                {
+                    numerator : 4,
+                    denominator : 4,
+                    numberOfBars : 2,
+                    tempo : 120
+                },
+                {
+                    numerator : 3,
+                    denominator : 4,
+                    numberOfBars : 2
+                },
+                {
+                    numerator : 7,
+                    denominator : 8,
+                    numberOfBars : 1
+                },
+                {
+                    numerator : 2,
+                    denominator : 4,
+                    numberOfBars : 4,
+                    tempo : 150
+                },
+                {
+                    numerator : 4,
+                    denominator : 4,
+                    numberOfBars : 4,
+                    tempo : 120
+                }
+            ]
+        }
+
+        // first load the sound
+        prong.sound('../audio/four_devices_android.mp3', function(buffer){
+            // then create the timeline
+            var width = 800;
+            x = d3.scale.linear().domain([0, 30]).range([0, width]);
+
+            var timeline = prong
+                .timeline()
+                .x(x)
+                .scrollZone(d3.select('svg'));
+            d3.select('#timeline').call(timeline);
+
+            var musicalTimeline = prong.musicalTimeline()
+                .timeline(timeline)
+                .data(data);
+            d3.select('#musicalTimeline').call(musicalTimeline);
+
+            // then a single waveform
+            var waveform = prong.waveform()
+                .x(x)
+                .timeline(timeline); // bound to the timeline
+            d3.select('#waveform')
+                .datum({
+                    buffer : buffer,
+                    channel : buffer.getChannelData(0)
+                })
+                .call(waveform);
+        })
+        </script>
+    </body>
+</html>

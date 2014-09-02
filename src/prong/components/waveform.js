@@ -7,13 +7,17 @@ var commonProperties = require('../commonProperties'),
 module.exports = function(){
     // var channel, 
     //     sampleRate, 
-    var startOffset = 0;
+    var startOffset = 0,
+        verticalZoom = 1;
 
     // There are 3 slightly different ways of drawing the waveform, which depend
     // on the zoom level. These parameters are in units of 'samples per pixel'
     // and can be used to determine the switchover between drawing modes
-    var DISPLAY_ABOVE_AND_BELOW_CUTOFF = 10;
-    var DISPLAY_AS_LINE_CUTOFF = 1;
+    var DISPLAY_ABOVE_AND_BELOW_CUTOFF = 10,
+        DISPLAY_AS_LINE_CUTOFF = 1,
+        WIDE_ZOOM = 5000,
+        MEDIUM_ZOOM = 1000;
+
 
     var waveform = function(){
         var selection = this;
@@ -39,8 +43,8 @@ module.exports = function(){
                 var x = waveform.x(),
                     domain = x.domain(),
                     range = x.range(),
-                    channel = d.channel,
-                    sampleRate = d.buffer.sampleRate,
+                    channel = d._channel,
+                    sampleRate = d._buffer.sampleRate,
                     startOffset = (d.startTime || 0),
                     length;
 
@@ -72,17 +76,25 @@ module.exports = function(){
 
                 var data;
 
-                if (!(1000 in d._cache)){
-                    d._cache[1000] = fx.thinOut(channel, 1000)
+                if (!(WIDE_ZOOM in d._cache)){
+                    d._cache[WIDE_ZOOM] = fx.thinOut(channel, WIDE_ZOOM)
                 }
 
-                // we cache the thinned data at 1000 samplesPerPixel, so that
-                // the zoomed out view is smoother
-                if (samplesPerPixel >= 1000){
-                    
-                    samplesPerPixel = 1000;
-                    data = d._cache[1000].slice(viewStart * sampleRate / 1000,
-                        viewEnd * sampleRate / 1000);
+                if (!(MEDIUM_ZOOM in d._cache)){
+                    d._cache[MEDIUM_ZOOM] = fx.thinOut(channel, MEDIUM_ZOOM)
+                }
+
+                // we cache the thinned data at two levels, so zooming is
+                // faster
+                if (samplesPerPixel >= WIDE_ZOOM){
+                    samplesPerPixel = WIDE_ZOOM;
+                    data = d._cache[WIDE_ZOOM].slice(viewStart * sampleRate / WIDE_ZOOM,
+                        viewEnd * sampleRate / WIDE_ZOOM);
+                }else 
+                if (samplesPerPixel >= MEDIUM_ZOOM){
+                    samplesPerPixel = MEDIUM_ZOOM;
+                    data = d._cache[MEDIUM_ZOOM].slice(viewStart * sampleRate / MEDIUM_ZOOM,
+                        viewEnd * sampleRate / MEDIUM_ZOOM);
                 }else{
                     data = channel.subarray(viewStart * sampleRate, viewEnd * sampleRate);
                     data = fx.thinOut(data, samplesPerPixel, 
@@ -92,7 +104,7 @@ module.exports = function(){
 
                 var y = d3.scale.linear()
                     .range([height,0])
-                    .domain([1,-1]);
+                    .domain([1 / verticalZoom,-1 / verticalZoom]);
 
                 var translateX = 0;
 
@@ -120,7 +132,7 @@ module.exports = function(){
                 // ...but when zoomed in, we show the waveform with a line
                     var line = d3.svg.line()
                         .x(sampleX)
-                        .y(function(d){return y(-d)})
+                        .y(function(d){return y(d)})
                         .interpolate('linear');
 
                     sel.append('g')
@@ -164,6 +176,13 @@ module.exports = function(){
                 }    
             })
         }
+    }
+
+    // getter/setter for vertical zoom
+    waveform.verticalZoom = function(_verticalZoom){
+        if (!arguments.length) return verticalZoom;
+        verticalZoom = _verticalZoom;
+        return waveform;
     }
 
     // inherit properties from the commonProperties

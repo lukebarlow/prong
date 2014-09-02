@@ -9,12 +9,12 @@ module.exports = function(){
         var selection = this,
             startOffset = 0;
 
-        function draw(_x){
+        function draw(){
 
             selection.each(function(d){
 
                 var sel = d3.select(this),
-                    x = _x || onsets.x(),
+                    x = onsets.x(),
                     width = onsets.width(),
                     height = onsets.height() || 128,
                     domain = x.domain(),

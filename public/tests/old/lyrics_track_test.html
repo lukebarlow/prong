@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<html>
+    <head>
+        <script src="../js/prong.js"></script>
+        <script>
+
+
+        </script>
+        <style>
+BODY {
+    font-family:helvetica;
+    background-color:#333;
+    color:white;
+    height:100%;
+    padding:0;
+    margin:0;
+}
+
+IFRAME {
+    padding:0;
+    margin:0;
+    border-width:0px;
+    width:300px;
+    height:100%;
+    float:left;
+}
+
+#main {
+    padding:50px;
+    padding-left:50px;
+    height:100%
+}
+
+A { color : steelblue;}
+
+.trackName {
+    position:absolute;
+    left:-110px;
+    width:100px;
+    text-align:right;
+    font-size:10pt;
+    margin-top:8px;
+}
+
+#sequence {
+    height:400px;
+    margin-left:100px;
+}
+
+/* waveform */
+
+.area {
+  fill:steelblue;
+}
+
+.line {
+  stroke:steelblue;
+  fill:none;
+}
+
+/* timeline */
+
+.timeline path,
+.timeline line {
+  fill: none;
+  stroke: white;
+  shape-rendering: crispEdges;
+}
+
+.timeline text {
+  fill:white;
+  shape-rendering: crispEdges;
+}
+
+/* comper */
+
+.comp {
+    fill:white;
+    opacity:0.2;
+}
+
+.inbetween {
+  fill:transparent;
+  cursor:hand;
+}
+
+.resizer {
+    fill:red;
+    opacity:0;
+    cursor:ew-resize;
+}
+
+/* play line */
+
+.playLine {
+    background-color:green;
+    width:1px;
+    height:600px;
+    top:0px;
+    position:absolute;
+}
+
+        </style>
+    </head>
+    <body>
+        <div id="main">
+        Sequence<br />
+        <span>
+        <br />
+        <br />
+        </span>
+        <button id="play">play</button>
+        <button id="stop">stop</button>
+        <br />
+        <br />
+        <div id="sequence"></div>
+        </div>
+        <script>
+
+var tracks = [
+    {
+        type : 'lyrics',
+        data : [
+            { time : 0, text : 'All day' },
+            { time : 3, text : 'All long'},
+            { time : 5.5, text : 'Maryanne'}
+        ]
+    },
+    {
+        'type' : 'audio',
+        'src' : '../audio/nino_rota/sax1.mp3'
+    },
+    {
+        'type' : 'audio',
+        'src' : '../audio/nino_rota/sax2.mp3'
+    }
+]
+
+var x = d3.scale.linear().domain([0, 60]).range([0, 800]);
+
+sequence = prong.sequence()
+    .x(x)
+    .tracks(tracks)
+    .trackHeight(30)
+    .audioOut(prong.audioContext().destination);
+
+d3.select('#sequence').call(sequence);
+
+d3.select('#play').on('click', function(){sequence.play()});
+d3.select('#stop').on('click', function(){
+    if (sequence.playing()){
+        sequence.stop()
+    }else{
+        // if already stopped, then clicking this button resets to zero
+        sequence.currentTime(0);
+    }
+});
+        </script>
+    </body>
+</html>

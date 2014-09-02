@@ -4,7 +4,21 @@
     <head>
         <script src="../js/prong.js"></script>
         <script src="../js/d3.v3.js"></script>
-        <script src="../js/audioMatchingTests.js"></script>
+        <script>
+tests = [
+    // {
+    //     a : '../audio/ron_live_kinder.wav', 
+    //     b : '../audio/ron_live_kinder_snippet_3.wav',
+    //     offset : 3.78
+    // },
+    { 
+        a : '../audio/four_devices_ipad.wav',
+        b : '../audio/four_devices_computer.wav',
+        offset : 9.841
+    },
+]
+
+        </script>
         <style>
 BODY {
     font-family:helvetica;
@@ -15,18 +29,9 @@ BODY {
     margin:0;
 }
 
-IFRAME {
-    padding:0;
-    margin:0;
-    border-width:0px;
-    width:300px;
-    height:100%;
-    float:left;
-}
-
 #main {
     padding:50px;
-    padding-left:350px;
+    padding-left:50px;
     height:100%
 }
 
@@ -71,7 +76,7 @@ BUTTON {
         </style>
     </head>
     <body>
-        <iframe src="./"></iframe>
+      
         <div id="main">
         Least Difference Audio Matching<br />
         <span>
@@ -85,10 +90,10 @@ BUTTON {
         </div>
         <script>
 
-        var height = 20,
+        var height = 40,
             width = 800,
             frequencyBands = [600, 11000, 12000, Infinity],
-            interval = 0.1;
+            interval = 0.03;
 
         var passes = 0, fails = 0,
             testIndex = 0,
@@ -111,7 +116,7 @@ BUTTON {
     
         function runTest(test, callback){
 
-            var x = d3.scale.linear().domain([0, 20]).range([0, width]),
+            var x = d3.scale.linear().domain([0, 40]).range([0, width]),
                 sequence = prong.sequence()
                 .x(x)
                 .trackHeight(height)
@@ -177,7 +182,22 @@ BUTTON {
 
                 var start = new Date();
 
-                var testResult = prong.audioMatching.matchLeastDiff(sequence.tracks(), interval, frequencyBands);
+                // var testResult = prong.audioMatching.matchLeastDiff(sequence.tracks(), interval, frequencyBands);
+
+                var tracks = sequence.tracks();
+                var a = prong.fx.thinOut(tracks[0].channel, 512, 'first')
+                var b = prong.fx.thinOut(tracks[1].channel, 512, 'first')
+   
+                var testResult = prong.leastDifference(a,b, 0.4);
+
+                testResult = testResult.offset * 512 / 44100;
+                console.log('testResult', testResult)
+
+                //testResult = 3.7892;
+                //testResult = 3.784490;
+                //testResult = 3.784399
+
+                tracks[1].startTime = testResult;
 
                 var end = new Date(),
                     testTime = end - start,
@@ -202,11 +222,13 @@ BUTTON {
                 console.log('test rate : ' + testRate);
                 passed ? passes++ : fails++;
 
+                console.log('testTime ', testTime / 1000)
 
                 callback();
             })
         }
 
         </script>
+
     </body>
 </html>

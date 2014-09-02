@@ -77,7 +77,7 @@ IFRAME {
         <br />
         </span>
         <svg>
-        <g id="timeline" transform="translate(10,10)"></g>
+        <g id="timeline" transform="translate(10,10)" class="timeline"></g>
         <g id="waveform" transform="translate(10,30)"></g>
         <g id="bands" transform="translate(10,150)"></g>
         </svg>
@@ -104,8 +104,8 @@ IFRAME {
 
             d3.select('#waveform')
                 .datum({
-                    buffer : buffer,
-                    channel : channel
+                    _buffer : buffer,
+                    _channel : channel
                 })
                 .call(waveform);
 

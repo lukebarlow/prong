@@ -5,10 +5,12 @@
   "dependencies": {
     "express": "3.x",
     "socket.io": "latest",
-    "fft" : "latest"
+    "fft" : "latest",
+    "browserify-middleware" : "latest",
+    "caching-coffeeify" : "latest",
+    "d3" : "latest"
   },
   "devDependencies": {
-     "mocha": "latest", 
-     "should": "latest" 
+     "jasmine-node" : "latest"
   }
 }

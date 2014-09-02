@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<html>
+    <head>
+        <script src="../js/prong.js"></script>
+        <link rel='stylesheet' href='testPage.css'></link>
+    </head>
+    <body>
+
+        <iframe src="./"></iframe>
+
+        <div id="main">
+
+            Timeline<br />
+            <span>
+            <ul>
+                <li>Waveform is shown with timeline above it</li>
+                <li>You can scroll horizontally to move back and forth along
+                    the timeline. This is done either by holding the shift key
+                    and using the scroll wheel, or (on Mac) by swiping with
+                    two fingers left and right on the track pad.</li>
+                <li>You can click and drag vertically on the timeline to zoom
+                    in and out.</li>
+            </ul>
+            </span>
+            <svg>
+            <g id="timeline" transform="translate(10,10)" class="timeline"></g>
+            <g id="waveform" transform="translate(10,30)"></g>
+            </svg>
+        </div>
+
+        <script>
+        // first load the sound
+        prong.sound('../audio/four_devices_android.mp3', function(buffer){
+            // then create the timeline
+            var width = 800;
+            var x = d3.scale.linear().domain([0, 20]).range([0, width]);
+            var timeline = prong
+                .timeline()
+                .x(x)
+                .scrollZone(d3.select('svg'));
+            d3.select('#timeline').call(timeline);
+            // then a single waveform
+            var waveform = prong.waveform()
+                .x(x)
+                .timeline(timeline); // bound to the timeline
+            d3.select('#waveform')
+                .datum({
+                    _buffer : buffer,
+                    _channel : buffer.getChannelData(0)
+                })
+                .call(waveform);
+        })
+        </script>
+    </body>
+</html>

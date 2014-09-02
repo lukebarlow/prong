@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<html>
+    <head>
+        <script src="../js/prong.js"></script>
+        <link rel='stylesheet' href='testPage.css'></link>
+    </head>
+    <body>
+        <iframe src="./"></iframe>
+        <div id="main">
+        Waveform<br />
+        <br />
+        <ul>
+            <li>Waveform of a sound is displayed below</li>
+        </ul>
+        <br />
+        
+        <svg id="waveform" height="200"></svg>
+        <div>
+
+        <script>
+        // first load the sound ...
+        prong.sound('../audio/four_devices_android.mp3', function(buffer){
+            var width = 600;
+            // ... then create and display the waveform
+            var x = d3.scale.linear().domain([0, 20]).range([0, width]);
+            var waveform = prong.waveform()
+                .x(x)
+                .height(200);
+
+            d3.select('#waveform')
+                .datum({
+                    _buffer : buffer,
+                    _channel : buffer.getChannelData(0)
+                })
+                .call(waveform);
+        })
+        </script>
+    </body>
+</html>

@@ -59,8 +59,8 @@ IFRAME {
         <div id="main">
         Note onset detection<br />
         <br />
-        You can detect note onsets by looking for jumps in the amplitude
-        of the waveform.<br />
+        Prong contains a note onset detection algorith, which looks for jumps
+        in the amplitude of the waveform.<br />
         <br />
         <br />
         <div style="position:absolute;width:1000px;height:400px">
@@ -70,7 +70,7 @@ IFRAME {
             <g id="onsetsContainer"></g>
         </svg>
         <canvas id="spectrogram" width="1000" height="600" style="position:absolute;top:-100px"></canvas>
-        <svg id="timeline" height="30" width="1000" style="position:absolute"></svg>
+        <svg id="timeline" height="30" width="1000" style="position:absolute" class="timeline"></svg>
         </div>
         </div>
         <script>
@@ -96,8 +96,8 @@ IFRAME {
 
             d3.select('#waveform')
                 .datum({
-                    buffer : buffer,
-                    channel : channel
+                    _buffer : buffer,
+                    _channel : channel
                 })
                 .call(waveform);
 

@@ -4,7 +4,8 @@ var commonProperties = require('../commonProperties'),
 
 module.exports = function(){
     var key,
-        colour;
+        colour,
+        labels = false; // boolean, determines whether to show labels
 
     var lines = function(){
         var selection = this;
@@ -33,6 +34,7 @@ module.exports = function(){
                 })
 
                 sel.selectAll('.onset').remove()
+                
                 // now draw the new ones
                 sel.selectAll('.onset')
                     .data(visibleTimes)
@@ -47,6 +49,24 @@ module.exports = function(){
                     .attr('width',1)
                     .attr('y', 0)
                     .attr('height', height)
+
+                if (labels){
+                    var yOffset = times.indexOf(visibleTimes[0]) % 3;
+                    sel.selectAll('text').remove()
+                    sel.selectAll('text')
+                        .data(visibleTimes)
+                        .enter()
+                        .append('text')
+                        .style('fill',colour)
+                        .style('font-size','10pt')
+                        .attr('x', function(d){
+                            return x(d)+1
+                        })
+                        .attr('width',1)
+                        .attr('y', function(d,i){return ((i+yOffset)%3) * 14 + 15})
+                        .attr('height', height)
+                        .text(function(d){return d3.round(d,2)})
+                }
             })
         }
 
@@ -86,6 +106,12 @@ module.exports = function(){
     lines.key = function(_key){
         if (!arguments.length) return key;
         key = _key;
+        return lines;
+    }
+
+    lines.labels = function(_labels){
+        if (!arguments.length) return labels;
+        labels = _labels;
         return lines;
     }
 

@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<html>
+    <head>
+        <script src="../js/prong.js"></script>
+        <style>
+BODY {
+    font-family:helvetica;
+    background-color:#333;
+    color:white;
+    height:100%;
+    padding:0;
+    margin:0;
+}
+
+A {
+    color:steelblue;
+}
+
+IFRAME {
+    padding:0;
+    margin:0;
+    border-width:0px;
+    width:300px;
+    height:100%;
+    float:left;
+}
+
+#main {
+    padding:50px;
+    padding-left:350px;
+    height:100%
+}
+
+/* waveform */
+
+.area {
+  fill:steelblue;
+}
+
+.line {
+  stroke:steelblue;
+  fill:none;
+}
+
+/* timeline */
+
+.timeline path,
+.timeline line {
+  fill: none;
+  stroke: white;
+  shape-rendering: crispEdges;
+}
+
+.timeline text {
+  fill:white;
+  shape-rendering: crispEdges;
+}
+
+        </style>
+    </head>
+    <body>
+
+        <iframe src="../"></iframe>
+
+        <div id="main">
+
+            Timeline<br />
+            <span>
+            <br />
+            The timeline is a zoomable scrollable time axis. It is modelled on 
+            the time axis elements found in the likes of Logic Pro and Cubase. 
+            <br />
+            <br />
+            Click and drag vertically to zoom in and out. <br />
+            Hold shift and scroll to move left and right. <br />
+            <br />
+            The waveform is shown as a solid area when zoomed out, and switches
+            to a thin line when zoomed in.
+            <br />
+            <br />
+            See the code on <a href="http://jsfiddle.net/lukebarlow/aYTs3/4/">jsfiddle</a>.<br />
+            <br />
+            </span>
+            <svg width="800" height="40">
+            <g id="timeline" transform="translate(10,10)" class="timeline"></g>
+            </svg>
+            <canvas id="waveform" height="200" width="800" style="padding-left:10px"></canvas>
+        </div>
+
+        <script>
+        // first load the sound
+        prong.sound('../audio/four_devices_android.mp3', function(buffer){
+            // then create the timeline
+            var width = 800;
+            var x = d3.scale.linear().domain([0, 20]).range([0, width]);
+            var timeline = prong
+                .timeline()
+                .x(x)
+                .scrollZone(d3.select('svg'));
+            d3.select('#timeline').call(timeline);
+            // then a single waveform
+            var waveform = prong.canvasWaveform()
+                .x(x)
+                .timeline(timeline); // bound to the timeline
+            d3.select('#waveform')
+                .datum({
+                    buffer : buffer,
+                    channel : buffer.getChannelData(0)
+                })
+                .call(waveform);
+        })
+        </script>
+    </body>
+</html>

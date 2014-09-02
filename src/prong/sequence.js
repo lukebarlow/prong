@@ -1,5 +1,5 @@
 var commonProperties = require('./commonProperties'),
-	Track = require('./track/track'),
+	Track = require('./track/track.coffee'),
 	Timeline = require('./components/timeline'),
     Pool = require('./pool');
 
@@ -7,6 +7,7 @@ module.exports = function(){
 
 	var element,
         tracksContainer,
+        container,
         tracks = [],
         _track,
         playLine,
@@ -17,37 +18,54 @@ module.exports = function(){
         trackHeight, // the default height in pixels for tracks (can be overriden for specific tracks)
         trackLoadCount = 0,
         timelineHeight = 40,
+        waveformVerticalZoom = 1,
         pool,
         dispatch = d3.dispatch('scrub','change','play','stop','tick','load','volumeChange');
+        scrollZone = null
+        timeline = null
+        musicalTime = null
+        zoomable = true
+        following = true // toggle for whether the display updates to follow playback
 
     function setPlaylinePosition(){
         // the -2 in the next line ensures the play line is not directly
         // underneath the mouse, so you can click on tracks when scrubbing
-        playLine.style('left', (sequence.x()(currentTime) - 2) + 'px');
+        position = (sequence.x()(currentTime) - 2)
+        if (position > sequence.width() || position < 0){
+            playLine.style('display','none')
+        }else{
+            playLine.style('display','')
+            playLine.style('left', (sequence.x()(currentTime) - 2) + 'px');
+        }
     }
 
 	function sequence(_element){
 		element = _element;
 
 		var x = sequence.x(),
-		    timeline = Timeline().x(x).scrollZone(element), // create the timeline
-            absoluteContainer = element.append('div')
-                .style('position','absolute'),
-            timelineContainer = absoluteContainer.append('svg')
+		    timeline = Timeline()
+                .x(x)
+                .sequence(sequence)
+                .zoomable(zoomable)
+                .scrollZone(scrollZone || element); // create the timeline
+
+        container = element.append('div');
+
+        var playlineContainer = container.append('div')
+                .style('position','absolute')
+                .attr('class','playlineContainer');
+
+        var timelineContainer = container.append('svg')
                 .attr('height', timelineHeight)
-                .attr('width', sequence.width())
+                .attr('width', '100%')
                 .attr('class','timeline')
                 .append('g')
                 .attr('transform','translate(0,1)')
                 .call(timeline);
 
-        tracksContainer = absoluteContainer.append('div')
-                .style('position','absolute');
-
-        var playlineContainer = absoluteContainer.append('div')
-                .style('position','absolute')
-                .style('top', '1px');
-            
+        tracksContainer = container.append('div')
+                .attr('width', '100%');
+  
         function mouse() {
             var touches = d3.event.changedTouches,
                 reference = timelineContainer;
@@ -60,12 +78,15 @@ module.exports = function(){
 
 		// create the tracks
 		_track = Track().sequence(sequence);
-		tracksContainer.selectAll('.track')
-			.data(tracks)
-			.enter()
-			.append('div')
-			.attr('class','track')
-			.call(_track);
+
+        tracksContainer.datum(tracks).call(_track)
+
+		// tracksContainer.selectAll('.track')
+		// 	.data(tracks)
+		// 	.enter()
+		// 	.append('div')
+		// 	.attr('class','track')
+		// 	.call(_track);
 
         _track.on('load', function(){
             trackLoadCount++;
@@ -73,18 +94,14 @@ module.exports = function(){
                 dispatch.load();
             }
 
-            var totalTrackHeight = d3.sum(tracksContainer.selectAll('.track')[0], function(t){
-                return t.clientHeight;
-            })
-
-            playLine.style('height', (totalTrackHeight + timelineHeight) + 'px');
-
+            playLine.style('height', sequence.height() + 'px')
         })
 
 		// and the play line
 		playLine = playlineContainer.append('div')
-            .style('height', '200px') // this soon gets clobbered when the tracks load
-            .attr('class','playLine');
+            .style('height', '100px') // this soon gets clobbered when the tracks load
+            .attr('class','playLine')
+            .style('top','1px');
 
         setPlaylinePosition();
         timeline.on('change.playline', function(){
@@ -225,22 +242,53 @@ module.exports = function(){
 
     sequence.on = function(type, listener){
         dispatch.on(type, listener)
+        return sequence
     }
 
-    sequence.play = function(time, end){
+    playStartSequenceTime = null
+    playStartComputerTime = null
+
+    sequence.play = function(time, end, loop){
+        if (playing) {
+            console.log('already playing, so returning')
+            return;
+        }
         currentTime = time || currentTime;
+        playStartSequenceTime = currentTime
+        playStartComputerTime = new Date()
         playing = true;
         dispatch.play(currentTime);
-        var x = sequence.x();
+        var x = sequence.x(),
             startTimestamp = Date.now(),
             startTime = currentTime;
 
+        // this doesn't work when tab is not in focus
         d3.timer(function(){
             currentTime = ((Date.now() - startTimestamp) / 1000) + startTime;
+
+            if (following){
+                var domain = x.domain()
+                if (currentTime > domain[1]){
+                    var width = domain[1] - domain[0]
+                    var domain = [domain[0] + width, domain[1] + width]
+                    sequence.timeline().domain(domain)
+                }
+            }
+
             setPlaylinePosition();
+
             if (end && currentTime > end){
-                sequence.stop();
-                return true;
+                if (loop){
+                    dispatch.stop();
+                    currentTime = time;
+                    startTimestamp = Date.now();
+                    startTime = currentTime;
+                    dispatch.play(currentTime);
+                    return false;
+                }else{
+                    sequence.stop();
+                    return true;
+                }
             }else{
                 dispatch.tick(currentTime);
             }
@@ -254,11 +302,18 @@ module.exports = function(){
 
     sequence.stop = function(){
         playing = false;
+        playStartSequenceTime = null;
+        playStartComputerTime = null;
         dispatch.stop();
     }
 
     sequence.currentTime = function(_currentTime){
-        if (!arguments.length) return currentTime;
+        if (!arguments.length)
+            // if playing then we make sure currentTime is as accurate as possible
+            if (playing){
+                currentTime = playStartSequenceTime + (new Date() - playStartComputerTime) / 1000;
+            }
+            return currentTime
         currentTime = _currentTime;
         setPlaylinePosition();
         return sequence;
@@ -273,6 +328,18 @@ module.exports = function(){
     sequence.trackHeight = function(_trackHeight){
         if (!arguments.length) return trackHeight;
         trackHeight = _trackHeight;
+        return sequence;
+    }
+
+    sequence.musicalTime = function(_musicalTime){
+        if (!arguments.length) return musicalTime;
+        musicalTime = _musicalTime;
+        return sequence;
+    }
+
+    sequence.waveformVerticalZoom = function(_waveformVerticalZoom){
+        if (!arguments.length) return waveformVerticalZoom;
+        waveformVerticalZoom = _waveformVerticalZoom;
         return sequence;
     }
 
@@ -292,6 +359,26 @@ module.exports = function(){
             throw "Cannot set pool directly. Set the poolResources instead"
         }
         return pool;
+    }
+
+    sequence.scrollZone = function(_scrollZone){
+        if (!arguments.length) return scrollZone
+        scrollZone = _scrollZone
+        return sequence;
+    }
+
+    sequence.zoomable = function(_zoomable){
+        if (!arguments.length) return zoomable
+        zoomable = _zoomable
+        return sequence;
+    }
+
+    sequence.rangeAndDomain = function(range, domain){
+        sequence.timeline().rangeAndDomain(range, domain)
+    }
+
+    sequence.height = function(){
+        return container.node().clientHeight
     }
 
 	return d3.rebind(sequence, commonProperties(), 'x', 'width', 'sequence', 'timeline');

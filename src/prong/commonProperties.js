@@ -1,6 +1,6 @@
 // a mixin of common properties which can be inherited using d3.rebind
 module.exports = function(){
-    var x, buffer, width, height, timeline;
+    var x, buffer, width, height, timeline, sequence;
     var commonProperties = {};
 
     // getter/setter for x scale

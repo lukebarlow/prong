@@ -32,11 +32,23 @@ A { color : steelblue;}
 
 .trackName {
     position:absolute;
-    left:-110px;
+}
+
+.trackName > span {
+    position:absolute;
+    overflow:visible;
+    height:0px;
+    left:-120px;
     width:100px;
-    text-align:right;
+    top:10px;
     font-size:10pt;
-    margin-top:8px;
+    text-align: right;
+}
+
+.trackLoading {
+    position:absolute;
+    padding-top:10px;
+    font-size:10pt;
 }
 
 #sequence {
@@ -97,6 +109,35 @@ A { color : steelblue;}
     position:absolute;
 }
 
+/* transport */
+
+.playStopButton {
+    display: inline-block;
+    cursor:pointer;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+.playStopButton circle {
+    fill: rgba(77, 127, 184, 0.5);
+    stroke:transparent;
+    
+}
+
+.playStopButton polygon {
+    fill: #63a909;
+    stroke:transparent;
+}
+
+.playStopButton rect {
+    fill: #ec0b1a;
+    stroke: transparent;
+}
+
         </style>
     </head>
     <body>
@@ -116,8 +157,8 @@ A { color : steelblue;}
         <br />
         <br />
         </span>
-        <button id="play">play</button>
-        <button id="stop">stop</button>
+        <div id="transport"></div>
+     
         <br />
         <br />
         <div id="sequence"></div>
@@ -187,17 +228,10 @@ sequence = prong.sequence()
     .trackHeight(30)
     .audioOut(prong.audioContext().destination);
 
-d3.select('#sequence').call(sequence);
+transport = prong.transport().sequence(sequence)
 
-d3.select('#play').on('click', function(){sequence.play()});
-d3.select('#stop').on('click', function(){
-    if (sequence.playing()){
-        sequence.stop()
-    }else{
-        // if already stopped, then clicking this button resets to zero
-        sequence.currentTime(0);
-    }
-});
+d3.select('#sequence').call(sequence);
+d3.select('#transport').call(transport);
         </script>
     </body>
 </html>

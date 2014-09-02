@@ -1,0 +1,122 @@
+BODY {
+    font-family:helvetica neue, helvetica, sans serif;
+    height:100%;
+    padding:0;
+    margin:0;
+}
+
+A {
+    color:steelblue;
+}
+
+.trackName {
+    display:block;
+    position:relative;
+    height:0px;
+    width:0px;
+    overflow:visible;
+    left:-110px;
+    top:6px;
+    width:100px;
+    text-align:right;
+    font-size:10pt;
+    margin-top:8px;
+    color:steelblue;
+}
+
+IFRAME {
+    padding:0;
+    margin:0;
+    border-width:0px;
+    width:300px;
+    height:100%;
+    float:left;
+}
+
+#main {
+    padding:50px;
+    padding-left:350px;
+    height:100%
+}
+
+/* waveform */
+
+.area {
+  fill:orange;
+}
+
+.line {
+  stroke:orange;
+  fill:none;
+}
+
+/* timeline */
+
+.timeline path,
+.timeline line {
+  fill: none;
+  stroke: steelblue;
+  shape-rendering: crispEdges;
+}
+
+.timeline text {
+  fill:steelblue;
+  shape-rendering: crispEdges;
+}
+
+/* comper */
+
+.comp {
+    fill:white;
+    opacity:0.2;
+}
+
+.inbetween {
+  fill:transparent;
+  cursor:hand;
+}
+
+.resizer {
+    fill:red;
+    opacity:0;
+    cursor:ew-resize;
+}
+
+/* play line */
+
+.playLine {
+    background-color:green;
+    width:1px;
+    height:600px;
+    top:0px;
+    position:absolute;
+}
+
+/* transport */
+
+.playStopButton {
+    display: inline-block;
+    cursor:pointer;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+.playStopButton circle {
+    fill:#fcbe00;
+    stroke:transparent;
+    
+}
+
+.playStopButton polygon {
+    fill: #63a909;
+    stroke:transparent;
+}
+
+.playStopButton rect {
+    fill: #ec0b1a;
+    stroke: transparent;
+}

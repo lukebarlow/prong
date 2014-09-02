@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<html>
+    <head>
+        <script src="../js/prong.js"></script>
+        <link rel='stylesheet' href='testPage.css'></link>
+    </head>
+    <body>
+
+        <iframe src="./"></iframe>
+        <div id="main">
+        Filmstrip<br />
+        <span>
+        <ul>
+            <li>Scroll and zoom the timeline, and the preview frames in the
+                timeline update to show the correct frames.</li>
+        </ul>
+        <br />
+        </span>
+
+        <video controls="true" width="400" height="300">
+            <source type="video/ogg" src="../video/guitar_clip.ogg"></source>
+        </video>
+        <br />
+        <br />
+        <br />
+        <span id="scrollZone" style="position:absolute">
+            <div id="filmstrip"></div>
+            <svg id="timeline" style="position:absolute" class="timeline"></svg>
+        </span>
+        </div>
+        <script>
+
+var timeline;
+var width = 800;
+var x = d3.scale.linear().domain([0, 90]).range([0, width]);
+
+timeline = prong.timeline()
+    .x(x)
+    .scrollZone(d3.select('#scrollZone'));
+
+d3.select('#timeline').call(timeline);
+
+var filmstrip = prong.filmstrip()
+    .video(d3.select('video'))
+    .height(128)
+    .timeline(timeline)
+    .x(x);
+
+d3.select('#filmstrip')
+    .datum({
+        startTime : 0
+    })
+    .call(filmstrip);
+
+        </script>
+    </body>
+</html>

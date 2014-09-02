@@ -10,7 +10,6 @@ var commonProperties = require('../commonProperties'),
 module.exports = function(){
 
     var width;
-
     var dispatch = d3.dispatch('load');
 
     // gets the first non blank channel in a buffer
@@ -35,7 +34,21 @@ module.exports = function(){
         return nonBlankChannels;
     }
 
+    // the default sound loader
+    function httpSoundLoader(loadingMessage, callback){
+        var track = this;
+        sound(track.src, function(buffer){
+            track._buffer = buffer;
+            track._channel = getFirstNonBlankChannel(track._buffer);
+            callback();
+        }, function(progress){
+            loadingMessage.text(progress)
+        });
+    }
+
     function audio(selection){
+
+        //console.log('APPLYING AUDIO TO SELECTION')
 
         selection.each(function(d,i){
             var sequence = audio.sequence(),
@@ -46,14 +59,17 @@ module.exports = function(){
 
             if (!('volume' in d)) d.volume = 1;
 
-            div.append('span').text(prong.trackName).attr('class','trackName');
-    
+            div.append('div').attr('class','trackName').append('span').text(prong.trackName);
+            var loadingMessage = div.append('span').attr('class','trackLoading');
+
             var svg = div.append('svg')
                 .attr('height',height)
-                .attr('width',width)
+                .attr('width', '100%')
                 .on('mouseover', function(d){
-                    d3.select(this).classed('over', true);
-                    d.over = true;
+                    if (!prong._dragging){
+                        d3.select(this).classed('over', true);
+                        d.over = true;
+                    }
                 })
                 .on('mouseout', function(d){
                     d3.select(this).classed('over', false);
@@ -66,15 +82,29 @@ module.exports = function(){
                     })
                 });
 
+        
             var src = d.audioSrc || d.src;
 
-            sound(src, function(buffer){
-                d.buffer = buffer;
-                d.channel = getFirstNonBlankChannel(buffer);
+            // each track has a 'loader' method which is responsible for
+            // asynchronously loading and decoding the data, and reporting
+            // on progress as it goes. The default one loads from http. Once
+            // the loader is complete, the track should have channel and
+            // buffer properties
+            if (!('_loader' in d)){
+                if ('channel' in d){
+                    // if we already have a channel set, set a 'do nothing' loader
+                    d._loader = function(_,callback){callback()}
+                }else{
+                    d._loader = httpSoundLoader;
+                }
+            } 
 
+            d._loader(loadingMessage, function(){
+                loadingMessage.remove();
                 var waveform = Waveform()
                     .x(x)
                     .height(height)
+                    .verticalZoom(sequence.waveformVerticalZoom())
                     .timeline(sequence.timeline());
 
                 svg.call(waveform);
@@ -94,17 +124,17 @@ module.exports = function(){
                     .key('notes');
 
                 svg.call(note);
-
-            });
+            })
 
             var uid = prong.uid();
 
             sequence.on('play.audio'+uid, function(){
+
                 var audioOut = sequence.audioOut();
-                if (!audioOut || !d.buffer) return;
+                if (!audioOut || !d._buffer) return;
                 var audioContext = prong.audioContext();
                 var source = audioContext.createBufferSource();
-                source.buffer = d.buffer;
+                source.buffer = d._buffer;
                 
                 var gain = audioContext.createGain();
                 var panner = audioContext.createPanner();

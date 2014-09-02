@@ -50,7 +50,7 @@ module.exports = function(){
             }
             time = times[index];
             index++;
-            video.currentTime = time;
+            video.currentTime = time || 0;
         }
         video.addEventListener('seeked', seeked);
         nextFrame();

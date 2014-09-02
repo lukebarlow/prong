@@ -11,6 +11,7 @@ time when the sequence is played.
 */
 function setPlayHandler(track){
 
+    
     var regions = track.regions;
 
     var audioOut = sequence.audioOut();
@@ -54,7 +55,7 @@ function setPlayHandler(track){
 
         regions.forEach(function(region){
             // if no audio buffer, then can't play
-            if (!region.buffer) return;
+            if (!region._buffer) return;
             // if this region is already in the past, then skip
             if (sequence.currentTime() > 
                 region.startTime + (region.clipEnd - region.clipStart)) return;
@@ -66,8 +67,8 @@ function setPlayHandler(track){
                 playingTime = region.clipEnd - region.clipStart - (timeOffset > 0 ? timeOffset : 0);
 
             var source = audioContext.createBufferSource();
-            source.buffer = region.buffer;
-            region.source = source;
+            source.buffer = region._buffer;
+            region._source = source;
             source.connect(trackOut);
             source.start(when, offset);
             source.stop(when + playingTime);
@@ -82,13 +83,16 @@ function setStopHandler(d){
 }
 
 function stop(region){
-    if (region.source){
-        region.source.stop(0)
+    if (region._source){
+        region._source.stop(0)
     };
-    delete region.source;
+    delete region._source;
 }
 
 module.exports = function(){
+
+    var dispatch = d3.dispatch('load');
+
     function audioRegions(selection){
 
         var sequence = audioRegions.sequence(),
@@ -99,6 +103,8 @@ module.exports = function(){
 
             var div = d3.select(this),
                 height = track.height || sequence.trackHeight() || 128;
+
+            div.append('div').attr('class','trackName').append('span').text(prong.trackName);
 
             var svg = div.append('svg')
                 .attr('height',height)
@@ -132,8 +138,6 @@ module.exports = function(){
                 .attr('height',height)
                 .each(setStopHandler)
 
-            div.append('span').text(prong.trackName).attr('class','trackName');
-
             setPlayHandler(track);
 
         })
@@ -149,9 +153,10 @@ module.exports = function(){
             .each(function(d,i){
                 var thiz = d3.select(this);
                 sequence.pool().getBufferForId(d.clipId, function(buffer){
-                    d.buffer = buffer;
-                    d.channel = d.buffer.getChannelData(0)
+                    d._buffer = buffer;
+                    d._channel = buffer.getChannelData(0)
                     thiz.call(waveform);
+                    dispatch.load(d);
                 });
             })
 
@@ -163,6 +168,11 @@ module.exports = function(){
                     return x(d.clipEnd) - x(d.clipStart);
                 })
         })
+    }
+
+    audioRegions.on = function(type, listener){
+        dispatch.on(type, listener);
+        return audioRegions;
     }
 
     return d3.rebind(audioRegions, commonProperties(), 'sequence','height');

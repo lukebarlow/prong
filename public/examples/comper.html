@@ -101,7 +101,7 @@ A { color : steelblue;}
         See the code on <a href="http://jsfiddle.net/lukebarlow/t96Ut/">jsfiddle</a>.
         <br />
         </span>
-        <svg>
+        <svg width="100%" height="600">
         <g id="timeline" transform="translate(20,10)" class="timeline"></g>
         <g id="waveforms" transform="translate(20,60)"></g>
         </svg>
@@ -132,8 +132,8 @@ prong.sounds([
 
     var tracks = buffers.map(function(buffer){
         return {
-                    buffer : buffer,
-                    channel : buffer.getChannelData(0)
+                    _buffer : buffer,
+                    _channel : buffer.getChannelData(0)
                 }
     })
 
