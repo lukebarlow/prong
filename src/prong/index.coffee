@@ -1,35 +1,31 @@
-// add remove method to array
-Array.prototype.remove = function(item){
-    var index = this.indexOf(item)
-    if (index != -1){
+# add remove method to array
+Array.prototype.remove = (item) ->
+    index = this.indexOf(item)
+    if (index != -1)
         return this.splice(index, 1)
-    }
-}
+    
 
-// a few useful methods to have on Float32Arrays
+# a few useful methods to have on Float32Arrays
 Float32Array.prototype.map = Array.prototype.map
 Float32Array.prototype.slice = Float32Array.prototype.subarray
 Float32Array.prototype.some = Array.prototype.some
 
-// cancel all default selection behavior
-// TODO : move this behavior inside comper
 
-var sound = require('./sound')
+sound = require('./sound')
 
 module.exports = {
-    // componentsdocument.onselectstart = function() { return false; };
-    spectrogram : require('./components/spectrogram'),
 
-    waveform : require('./components/waveform'),
+    spectrogram : require('./components/spectrogram.coffee'),
+    waveform : require('./components/waveform.coffee'),
     canvasWaveform : require('./components/canvasWaveform'),
     filmstrip : require('./components/filmstrip'),
     onsets : require('./components/onsets'),
-    comper : require('./components/comper'),
+    comper : require('./components/comper.coffee'),
     timeline : require('./components/timeline'),
     musicalTimeline : require('./components/musicalTimeline.coffee'),
     slider : require('./components/slider'),
     slider2 : require('./components/slider2'),
-    pot : require('./components/pot'),
+    pot : require('./components/pot.coffee'),
     note : require('./components/note'),
     contour : require('./components/contour'),
     lines : require('./components/lines'),
@@ -37,24 +33,18 @@ module.exports = {
     mixPresets : require('./components/mixPresets.coffee'),
     transport : require('./components/transport'),
     
-    // audio/data manipulation
+    # audio/data manipulation
     fx : require('./analysis/fx'),
-    //audioMatching : require('./analysis/audioMatching'),
-    //leastDifference : require('./analysis/leastDifference'),
-    //noteOnset : require('./analysis/noteOnset'),
-    //audioMatching : require('./analysis/audioMatching'),
-    //counter : require('./analysis/counter'),
-    //summer : require('./analysis/summer'),
     
-    // history
-    history : require('./history/history'),
-    editEncoding : require('./history/editEncoding'),
+    # history
+    history : require('./history/history.coffee'),
+    editEncoding : require('./history/editEncoding.coffee'),
 
-    // sequencer
-    sequence : require('./sequence'),
+    # sequencer
+    sequence : require('./sequence.coffee'),
     registerTrackType : require('./track/track.coffee').registerTrackType,
 
-    // misc
+    # misc
     taskFeedback : require('./taskFeedback'),
     uid : require('./uid'),
     guid : require('./guid'),
@@ -62,14 +52,10 @@ module.exports = {
     sound : sound.sound,
     sounds : sound.sounds,
     ubiquity : require('./ubiquity/ubiquity'),
-    trackName : function(d, i){
-        if ('name' in d) return d.name;
-        if ('src' in d){
+    trackName : (d, i) ->
+        if ('name' of d) then return d.name
+        if ('src' of d)
             return d.src.slice(d.src.lastIndexOf('/')+1, d.src.lastIndexOf('.'))
-                .replace('_',' ');
-        }
-        return d.type;
-    }
-
-
+                .replace('_',' ')
+        return d.type
 }

@@ -70,8 +70,8 @@ IFRAME {
 
             d3.select('#waveform')
                 .datum({
-                    buffer : buffer,
-                    channel : buffer.getChannelData(0)
+                    _buffer : buffer,
+                    _channel : buffer.getChannelData(0)
                 })
                 .call(waveform);
         })

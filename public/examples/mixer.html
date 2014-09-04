@@ -36,9 +36,9 @@ IFRAME {
     position:absolute;
     overflow:visible;
     height:0px;
-    left:-120px;
+    left:-100px;
     width:100px;
-    top:10px;
+    top:3px;
     font-size:10pt;
     text-align: right;
 }
@@ -113,7 +113,7 @@ A { color : steelblue;}
 }
 
 #sequence {
-    height:200px;
+    height:400px;
 }
 
 #mixer {
@@ -222,28 +222,77 @@ text {
         <script src="drum_cutup.js"></script>
         <script>
 
-tracks.forEach(function(track){
-    if (!('volume' in track)) track.volume = 60;
-    if (!('pan' in track)) track.pan = 0;
-})
+var tracks = [
+    {
+        'type' : 'audio',
+        'src' : '../audio/nino_rota/sax1.mp3'
+    },
+    {
+        'type' : 'audio',
+        'src' : '../audio/nino_rota/sax2.mp3'
+    },
+    {
+        'type' : 'audio',
+        'src' : '../audio/nino_rota/french_horn.mp3'
+    },
+    {
+        'type' : 'audio',
+        'src' : '../audio/nino_rota/oboe.mp3'
+    },
+    {
+        'type' : 'audio',
+        'src' : '../audio/nino_rota/clarinet.mp3'
+    },
+    {
+        'type' : 'audio',
+        'src' : '../audio/nino_rota/flute.mp3'
+    },
+    {
+        'type' : 'audio',
+        'src' : '../audio/nino_rota/snare.mp3'
+    },
+    {
+        'type' : 'audio',
+        'src' : '../audio/nino_rota/trombone.mp3'
+    },
+    {
+        'type' : 'audio',
+        'src' : '../audio/nino_rota/muted_trumpet.mp3'
+    },
+    {
+        'type' : 'audio',
+        'src' : '../audio/nino_rota/trumpet.mp3'
+    },
+    {
+        'type' : 'audio',
+        'src' : '../audio/nino_rota/tuba.mp3'
+    },
+    {
+        'type' : 'audio',
+        'src' : '../audio/nino_rota/bass_drum.mp3'
+    },
+    {
+        'type' : 'audio',
+        'src' : '../audio/nino_rota/cymbals.mp3'
+    }
+]
 
-var x = d3.scale.linear().domain([0, 15]).range([0, 800]);
+
+var x = d3.scale.linear().domain([0, 60]).range([0, 800]);
 
 var sequence = prong.sequence()
     .x(x)
-    .poolResources(pool)
     .tracks(tracks)
-    .trackHeight(40)
+    .trackHeight(20)
     .audioOut(prong.audioContext().destination);
 
-transport = prong.transport().sequence(sequence);
+var transport = prong.transport().sequence(sequence);
+
+var mixer = prong.mixer().sequence(sequence);
 
 d3.select('#sequence').call(sequence);
 d3.select('#transport').call(transport);
-
-// the two extra lines about the mixer
-var mixer = prong.mixer().sequence(sequence);
-d3.select('#mixer').text('').call(mixer);
+d3.select('#mixer').call(mixer);
 
         </script>
     </body>
