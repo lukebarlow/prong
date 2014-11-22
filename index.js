@@ -6,7 +6,7 @@ var express = require('express'),
 
 browserify.settings('extensions', ['.coffee','.js'])
 
-app.get('/js/prong.js', browserify('./src/main.js'))
+app.get('/js/prong.js', browserify('../prong/src/main.js'))
 app.use(express.static(__dirname + '/public'));
 
 module.exports = app;

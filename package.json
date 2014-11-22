@@ -8,6 +8,7 @@
     "fft" : "latest",
     "browserify-middleware" : "latest",
     "caching-coffeeify" : "latest",
+    "coffeeify" : "latest",
     "d3" : "latest"
   },
   "devDependencies": {
