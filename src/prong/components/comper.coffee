@@ -1,7 +1,7 @@
 commonProperties = require('../commonProperties')
 uid = require('../uid')
 history = require('../history/history')
-encoder = require('../history/editEncoding')
+editListCodec = require('../history/editListCodec')
 
 module.exports = ->
 
@@ -220,7 +220,7 @@ module.exports = ->
 
             dispatch.change()
             if (historyTracker)
-                historyTracker.set(encoder.stringify(editList), 'change edit')
+                historyTracker.set(editList, 'change edit')
 
         w = d3.select(window)
             .on('mousemove.comp', compMove)
@@ -258,6 +258,7 @@ module.exports = ->
         width = (d) ->
             return Math.max(Math.min(x(d.end), range[1]) - start(d) - 1, 0)
 
+        height = comper.height()
 
         selection.each (d,i) ->
             # get just the edits for this track
@@ -276,7 +277,7 @@ module.exports = ->
                 .attr('x', start)
                 .attr('width',width)
                 .attr('y',0)
-                .attr('height', 128)
+                .attr('height', height)
                 .attr('class','comp')
 
             track.selectAll('rect.inbetween')
@@ -286,7 +287,7 @@ module.exports = ->
                 .attr('x', start)
                 .attr('width', width)
                 .attr('y',0)
-                .attr('height', 128)
+                .attr('height', height)
                 .attr('class','inbetween')
 
             track.selectAll('rect.start')
@@ -296,7 +297,7 @@ module.exports = ->
                 .attr('x', (d) -> x(d.start) - 5)
                 .attr('width', 10)
                 .attr('y',0)
-                .attr('height', 129)
+                .attr('height', height + 1)
                 .attr 'class', (d) ->
                     first = (editList.indexOf(d) == 0)
                     return 'resizer start ' + (if first then 'first' else '')
@@ -308,7 +309,7 @@ module.exports = ->
                 .attr('x', (d) -> x(d.end) - 5)
                 .attr('width', 10)
                 .attr('y',0)
-                .attr('height', 129)
+                .attr('height', height + 1)
                 .attr 'class', (d) ->
                     last = editList.indexOf(d) == editList.length - 1
                     return 'resizer end ' + (if last then 'last' else '')
@@ -321,11 +322,11 @@ module.exports = ->
         # if we have a historyId, then listen to changes to the url, and
         # set the editList from the current url
         if historyId
-            historyTracker = history(historyId)
+            historyTracker = history(historyId, editListCodec)
             historyTracker.on 'change', (value) ->
-                editList = encoder.parse(value)
+                editList = value
                 comper.redraw()
-            editList = encoder.parse(historyTracker.get())
+            editList = historyTracker.get()
         
         cleanup()
         draw()
@@ -366,4 +367,7 @@ module.exports = ->
         dispatch.on(type, listener)
 
 
-    return d3.rebind(comper, commonProperties(), 'x', 'timeline')
+    comper = d3.rebind(comper, commonProperties(), 'x', 'timeline', 'height')
+    comper.height(128) # default height
+    return comper
+

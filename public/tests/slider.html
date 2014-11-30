@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<html>
+<head>
+    <script src="../js/prong.js"></script>
+    <link rel='stylesheet' href='testPage.css'></link>
+    <script src="qadi.js"></script>
+    <link rel="stylesheet" type="text/css" href="qadi.css"/>
+    <style>
+
+#horizontalSliders text {
+    font-size:9pt;
+}
+
+    </style>
+    <script>
+
+var values = [
+    { volume : 6 },
+    { volume : 83 },
+    { volume : 19 }
+]
+
+var horizontalValues = [
+    { volume : 6 },
+    { volume : 12 },
+    { volume : 15 },
+    { volume : 13 },
+    { volume : 18 },
+    { volume : 47 },
+    { volume : 36 }
+]
+
+var margin = {top: 30, right: 50, bottom: 20, left: 30},
+    width = 960 - margin.left - margin.right,
+    height = 260 - margin.bottom - margin.top;
+
+
+function init(){
+
+    verticalSlider = prong.slider()
+        .domain([0,100])
+        .width(50)
+        .height(200)
+        .horizontal(false)
+        .key('volume')
+        .format(d3.format('f'));
+
+    var svg = d3.select('svg#verticalSliders')
+        .attr('width', width + margin.left + margin.right)
+        .attr('height', height + margin.top + margin.bottom)
+        .append('g')
+        .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
+
+    svg.selectAll('.slider')
+        .data(values)
+        .enter()
+        .append('g')
+        .attr('class','slider')
+        .attr('transform',function(d,i){
+            return 'translate(' + i*100 + ',0)';
+        })
+        .call(verticalSlider)
+
+    verticalSlider.on('change', function(d,i){
+        // console.log('d', d)
+        // console.log('i', i)
+        // console.log('event', prong.event)
+        // console.log('this', this)
+    })
+
+    margin.top = 0
+
+    horizontalSlider = prong.slider()
+        .domain([0,50])
+        .width(20)
+        .height(300)
+        .horizontal(true)
+        .key('volume')
+        .format(d3.format('f'));
+
+    svg = d3.select('svg#horizontalSliders')
+        .attr('width', width + margin.left + margin.right)
+        .attr('height', height + margin.top + margin.bottom)
+        .append('g')
+        .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
+
+    svg.selectAll('.slider')
+        .data(horizontalValues)
+        .enter()
+        .append('g')
+        .attr('class','slider')
+        .attr('transform',function(d,i){
+            return 'translate(0,' + (i * 30) + ')';
+        })
+        .call(horizontalSlider)
+
+}
+    
+    </script>
+</head>
+<body onload="init()">
+
+<iframe src="./"></iframe>
+<div id="main">
+
+    Slider<br />
+    <br />
+    <ul id="qadi">
+        <li>You can see three sliders.</li>
+        <li>Clicking and dragging on the circle changes the value of the slider.</li>
+    </ul>
+    <br />
+    <svg id="verticalSliders" width="100%" height="400"><svg>
+
+    Horizontal Slider<br />
+    <br />
+    <ul id="qadi">
+        <li>You can see seven horizontal sliders.</li>
+    </ul>
+    <br />
+    <svg id="horizontalSliders" width="100%" height="400"><svg>
+
+</div>
+</body>
+</html>

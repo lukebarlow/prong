@@ -1,5 +1,4 @@
 # two way conversion between editList arrays and a short string
-
 frameRate = 15
 
 # round the time to the nearest frame, and to 3 decimal places

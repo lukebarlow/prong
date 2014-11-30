@@ -1,48 +1,37 @@
-BODY {
-    font-family:helvetica neue, helvetica, sans serif;
-    height:100%;
-    padding:0;
-    margin:0;
+body, html {
+    height: 100%;
 }
 
-A {
-    color:steelblue;
+body {
+    font-family: helvetica neue, helvetica, sans serif;
+    padding: 0;
+    margin: 0;
 }
 
-.trackName {
-    display:block;
-    position:relative;
-    height:0px;
-    width:0px;
-    overflow:visible;
-    left:-110px;
-    top:6px;
-    width:100px;
-    text-align:right;
-    font-size:10pt;
-    margin-top:8px;
-    color:steelblue;
+a {
+    color: steelblue;
 }
 
-IFRAME {
-    padding:0;
-    margin:0;
-    border-width:0px;
-    width:300px;
-    height:100%;
-    float:left;
+iframe {
+    padding: 0;
+    margin: 0;
+    border-width: 0px;
+    width: 300px;
+    height: 100%;
+    float: left;
 }
+
 
 #main {
-    padding:50px;
-    padding-left:350px;
-    height:100%
+    padding: 50px;
+    padding-left: 350px;
+    height: calc(100% - 100px);
 }
 
 /* waveform */
 
 .area {
-  fill:orange;
+  fill: orange;
 }
 
 .line {
@@ -119,4 +108,81 @@ IFRAME {
 .playStopButton rect {
     fill: #ec0b1a;
     stroke: transparent;
+}
+
+/* pot */
+
+.pot {
+    stroke : black;
+    stroke-width : 1;
+    fill : gray;
+    fill-opacity : 0.8;
+    stroke-opacity:0.3;
+    cursor:pointer;
+}
+
+.pot text {
+    fill:black;
+}
+
+.pot path.background {
+    fill:white;
+}
+
+.pot path.pan {
+    fill:orange;
+    stroke-opacity:1;
+}
+
+.pot circle {
+    fill: transparent;
+    stroke: transparent;
+}
+
+/* slider */
+
+.slider circle {
+    fill: white;
+    shape-rendering: geometricPrecision;
+    stroke: black;
+}
+
+.slider rect {
+    stroke:white;
+    stroke-width:2px;
+    fill:black;
+    fill-opacity:0.1;
+}
+
+.slider rect.background {
+    stroke:steelblue;
+    stroke-width:1px;
+    fill:steelblue;
+    fill-opacity:0.5;
+}
+
+/* sequence */
+
+.sequence {
+    white-space:nowrap;
+}
+
+.sequence .propertyPanel {
+    float:left;
+}
+
+.trackName {
+    position:absolute;
+}
+
+.trackName > span {
+    position:absolute;
+    overflow:visible;
+    height:0px;
+    left:-10px;
+    width:100px;
+    top:10px;
+    font-size:10pt;
+    text-align: right;
+    color:steelblue;
 }

@@ -1,4 +1,4 @@
-slider2 = require('./slider2')
+slider = require('./slider')
 pot = require('./pot')
 trackName = require('../')
 
@@ -6,10 +6,10 @@ module.exports = ->
 
     sequence = null
 
-    volumeSlider = slider2()
+    volumeSlider = slider()
         .domain([0,100])
-        .size(100)
-        .breadth(40)
+        .height(100)
+        .width(40)
         .format(d3.format('f'))
         .key('volume')
         .horizontal(false)
@@ -44,7 +44,7 @@ module.exports = ->
                 .enter()
                 .append('g')
                 .attr 'transform', (d,i) ->
-                    return 'translate(' + i*80 + ',0)'
+                    return 'translate(' + (i * 75) + ',0)'
                 .on 'mouseover', (d) ->
                     d3.select(this).classed('over', true)
                     d.over = true;
@@ -56,7 +56,8 @@ module.exports = ->
                     d.watch('over', -> thiz.classed('over', d.over) )
 
             strips.append('g').call(panPot)
-            strips.append('g').attr('transform', 'translate(-20,50)')
+            strips.append('g')
+                .attr('transform', 'translate(-20,50)')
                 .call(volumeSlider);
             strips.append('text')
                 .attr('transform', 'translate(0, 190)')

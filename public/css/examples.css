@@ -1,0 +1,263 @@
+html, body {
+    height:100%;
+}
+
+body {
+    font-family:helvetica;
+    background-color:white;
+    color:black;
+    padding:0;
+    margin:0;
+}
+
+a {
+    color:steelblue;
+}
+
+iframe {
+    padding:0;
+    margin:0;
+    border-width:0px;
+    width:300px;
+    height:100%;
+    float:left;
+}
+
+#main {
+    padding:50px;
+    padding-left:350px;
+    height: calc(100% - 100px)
+}
+
+/* waveform */
+
+.area {
+  fill:rgb(192, 128, 11);
+}
+
+.line {
+  stroke:rgb(192, 128, 11);
+  fill:none;
+}
+
+.over .area {
+    fill: orange;
+}
+
+.over .line {
+    stroke: orange;
+}
+
+/* timeline */
+
+.timeline path,
+.timeline line {
+  fill: none;
+  stroke: steelblue;
+  shape-rendering: crispEdges;
+}
+
+.timeline text {
+  fill:steelblue;
+  shape-rendering: crispEdges;
+}
+
+/* play line */
+
+.playLine {
+    background-color:green;
+    width:1px;
+    height:600px;
+    top:0px;
+    position:absolute;
+}
+
+/* transport */
+
+.playStopButton {
+    display: inline-block;
+    cursor:pointer;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+.playStopButton circle {
+    fill:#fcbe00;
+    stroke:transparent;
+    
+}
+
+.playStopButton polygon {
+    fill: #63a909;
+    stroke: transparent;
+}
+
+.playStopButton rect {
+    fill: #ec0b1a;
+    stroke: transparent;
+}
+
+/* comper */
+
+.comp {
+    fill:black;
+    opacity:0.15;
+}
+
+.inbetween {
+  fill:transparent;
+  cursor:hand;
+}
+
+.resizer {
+    fill:red;
+    opacity:0;
+    cursor:ew-resize;
+}
+
+/* sequence */
+
+.sequence {
+    white-space:nowrap;
+}
+
+.sequence .propertyPanel {
+    float:left;
+}
+
+.trackName {
+    position:absolute;
+}
+
+.trackName > span {
+    position:absolute;
+    overflow:visible;
+    height:0px;
+    left:-10px;
+    width:100px;
+    top:10px;
+    font-size:10pt;
+    text-align: right;
+    color:steelblue;
+}
+
+/* play line */
+
+.playLine {
+    background-color:green;
+    width:1px;
+    height:600px;
+    top:0px;
+    position:absolute;
+}
+
+/* audio regions */
+
+.audioRegion rect {
+    stroke:orange;
+    fill:transparent;
+}
+
+/* transport */
+
+.playStopButton {
+    display: inline-block;
+    cursor:pointer;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+.playStopButton circle {
+    fill: rgba(77, 127, 184, 0.5);
+    stroke:transparent;
+    
+}
+
+.playStopButton polygon {
+    fill: #63a909;
+    stroke:transparent;
+}
+
+.playStopButton rect {
+    fill: #ec0b1a;
+    stroke: transparent;
+}
+
+/* mixer */
+
+#mixer {
+    height:300px;
+}
+
+/* pot */
+
+.pot {
+    stroke : rgba(0, 0, 0, 0.3);
+    stroke-width : 1;
+    fill:rgba(0,0,0,0.1);
+    cursor:pointer;
+}
+
+.pot text {
+    fill:black;
+}
+
+
+.pot path.background {
+    fill:rgba(0,0,0,0.1);
+}
+
+.pot path.pan {
+    fill:rgb(192, 128, 11);
+    stroke-opacity:1;
+}
+
+.over .pot path.pan {
+    fill: orange;
+}
+
+.pot circle {
+    fill: transparent;
+    stroke: transparent;
+}
+
+
+
+.over path.pan {
+    fill:orange;
+}
+
+/* slider */
+
+.slider rect {
+    stroke: rgba(0, 0, 0, 0.3);
+    fill:rgba(0,0,0,0.1);
+}
+
+.slider circle {
+    stroke: rgba(0, 0, 0, 0.3);
+    fill: white;
+    stroke-width:1px;
+}
+
+.slider .background {
+  fill: rgb(192, 128, 11);
+  stroke-width: 0;
+}
+
+.over .slider .background {
+  fill: orange;    
+}
+
+text {
+    fill: black;
+    font-size:10pt;
+}

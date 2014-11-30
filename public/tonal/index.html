@@ -3,14 +3,30 @@
 <html>
     <head>
         <script src="../js/prong.js"></script>
-        <link rel="stylesheet" href="../css/examples.css"></link>
         <style>
-body {
+BODY {
+    font-family:helvetica;
     background-color:#333;
     color:white;
+    height:100%;
+    padding:0;
+    margin:0;
 }
 
-/* waveform */
+IFRAME {
+    padding:0;
+    margin:0;
+    border-width:0px;
+    width:300px;
+    height:100%;
+    float:left;
+}
+
+#main {
+    padding:50px;
+    padding-left:350px;
+    height:100%
+}
 
 .area {
   fill:steelblue;
@@ -25,16 +41,15 @@ body {
 
 .timeline path,
 .timeline line {
-  fill: none;
-  stroke: white;
-  shape-rendering: crispEdges;
+    fill: none;
+    stroke: white;
+    shape-rendering: crispEdges;
 }
 
 .timeline text {
-  fill:white;
-  shape-rendering: crispEdges;
+    fill:white;
+    shape-rendering: crispEdges;
 }
-
 
         </style>
     </head>
@@ -63,11 +78,11 @@ body {
         <script>
 
         // first load the sound ...
-        prong.sound('../audio/four_devices_android.mp3', function(buffer){
+        prong.sound('tones-test-female-01.m4a', function(buffer){
             var width = 1000,
                 channel = buffer.getChannelData(0),
             // ... then create and display the waveform
-                x = d3.scale.linear().domain([5, 15]).range([0, width]);
+                x = d3.scale.linear().domain([0.1, 10]).range([0, width]);
 
             var timeline = prong
                 .timeline()

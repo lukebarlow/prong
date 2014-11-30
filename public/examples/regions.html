@@ -3,141 +3,7 @@
 <html>
     <head>
         <script src="../js/prong.js"></script>
-        <style>
-BODY {
-    font-family:helvetica;
-    background-color:#333;
-    color:white;
-    height:100%;
-    padding:0;
-    margin:0;
-}
-
-IFRAME {
-    padding:0;
-    margin:0;
-    border-width:0px;
-    width:300px;
-    height:100%;
-    float:left;
-}
-
-#main {
-    padding:50px;
-    padding-left:400px;
-    height:100%
-}
-
-A { color : steelblue;}
-
-.trackName {
-    position:absolute;
-}
-
-.trackName > span {
-    position:absolute;
-    overflow:visible;
-    height:0px;
-    left:-120px;
-    width:100px;
-    top:10px;
-    font-size:10pt;
-    text-align: right;
-}
-
-
-#sequence {
-    height:400px;
-}
-
-/* waveform */
-
-.area {
-  fill:steelblue;
-}
-
-.line {
-  stroke:steelblue;
-  fill:none;
-}
-
-/* timeline */
-
-.timeline path,
-.timeline line {
-  fill: none;
-  stroke: white;
-  shape-rendering: crispEdges;
-}
-
-.timeline text {
-  fill:white;
-  shape-rendering: crispEdges;
-}
-
-/* comper */
-
-.comp {
-    fill:white;
-    opacity:0.2;
-}
-
-.inbetween {
-  fill:transparent;
-  cursor:hand;
-}
-
-.resizer {
-    fill:red;
-    opacity:0;
-    cursor:ew-resize;
-}
-
-/* play line */
-
-.playLine {
-    background-color:green;
-    width:1px;
-    height:600px;
-    top:0px;
-    position:absolute;
-}
-
-.audioRegion rect {
-  stroke:steelblue;
-  fill:transparent;
-}
-
-/* transport */
-
-.playStopButton {
-    display: inline-block;
-    cursor:pointer;
-    -webkit-touch-callout: none;
-    -webkit-user-select: none;
-    -khtml-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    user-select: none;
-}
-
-.playStopButton circle {
-    fill: rgba(77, 127, 184, 0.5);
-    stroke:transparent;
-    
-}
-
-.playStopButton polygon {
-    fill: #63a909;
-    stroke:transparent;
-}
-
-.playStopButton rect {
-    fill: #ec0b1a;
-    stroke: transparent;
-}
-
-        </style>
+        <link rel="stylesheet" href="../css/examples.css"></link>
     </head>
     <body>
         <iframe src="../"></iframe>
@@ -160,7 +26,7 @@ A { color : steelblue;}
         <script src="drum_cutup.js"></script>
         <script>
 
-var x = d3.scale.linear().domain([0, 15]).range([0, 800]);
+var x = d3.scale.linear().domain([0, 15]).range([0, 600]);
 
 sequence = prong.sequence()
     .x(x)

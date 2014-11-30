@@ -3,28 +3,39 @@
 <html>
     <head>
         <script src="../js/prong.js"></script>
-        <link rel="stylesheet" href="../css/examples.css"></link>
+        <link rel='stylesheet' href='testPageMixer.css'></link>
+        <script src="qadi.js"></script>
+        <link rel="stylesheet" type="text/css" href="qadi.css"/>
     </head>
     <body>
 
-        <iframe src="../"></iframe>
+        <iframe src="./"></iframe>
         <div id="main">
 
-        Sequence<br />
+        Mixer<br />
+        <ul id="qadi">
+            <li>Beneath the sequence you can see a mixer, with a volume slider
+            and a pan pot for each track</li>
+            <li>When you adjust the volume and pan for each track, you can
+            hear the results, and the audio changes volume and pan in the
+            correct way</li>
+            <li>When you roll the mouse over an audio track, then the
+            corresponding channel in the mixer 'lights up' (i.e. the orange
+            colour becomes brighter).</li>
+        </ul>
         <span>
-        <br />
-        The sequence component takes a list of tracks, and lays these out
-        in a multi-track arrangement with a timeline at the top. It also adds a play line, and
-        has methods for starting and stopping, and actually routes audio to your
-        speakers, so now we can hear the sounds we're seeing.<br />
-        <br />
-        See the code on <a href="http://jsfiddle.net/lukebarlow/DxKb2/2/">jsfiddle</a>.
-        <br />
+        
+        
         <br />
         </span>
         <div id="transport"></div>
+        <br />
+        <br />
         <div id="sequence"></div>
+        <br />
+        <div id="mixer"></div>
         </div>
+        <script src="drum_cutup.js"></script>
         <script>
 
 var tracks = [
@@ -82,19 +93,23 @@ var tracks = [
     }
 ]
 
-var x = d3.scale.linear().domain([0, 60]).range([0, 600]);
 
-sequence = prong.sequence()
+var x = d3.scale.linear().domain([0, 60]).range([0, 800]);
+
+var sequence = prong.sequence()
     .x(x)
     .tracks(tracks)
-    .trackHeight(25)
-    .propertyPanelWidth(95)
+    .trackHeight(20)
     .audioOut(prong.audioContext().destination);
 
-transport = prong.transport().sequence(sequence)
+var transport = prong.transport().sequence(sequence);
+
+var mixer = prong.mixer().sequence(sequence);
 
 d3.select('#sequence').call(sequence);
 d3.select('#transport').call(transport);
+d3.select('#mixer').call(mixer);
+
         </script>
     </body>
 </html>

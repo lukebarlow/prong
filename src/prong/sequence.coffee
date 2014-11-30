@@ -26,16 +26,19 @@ module.exports = ->
     musicalTime = null
     zoomable = true
     following = true # toggle for whether the display updates to follow playback
+    propertyPanelWidth = 95
 
     setPlaylinePosition = ->
         # the -2 in the next line ensures the play line is not directly
         # underneath the mouse, so you can click on tracks when scrubbing
-        position = (sequence.x()(currentTime) - 2)
-        if position > sequence.width() or position < 0
+        x = sequence.x()
+        [start, end] = x.domain()
+        if currentTime < start or currentTime > end
             playLine.style('display','none')
         else
+            position = (x(currentTime)) + propertyPanelWidth
             playLine.style('display','')
-            playLine.style('left', (sequence.x()(currentTime) - 2) + 'px')
+            playLine.style('left', position + 'px')
         
 
     sequence = (_element) ->
@@ -47,7 +50,16 @@ module.exports = ->
             .zoomable(zoomable)
             .scrollZone(scrollZone or element) # create the timeline
 
+        element.classed('sequence', true)
+
+        # propertyPanel height is set after tracks are drawn
+        propertyPanel = element.append('div')
+            .style('width', propertyPanelWidth + 'px')
+            .attr('class','propertyPanel')
+
         container = element.append('div')
+            .attr('class','trackContainer')
+            .style('left', propertyPanelWidth + 'px')
 
         playlineContainer = container.append('div')
             .style('position','absolute')
@@ -86,8 +98,9 @@ module.exports = ->
         _track.on 'load', ->
             trackLoadCount++
             if trackLoadCount == tracks.length
-                dispatch.load()    
+                dispatch.load()
             playLine.style('height', sequence.height() + 'px')
+            propertyPanel.style('height', sequence.height() + 'px')
         
         # and the play line
         playLine = playlineContainer.append('div')
@@ -355,6 +368,12 @@ module.exports = ->
 
     sequence.height = ->
         return container.node().clientHeight
+
+
+    sequence.propertyPanelWidth = (_propertyPanelWidth) ->
+        if not arguments.length then return propertyPanelWidth
+        propertyPanelWidth = _propertyPanelWidth
+        return sequence
     
 
     return d3.rebind(sequence, commonProperties(), 'x', 'width', 'sequence', 'timeline')

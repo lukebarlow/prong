@@ -149,8 +149,8 @@ module.exports = ->
                 panner.connect(audioOut)
 
                 timeOffset = sequence.currentTime() - (d.startTime || 0)
-                whenToStart = timeOffset < 0 ? audioContext.currentTime - timeOffset : 0
-                offset = timeOffset > 0 ? timeOffset : 0
+                whenToStart = if timeOffset < 0 then audioContext.currentTime - timeOffset else 0
+                offset = if timeOffset > 0 then timeOffset else 0
 
                 source.start(whenToStart, offset)
                                 

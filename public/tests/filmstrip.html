@@ -3,7 +3,33 @@
 <html>
     <head>
         <script src="../js/prong.js"></script>
+        <script src="qadi.js"></script>
+        <link rel="stylesheet" type="text/css" href="qadi.css"/>
         <link rel='stylesheet' href='testPage.css'></link>
+         <style>
+body {
+    background-color:#333;
+    color:white;
+}
+
+/* timeline */
+
+#timeline {
+    height:30px;
+}
+
+.timeline path,
+.timeline line {`
+  fill: none;
+  stroke: white;
+  shape-rendering: crispEdges;
+}
+
+.timeline text {
+  fill:white;
+  shape-rendering: crispEdges;
+}
+        </style>
     </head>
     <body>
 
@@ -11,7 +37,7 @@
         <div id="main">
         Filmstrip<br />
         <span>
-        <ul>
+        <ul id="qadi">
             <li>Scroll and zoom the timeline, and the preview frames in the
                 timeline update to show the correct frames.</li>
         </ul>

@@ -14,7 +14,7 @@ module.exports = ->
 
 
     dragstart = ->
-        dragging = true;
+        dragging = true
         d3.event.sourceEvent.stopPropagation()
 
 
@@ -63,9 +63,10 @@ module.exports = ->
                     d[key] = 0
                     redraw()
 
+        selection.call(setupEvents)
+
         selection.append('circle')
             .attr('r', radius)
-            .call(setupEvents)
 
         selection.append('path')
             .attr('class', 'background')
@@ -79,7 +80,6 @@ module.exports = ->
             .attr('text-anchor','middle')
             .attr('transform', "translate(0,#{radius/4})")
             .text( (d) -> d[key] )
-            .call(setupEvents)
 
         # use the Object.watch feature to listen for changes to the datum
         # and redraw

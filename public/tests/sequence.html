@@ -4,19 +4,29 @@
     <head>
         <script src="../js/prong.js"></script>
         <link rel='stylesheet' href='testPage.css'></link>
+        <script src="qadi.js"></script>
+        <link rel="stylesheet" type="text/css" href="qadi.css"/>
     </head>
     <body>
 
         <iframe src="./"></iframe>
         <div id="main">
-
         Sequence<br />
+        <br />
+        <ul id="qadi">
+            <li>The whole sequence starts and stops with the play/stop button.
+            </li>
+            <li>The play line is in the correct place, even when you scroll
+            and zoom around.</li>
+            <li>The play line does not appear when it is out of range of the
+            timeline.</li>
+            <li>When the play line reaches the right hand side, the timeline
+            pages forward, keeping the zoom level constant.</li>
+        </ul>
         <span>
         <br />
         </span>
         <div id="transport"></div>
-        <br />
-        <br />
         <div id="sequence"></div>
         </div>
         <script>
@@ -76,7 +86,7 @@ var tracks = [
     }
 ]
 
-var x = d3.scale.linear().domain([0, 60]).range([0, 800]);
+var x = d3.scale.linear().domain([0, 60]).range([0, 700]);
 
 sequence = prong.sequence()
     .x(x)

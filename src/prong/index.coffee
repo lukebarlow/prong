@@ -23,8 +23,8 @@ module.exports = {
     comper : require('./components/comper.coffee'),
     timeline : require('./components/timeline'),
     musicalTimeline : require('./components/musicalTimeline.coffee'),
+    musicalTime : require('./musicalTime.coffee'),
     slider : require('./components/slider'),
-    slider2 : require('./components/slider2'),
     pot : require('./components/pot.coffee'),
     note : require('./components/note'),
     contour : require('./components/contour'),
@@ -37,8 +37,7 @@ module.exports = {
     fx : require('./analysis/fx'),
     
     # history
-    history : require('./history/history.coffee'),
-    editEncoding : require('./history/editEncoding.coffee'),
+    history : require('./history/history.coffee')
 
     # sequencer
     sequence : require('./sequence.coffee'),

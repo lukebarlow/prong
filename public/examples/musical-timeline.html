@@ -4,7 +4,7 @@
     <head>
         <script src="../js/prong.js"></script>
         <style>
-BODY {
+body {
     font-family:helvetica;
     background-color:#333;
     color:white;
@@ -13,17 +13,21 @@ BODY {
     margin:0;
 }
 
-A {
+a {
     color:steelblue;
 }
 
-IFRAME {
+iframe {
     padding:0;
     margin:0;
     border-width:0px;
     width:300px;
     height:100%;
     float:left;
+}
+
+svg {
+    width:100%;
 }
 
 #main {
@@ -94,39 +98,38 @@ IFRAME {
 
         <script>
 
-        data = {
-            startTime : 2,
-            bars : [
-                {
-                    numerator : 4,
-                    denominator : 4,
-                    numberOfBars : 2,
-                    tempo : 120
-                },
-                {
-                    numerator : 3,
-                    denominator : 4,
-                    numberOfBars : 2
-                },
-                {
-                    numerator : 7,
-                    denominator : 8,
-                    numberOfBars : 1
-                },
-                {
-                    numerator : 2,
-                    denominator : 4,
-                    numberOfBars : 4,
-                    tempo : 150
-                },
-                {
-                    numerator : 4,
-                    denominator : 4,
-                    numberOfBars : 4,
-                    tempo : 120
-                }
-            ]
-        }
+        bars = [
+            {
+                startTime: 2,
+                numerator: 4,
+                denominator: 4,
+                numberOfBars: 2,
+                tempo: 120
+            },
+            {
+                numerator: 3,
+                denominator: 4,
+                numberOfBars: 2
+            },
+            {
+                numerator: 7,
+                denominator: 8,
+                numberOfBars: 1
+            },
+            {
+                numerator: 2,
+                denominator: 4,
+                numberOfBars: 4,
+                tempo: 150
+            },
+            {
+                numerator: 4,
+                denominator: 4,
+                numberOfBars: 4,
+                tempo: 120
+            }
+        ]
+        
 
         // first load the sound
         prong.sound('../audio/four_devices_android.mp3', function(buffer){
@@ -140,9 +143,12 @@ IFRAME {
                 .scrollZone(d3.select('svg'));
             d3.select('#timeline').call(timeline);
 
+            musicalTime = new prong.musicalTime(bars)
+
             var musicalTimeline = prong.musicalTimeline()
                 .timeline(timeline)
-                .data(data);
+                .musicalTime(musicalTime);
+
             d3.select('#musicalTimeline').call(musicalTimeline);
 
             // then a single waveform
@@ -151,8 +157,8 @@ IFRAME {
                 .timeline(timeline); // bound to the timeline
             d3.select('#waveform')
                 .datum({
-                    buffer : buffer,
-                    channel : buffer.getChannelData(0)
+                    _buffer : buffer,
+                    _channel : buffer.getChannelData(0)
                 })
                 .call(waveform);
         })

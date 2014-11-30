@@ -4,78 +4,7 @@
     <head>
         <title>Prong from forkaudio.org</title>
         <script src="../js/prong.js"></script>
-        <style>
-BODY {
-    font-family:helvetica;
-    background-color:#333;
-    color:white;
-    height:100%;
-    padding:0;
-    margin:0;
-}
-
-IFRAME {
-    padding:0;
-    margin:0;
-    border-width:0px;
-    width:300px;
-    height:100%;
-    float:left;
-}
-
-#main {
-    padding:50px;
-    padding-left:350px;
-    height:100%
-}
-
-A { color : steelblue;}
-
-/* waveform */
-
-.area {
-  fill:steelblue;
-}
-
-.line {
-  stroke:steelblue;
-  fill:none;
-}
-
-/* timeline */
-
-.timeline path,
-.timeline line {
-  fill: none;
-  stroke: white;
-  shape-rendering: crispEdges;
-}
-
-.timeline text {
-  fill:white;
-  shape-rendering: crispEdges;
-}
-
-/* comper */
-
-.comp {
-    fill:white;
-    opacity:0.2;
-}
-
-.inbetween {
-  fill:transparent;
-  cursor:hand;
-}
-
-.resizer {
-    fill:red;
-    opacity:0;
-    cursor:ew-resize;
-}
-
-
-        </style>
+        <link rel="stylesheet" href="../css/examples.css"></link>
     </head>
     <body>
 
@@ -96,12 +25,12 @@ A { color : steelblue;}
         forward buttons to undo and redo, and you can bookmark any state of
         the comper.<br />
         <br />
-        See the comper used for video editing in <a href="http://forkaudio.org/rockpool/">Rockpool</a><br />
-        <br />
+       <!--  See the comper used for video editing in <a href="http://forkaudio.org/rockpool/">Rockpool</a><br /> 
+        <br />-->
         See the code on <a href="http://jsfiddle.net/lukebarlow/t96Ut/">jsfiddle</a>.
         <br />
         </span>
-        <svg width="100%" height="600">
+        <svg width="100%" height="400">
         <g id="timeline" transform="translate(20,10)" class="timeline"></g>
         <g id="waveforms" transform="translate(20,60)"></g>
         </svg>
@@ -118,17 +47,19 @@ prong.sounds([
             '../audio/four_devices_iphone.mp3'
             ], function(buffers){
  
-    var width = 800;
+    var width = 800,
+        trackHeight = 80;
     var x = d3.scale.linear().domain([0, 20]).range([0, width]);
     timeline = prong.timeline()
-                        .x(x)
-                        .scrollZone(d3.select('svg'));
+        .x(x)
+        .scrollZone(d3.select('svg'));
 
     d3.select('#timeline').call(timeline);
 
     var waveform = prong.waveform()
-                        .x(x)
-                        .timeline(timeline); // bound to the timeline
+        .x(x)
+        .timeline(timeline) // bound to the timeline
+        .height(trackHeight);
 
     var tracks = buffers.map(function(buffer){
         return {
@@ -144,14 +75,14 @@ prong.sounds([
         .append('g')
         .attr('class','waveform')
         .attr('transform',function(d,i){
-            return 'translate(0,' + (i * 128) + ')'
+            return 'translate(0,' + (i * trackHeight) + ')'
         })
         .call(waveform)
-
 
     var comper = prong.comper()
         .x(x)
         .timeline(timeline)
+        .height(trackHeight)
         .history('comper'); // the history option is set here;
 
     d3.select('#waveforms').selectAll('.waveform').call(comper);
