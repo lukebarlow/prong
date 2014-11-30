@@ -4,18 +4,29 @@
     <head>
         <script src="../js/prong.js"></script>
         <link rel='stylesheet' href='testPage.css'></link>
+        <script src="qadi.js"></script>
+        <link rel="stylesheet" type="text/css" href="qadi.css"/>
     </head>
     <body>
         <iframe src="./"></iframe>
         <div id="main">
         Waveform<br />
         <br />
-        <ul>
+        <ul id="qadi">
             <li>Waveform of a sound is displayed below</li>
         </ul>
         <br />
-        
         <svg id="waveform" height="200"></svg>
+        <ul id="qadi">
+            <li>When zoomed in, the waveform is shown with blocks above
+            and below the line.</li>
+        </ul>
+        <svg id="waveform2" height="200"></svg>
+        <ul id="qadi">
+            <li>When zoomed in even more, the waveform is just shown
+            as a single line.</li>
+        </ul>
+        <svg id="waveform3" height="200"></svg>
         <div>
 
         <script>
@@ -34,6 +45,34 @@
                     _channel : buffer.getChannelData(0)
                 })
                 .call(waveform);
+
+            // do the zoomed in level
+            var x = d3.scale.linear().domain([3.5, 3.6]).range([0, width]);
+            var waveform = prong.waveform()
+                .x(x)
+                .height(200);
+
+            d3.select('#waveform2')
+                .datum({
+                    _buffer : buffer,
+                    _channel : buffer.getChannelData(0)
+                })
+                .call(waveform);
+
+            // do the zoomed in level
+            var x = d3.scale.linear().domain([3.5, 3.52]).range([0, width]);
+            var waveform = prong.waveform()
+                .x(x)
+                .height(200);
+
+            d3.select('#waveform3')
+                .datum({
+                    _buffer : buffer,
+                    _channel : buffer.getChannelData(0)
+                })
+                .call(waveform);
+
+
         })
         </script>
     </body>
