@@ -15,46 +15,38 @@ sound = require('./sound')
 
 module.exports = {
 
-    spectrogram : require('./components/spectrogram.coffee'),
-    waveform : require('./components/waveform.coffee'),
+    spectrogram : require('./components/spectrogram'),
+    waveform : require('./components/waveform'),
     canvasWaveform : require('./components/canvasWaveform'),
     filmstrip : require('./components/filmstrip'),
     onsets : require('./components/onsets'),
-    comper : require('./components/comper.coffee'),
+    comper : require('./components/comper'),
     timeline : require('./components/timeline'),
-    musicalTimeline : require('./components/musicalTimeline.coffee'),
-    musicalTime : require('./musicalTime.coffee'),
+    musicalTimeline : require('./components/musicalTimeline'),
+    musicalTime : require('./musicalTime'),
     slider : require('./components/slider'),
-    pot : require('./components/pot.coffee'),
-    note : require('./components/note'),
+    pot : require('./components/pot'),
     contour : require('./components/contour'),
     lines : require('./components/lines'),
-    mixer : require('./components/mixer.coffee'),
-    mixPresets : require('./components/mixPresets.coffee'),
+    mixer : require('./components/mixer'),
     transport : require('./components/transport'),
     
     # audio/data manipulation
     fx : require('./analysis/fx'),
     
     # history
-    history : require('./history/history.coffee')
+    history : require('./history/history')
+    omniscience : require('./omniscience')
 
     # sequencer
-    sequence : require('./sequence.coffee'),
-    registerTrackType : require('./track/track.coffee').registerTrackType,
+    sequence : require('./sequence'),
+    registerTrackType : require('./track/track').registerTrackType,
 
     # misc
-    taskFeedback : require('./taskFeedback'),
     uid : require('./uid'),
     guid : require('./guid'),
-    audioContext : require('./audioContext.coffee'),
+    audioContext : require('./audioContext'),
     sound : sound.sound,
     sounds : sound.sounds,
-    ubiquity : require('./ubiquity/ubiquity'),
-    trackName : (d, i) ->
-        if ('name' of d) then return d.name
-        if ('src' of d)
-            return d.src.slice(d.src.lastIndexOf('/')+1, d.src.lastIndexOf('.'))
-                .replace('_',' ')
-        return d.type
+    trackName : require('./trackName')
 }

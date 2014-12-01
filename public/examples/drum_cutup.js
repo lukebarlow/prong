@@ -1,19 +1,19 @@
 var pool = [
     {
         "id": "snare",
-        "src": '../audio/nino_rota_trimmed/snare.mp3'
+        "src": 'https://dl.dropboxusercontent.com/u/5613860/audio/nino_rota_trimmed/snare.mp3'
     },
     {
         "id": "cymbals",
-        "src": '../audio/nino_rota_trimmed/cymbals.mp3'
+        "src": 'https://dl.dropboxusercontent.com/u/5613860/audio/nino_rota_trimmed/cymbals.mp3'
     },
     {
         "id": "bass_drum",
-        "src": '../audio/nino_rota_trimmed/bass_drum.mp3'
+        "src": 'https://dl.dropboxusercontent.com/u/5613860/audio/nino_rota_trimmed/bass_drum.mp3'
     },
     {
         "id": "sax1",
-        "src": '../audio/nino_rota_trimmed/sax1.mp3'
+        "src": 'https://dl.dropboxusercontent.com/u/5613860/audio/nino_rota_trimmed/sax1.mp3'
     }
 ]
 

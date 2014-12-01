@@ -25,8 +25,7 @@
         forward buttons to undo and redo, and you can bookmark any state of
         the comper.<br />
         <br />
-       <!--  See the comper used for video editing in <a href="http://forkaudio.org/rockpool/">Rockpool</a><br /> 
-        <br />-->
+
         See the code on <a href="http://jsfiddle.net/lukebarlow/t96Ut/">jsfiddle</a>.
         <br />
         </span>
@@ -39,12 +38,12 @@
 
 var timeline;
 
+
 // first load the sound
 prong.sounds([
-            '../audio/four_devices_android.mp3',
-            '../audio/four_devices_computer.mp3',
-            '../audio/four_devices_ipad.mp3',
-            '../audio/four_devices_iphone.mp3'
+            'https://dl.dropboxusercontent.com/u/5613860/audio/four_devices_android.mp3',
+            'https://dl.dropboxusercontent.com/u/5613860/audio/four_devices_computer.mp3',
+            'https://dl.dropboxusercontent.com/u/5613860/audio/four_devices_ipad.mp3'
             ], function(buffers){
  
     var width = 800,

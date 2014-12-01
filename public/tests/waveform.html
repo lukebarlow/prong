@@ -31,7 +31,7 @@
 
         <script>
         // first load the sound ...
-        prong.sound('../audio/four_devices_android.mp3', function(buffer){
+        prong.sound('https://dl.dropboxusercontent.com/u/5613860/audio/four_devices_computer.mp3', function(buffer){
             var width = 600;
             // ... then create and display the waveform
             var x = d3.scale.linear().domain([0, 20]).range([0, width]);
@@ -47,7 +47,7 @@
                 .call(waveform);
 
             // do the zoomed in level
-            var x = d3.scale.linear().domain([3.5, 3.6]).range([0, width]);
+            var x = d3.scale.linear().domain([6.5, 6.6]).range([0, width]);
             var waveform = prong.waveform()
                 .x(x)
                 .height(200);
@@ -60,7 +60,7 @@
                 .call(waveform);
 
             // do the zoomed in level
-            var x = d3.scale.linear().domain([3.5, 3.52]).range([0, width]);
+            var x = d3.scale.linear().domain([6.5, 6.52]).range([0, width]);
             var waveform = prong.waveform()
                 .x(x)
                 .height(200);

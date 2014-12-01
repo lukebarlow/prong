@@ -3,7 +3,7 @@ sound = require('../sound').sound
 Waveform = require('../components/waveform')
 Onsets = require('../components/onsets')
 #Lines = require('../components/lines')
-Note = require('../components/note')
+#Note = require('../components/note')
 
 # audioTrack is responsible for drawing out the audio tracks. This is a
 # container for different representations of audio (waveform and/or spectrogram)
@@ -97,22 +97,6 @@ module.exports = ->
 
                 svg.call(waveform)
                 dispatch.load(d)
-
-                # overlaid onset lines
-                onsets = Onsets()
-                    .x(x)
-                    .timeline(sequence.timeline())
-                svg.call(onsets)
-
-                # overlaid notes
-                note = Note()
-                    .x(x)
-                    .timeline(sequence.timeline())
-                    .height(height)
-                    .colour('pink')
-                    .key('notes')
-                svg.call(note)
-            
 
             uid = prong.uid()
 
