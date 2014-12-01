@@ -9,7 +9,8 @@
     "browserify-middleware": "latest",
     "caching-coffeeify": "latest",
     "coffeeify": "latest",
-    "uglify-js": "latest"
+    "uglify-js": "latest",
+    "async": "latest"
   },
   "devDependencies": {
      "jasmine-node": "latest"
