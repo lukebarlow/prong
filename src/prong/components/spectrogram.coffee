@@ -36,10 +36,11 @@ module.exports = ->
 
                 # trim the data to the x domain
                 domain = x.domain()
-                overallStartSample = Math.round(domain[0] * buffer.sampleRate) - 1
+                overallStartSample = Math.max(Math.round(domain[0] * buffer.sampleRate) - 1, 0)
                 overallEndSample = Math.round(domain[1] * buffer.sampleRate) - 1
 
                 data = data.subarray(overallStartSample, overallEndSample + n)
+
 
                 if domain[1] > buffer.duration
                     width = x(buffer.duration)
@@ -53,7 +54,7 @@ module.exports = ->
 
                     #console.log('start sample', overallStartSample + startSample);
 
-                    realOutput = new Float32Array(frequencyHeight)
+                    realOutput = new Float32Array(Math.round(frequencyHeight))
                     for j in [0...frequencyHeight]
                         realOutput[j] = Math.sqrt(output[j*2]*output[j*2]+output[j*2+1]*output[j*2+1])
                     
