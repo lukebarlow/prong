@@ -240,6 +240,15 @@ module.exports = ->
         scrollZone = selection
         if scrollZone
             scrollZone.on('mousewheel', mouseWheel)
+            scrollZone.on 'DOMMouseScroll', ->
+                if d3.event.axis == d3.event.HORIZONTAL_AXIS
+                    d3.event.wheelDeltaX = d3.event.detail * -120
+                    d3.event.wheelDeltaY = 0
+                else
+                    d3.event.wheelDeltaX = 0
+                    d3.event.wheelDeltaY = d3.event.detail * -120
+                mouseWheel()
+
         return timeline
     
 
