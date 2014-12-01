@@ -1,4 +1,4 @@
-d3 = require('d3')
+d3 = require('../d3-prong-min')
 
 # sets up a getter, setter and change listener for a particular 
 # parameter in the url hash string. If a codec is provided, then this

@@ -1,4 +1,5 @@
 audioContext = require('./audioContext.coffee')()
+bufferOffset = require('./bufferOffset')
 
 # modelled on d3.csv() and d3.xhr() as a simple interface to loading sound 
 # buffers.
@@ -13,6 +14,9 @@ sound = (url, callback, onprogress) ->
             onprogress('decoding...')
         
         audioContext.decodeAudioData request.response, (buffer) ->
+            # sample offset compensates for small timing differences when
+            # decoding mp3s in different browsers
+            buffer.sampleOffset = bufferOffset(url)
             callback(buffer)
         
     if onprogress

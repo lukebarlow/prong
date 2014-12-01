@@ -32,11 +32,11 @@ iframe {
 /* waveform */
 
 .area {
-  fill:orange;
+  fill:rgb(192, 128, 11);
 }
 
 .line {
-  stroke:orange;
+  stroke:rgb(192, 128, 11);
   fill:none;
 }
 

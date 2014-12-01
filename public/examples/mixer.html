@@ -2,8 +2,8 @@
 <meta charset="utf-8">
 <html>
     <head>
-        <script src="../js/prong.js"></script>
-        <link rel="stylesheet" href="../css/examples.css"></link>
+        <script src="../js/prong-min.js"></script>
+        <link rel="stylesheet" href="../css/examples-mixer.css"></link>
     </head>
     <body>
 
@@ -20,9 +20,7 @@
         
         <br />
         </span>
-        <div id="transport"></div>
-        <br />
-        <br />
+        <div id="transport" style="position:absolute"></div>
         <div id="sequence"></div>
         <br />
         <div id="mixer"></div>
@@ -91,7 +89,7 @@ var x = d3.scale.linear().domain([0, 60]).range([0, 800]);
 var sequence = prong.sequence()
     .x(x)
     .tracks(tracks)
-    .trackHeight(20)
+    .trackHeight(16)
     .audioOut(prong.audioContext().destination);
 
 var transport = prong.transport().sequence(sequence);

@@ -4,7 +4,7 @@
     <head>
         <script src="../js/prong.js"></script>
         <link rel='stylesheet' href='testPage.css'></link>
-        <script src="qadi.js"></script>
+        <script src="qadi-min.js"></script>
         <link rel="stylesheet" type="text/css" href="qadi.css"/>
     </head>
     <body>
@@ -25,7 +25,7 @@
                     in and out.</li>
             </ul>
             </span>
-            <svg>
+            <svg style="width:700px">
             <g id="timeline" transform="translate(10,10)" class="timeline"></g>
             <g id="waveform" transform="translate(10,30)"></g>
             </svg>
@@ -35,7 +35,7 @@
         // first load the sound
         prong.sound('../audio/four_devices_android.mp3', function(buffer){
             // then create the timeline
-            var width = 800;
+            var width = 600;
             var x = d3.scale.linear().domain([0, 20]).range([0, width]);
             var timeline = prong
                 .timeline()

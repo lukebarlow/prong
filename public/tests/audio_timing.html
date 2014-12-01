@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<html>
+    <head>
+        <script src="../js/prong.js"></script>
+        <link rel='stylesheet' href='testPage.css'></link>
+        <script src="qadi-min.js"></script>
+        <link rel="stylesheet" type="text/css" href="qadi.css"/>
+    </head>
+    <body>
+
+        <iframe src="./"></iframe>
+
+        <div id="main">
+            Audio timing in different browsers. Different browsers decode mp3
+            files in slightly different ways. This includes putting small
+            timing differences in the files. The first waveform below is an
+            mp3 and the second is a wav file. The code inserts small offsets
+            to compensate for these differences.
+            <br />
+            <span>
+            <ul id="qadi">
+                <li>You see two waveforms below.</li>
+                <li>The two waveforms align exactly, even
+                when you zoom in.</li>
+            </ul>
+            </span>
+            <!-- <div id="transport"></div> -->
+            <div id="sequence"></div>
+        </div>
+
+        <script>
+ var tracks = [
+    {
+        'type' : 'audio',
+        'src' : '../audio/single_snare_hit_192kbps.mp3'
+    },
+    {
+        'type' : 'audio',
+        'src' : '../audio/single_snare_hit.wav'
+    }
+]
+
+var x = d3.scale.linear().domain([0, 0.01]).range([0, 600]);
+
+sequence = prong.sequence()
+    .x(x)
+    .tracks(tracks)
+    .trackHeight(160)
+    .audioOut(prong.audioContext().destination);
+
+transport = prong.transport().sequence(sequence)
+
+d3.select('#sequence').call(sequence);
+//d3.select('#transport').call(transport);
+
+        </script>
+    </body>
+</html>

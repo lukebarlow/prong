@@ -39,6 +39,8 @@ module.exports = ->
                     by combining the two, we can map clip time to pixels
                 ###
 
+                d._buffer.sampleOffset = d._buffer.sampleOffset or 0
+
                 x = waveform.x()
                 domain = x.domain()
                 range = x.range()
@@ -79,17 +81,19 @@ module.exports = ->
 
                 if not (MEDIUM_ZOOM of d._cache)
                     d._cache[MEDIUM_ZOOM] = fx.thinOut(channel, MEDIUM_ZOOM)
-
+                    
+                sampleStart = (viewStart * sampleRate) + d._buffer.sampleOffset
+                sampleEnd = (viewEnd * sampleRate) + d._buffer.sampleOffset
                 # we cache the thinned data at two levels, so zooming is
                 # faster
                 if samplesPerPixel >= WIDE_ZOOM
                     samplesPerPixel = WIDE_ZOOM
-                    data = d._cache[WIDE_ZOOM].slice(viewStart * sampleRate / WIDE_ZOOM, viewEnd * sampleRate / WIDE_ZOOM)
+                    data = d._cache[WIDE_ZOOM].slice(sampleStart / WIDE_ZOOM, sampleEnd / WIDE_ZOOM)
                 else if (samplesPerPixel >= MEDIUM_ZOOM)
                     samplesPerPixel = MEDIUM_ZOOM
-                    data = d._cache[MEDIUM_ZOOM].slice(viewStart * sampleRate / MEDIUM_ZOOM, viewEnd * sampleRate / MEDIUM_ZOOM)
+                    data = d._cache[MEDIUM_ZOOM].slice(sampleStart / MEDIUM_ZOOM, sampleEnd / MEDIUM_ZOOM)
                 else
-                    data = channel.subarray(viewStart * sampleRate, viewEnd * sampleRate)
+                    data = channel.subarray(sampleStart , sampleEnd)
                     data = fx.thinOut(data, samplesPerPixel, if samplesPerPixel > DISPLAY_ABOVE_AND_BELOW_CUTOFF then 'max' else 'first')
                 
                 y = d3.scale.linear()

@@ -1,5 +1,5 @@
 commonProperties = require('../commonProperties')
-# d3 = require('d3')
+d3 = require('../d3-prong-min')
 
 #  a timeline is the axis which usually appears above a number of tracks
 #  in a sequence. It also manages dragging to zoom, like Logic and Cubase, and
