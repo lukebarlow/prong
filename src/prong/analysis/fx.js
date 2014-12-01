@@ -6,6 +6,8 @@ module.exports = {
     localNormalise : localNormalise
 }
 
+var d3 = require('../d3-prong-min')
+
 // simple power based compression based on reading here
 // http://stackoverflow.com/questions/294468/note-onset-detection
 // 

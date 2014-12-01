@@ -1,7 +1,7 @@
 commonProperties = require('../commonProperties')
 fx = require('../analysis/fx')
 uid = require('../uid')
-
+d3 = require('../d3-prong-min')
 
 # component for drawing waveforms in an svg element
 module.exports = ->

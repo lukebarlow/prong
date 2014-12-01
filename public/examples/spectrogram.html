@@ -64,6 +64,7 @@ body {
 
         // first load the sound ...
         prong.sound('https://dl.dropboxusercontent.com/u/5613860/audio/four_devices_computer.mp3', function(buffer){
+            var d3 = prong.d3;
             var width = 1000,
                 channel = buffer.getChannelData(0),
             // ... then create and display the waveform

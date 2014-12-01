@@ -1,3 +1,5 @@
+d3 = require('../d3-prong-min')
+
 module.exports = ->
 
     width = 50

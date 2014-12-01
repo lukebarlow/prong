@@ -1,7 +1,7 @@
 commonProperties = require('../commonProperties')
 FFT = require('fft')
 uid = require('../uid')
-
+d3 = require('../d3-prong-min')
 
 # a component for drawing spectrograms in a canvas element
 module.exports = ->

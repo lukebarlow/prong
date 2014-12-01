@@ -46,6 +46,7 @@ prong.sounds([
             'https://dl.dropboxusercontent.com/u/5613860/audio/four_devices_ipad.mp3'
             ], function(buffers){
  
+    var d3 = prong.d3;
     var width = 800,
         trackHeight = 80;
     var x = d3.scale.linear().domain([0, 20]).range([0, width]);

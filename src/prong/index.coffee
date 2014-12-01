@@ -48,5 +48,8 @@ module.exports = {
     audioContext : require('./audioContext'),
     sound : sound.sound,
     sounds : sound.sounds,
-    trackName : require('./trackName')
+    trackName : require('./trackName'),
+
+    # this is the custom build of d3 with just the features needed for prong
+    d3 : require('./d3-prong-min')
 }

@@ -1,5 +1,7 @@
 # A rotating circular tweakable knob, like a pan or fx control 
 
+d3 = require('../d3-prong-min')
+
 module.exports = ->
 
     dragging = false
