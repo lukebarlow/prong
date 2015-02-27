@@ -1,6 +1,5 @@
 module.exports = {
     audio : require('./audio'),
     video : require('./video'),
-    midi : require('./midi'),
-    //lyrics : require('/lyrics')
+    midi : require('./midi')
 }

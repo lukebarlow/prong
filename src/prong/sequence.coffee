@@ -1,5 +1,5 @@
 commonProperties = require('./commonProperties')
-Track = require('./track/track.coffee')
+Track = require('./track/track')
 Timeline = require('./components/timeline')
 Pool = require('./pool')
 

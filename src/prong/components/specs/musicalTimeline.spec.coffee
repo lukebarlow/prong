@@ -1,4 +1,4 @@
-musicalTimeline = require('../musicalTimeline.coffee')
+musicalTimeline = require('../musicalTimeline')
 
 getSampleData = -> {
         startTime : 5,

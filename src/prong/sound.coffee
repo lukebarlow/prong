@@ -1,4 +1,4 @@
-audioContext = require('./audioContext.coffee')()
+audioContext = require('./audioContext')()
 bufferOffset = require('./bufferOffset')
 
 # modelled on d3.csv() and d3.xhr() as a simple interface to loading sound 
