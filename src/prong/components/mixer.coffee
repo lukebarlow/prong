@@ -1,3 +1,4 @@
+d3 = require('../d3-prong-min')
 slider = require('./slider')
 pot = require('./pot')
 #trackName = require('../')

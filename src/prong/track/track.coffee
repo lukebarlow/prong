@@ -1,3 +1,4 @@
+d3 = require('../d3-prong-min')
 commonProperties = require('../commonProperties')
 video = require('./video')
 audio = require('./audio')
@@ -68,9 +69,8 @@ groupTracks = (tracks, components) ->
     return groupedTracks
 
 
-module.exports = ->
-    
-    dispatch = d3.dispatch('load');
+module.exports = ->    
+    dispatch = d3.dispatch('load')
 
     track = (selection, options) ->
 

@@ -1,3 +1,4 @@
+d3 = require('../d3-prong-min')
 commonProperties = require('../commonProperties')
 sound = require('../sound').sound
 Waveform = require('../components/waveform')

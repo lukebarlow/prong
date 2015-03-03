@@ -26,8 +26,7 @@
         <script src="drum_cutup.js"></script>
         <script>
 
-var d3 = prong.d3;
-var x = d3.scale.linear().domain([0, 15]).range([0, 600]);
+var x = prong.d3.scale.linear().domain([0, 15]).range([0, 600]);
 
 sequence = prong.sequence()
     .x(x)
@@ -38,8 +37,8 @@ sequence = prong.sequence()
 
 transport = prong.transport().sequence(sequence);
 
-d3.select('#sequence').call(sequence);
-d3.select('#transport').call(transport);
+prong.d3.select('#sequence').call(sequence);
+prong.d3.select('#transport').call(transport);
 
         </script>
     </body>

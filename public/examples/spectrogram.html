@@ -64,25 +64,24 @@ body {
 
         // first load the sound ...
         prong.sound('https://dl.dropboxusercontent.com/u/5613860/audio/four_devices_computer.mp3', function(buffer){
-            var d3 = prong.d3;
             var width = 1000,
                 channel = buffer.getChannelData(0),
             // ... then create and display the waveform
-                x = d3.scale.linear().domain([5, 15]).range([0, width]);
+                x = prong.d3.scale.linear().domain([5, 15]).range([0, width]);
 
             var timeline = prong
                 .timeline()
                 .x(x)
-                .scrollZone(d3.select('BODY'));
+                .scrollZone(prong.d3.select('BODY'));
 
-            d3.select('#timeline').call(timeline);
+            prong.d3.select('#timeline').call(timeline);
 
             var spectrogram = prong.spectrogram()
                 .x(x)
                 .height(300)
                 .timeline(timeline);
 
-            d3.select('#spectrogram')
+            prong.d3.select('#spectrogram')
                 .datum({
                     _buffer : buffer,
                     _channel : channel
@@ -94,7 +93,7 @@ body {
                 .height(200)
                 .timeline(timeline);
 
-            d3.select('#waveform')
+            prong.d3.select('#waveform')
                 .datum({
                     _buffer : buffer,
                     _channel : channel

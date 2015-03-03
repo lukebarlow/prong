@@ -1,7 +1,9 @@
+d3 = require('./d3-prong-min')
 commonProperties = require('./commonProperties')
 Track = require('./track/track')
 Timeline = require('./components/timeline')
 Pool = require('./pool')
+
 
 module.exports = ->
 

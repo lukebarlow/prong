@@ -1,5 +1,6 @@
-var pool = pool || {}
+d3 = require('../d3-prong-min')
 
+var pool = pool || {}
 
 pool.videoTrack = function(){
 
