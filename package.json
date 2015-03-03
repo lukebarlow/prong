@@ -25,10 +25,10 @@
     "express": "3.x",
     "fft": "latest",
     "socket.io": "latest",
-    "uglify-js": "latest"
+    "uglify-js": "latest",
+    "fs-extra": "^0.16.3"
   },
   "devDependencies": {
-    "fs-extra": "^0.16.3",
     "jasmine-node": "latest",
     "jsdom": "3"
   }
