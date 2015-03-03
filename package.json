@@ -2,26 +2,34 @@
   "name": "prong",
   "description": "A JavaScript library for web based audio applications",
   "version": "0.1.0",
+  "main": "lib/prong/index.js",
   "repository": {
     "type": "git",
     "url": "git://github.com/lukebarlow/prong"
   },
   "scripts": {
     "start": "node server.js",
-    "production-server": "node server.js",
-    "build": "coffee --compile --output lib/ src/",
-    "postinstall": "npm run build"
+    "production-server": "export NODE_ENV=production && node server.js",
+    "prod": "npm run production-server",
+    "transpile": "node scripts/copyJsFiles.js && coffee --compile --output lib/ src/",
+    "clean": "rm -r lib",
+    "postinstall": "npm run transpile",
+    "build": "export NODE_ENV=production && npm run transpile && browserify ./lib/main.js | uglifyjs -mt > prong-min.js",
+    "test": "jasmine-node --coffee --verbose --captureExceptions ./src/"
   },
   "dependencies": {
-    "express": "3.x",
-    "socket.io": "latest",
-    "fft": "latest",
+    "async": "latest",
     "browserify-middleware": "latest",
+    "caching-coffeeify": "latest",
     "coffee-script": "latest",
-    "uglify-js": "latest",
-    "async": "latest"
+    "express": "3.x",
+    "fft": "latest",
+    "socket.io": "latest",
+    "uglify-js": "latest"
   },
   "devDependencies": {
-     "jasmine-node": "latest"
+    "fs-extra": "^0.16.3",
+    "jasmine-node": "latest",
+    "jsdom": "3"
   }
 }

@@ -1,5 +1,6 @@
 commonProperties = require('../commonProperties')
 uid = require('../uid')
+d3 = require('../d3-prong-min')
 
 module.exports = () ->
     

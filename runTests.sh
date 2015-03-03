@@ -1,1 +1,0 @@
-jasmine-node --coffee --verbose --captureExceptions ./src/

@@ -17,7 +17,6 @@ module.exports = ->
     WIDE_ZOOM = 5000
     MEDIUM_ZOOM = 1000
 
-
     waveform = ->
         selection = this
         draw = ->

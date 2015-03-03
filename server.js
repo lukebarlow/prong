@@ -1,4 +1,4 @@
-var app = require('./'),
+var app = require('./index.js'),
 	port = 8081;
 
 var server = app.listen(port);

@@ -69,7 +69,7 @@ class MusicalTime
     # calculates attributes such as start and end times for each chunk of bars, 
     # to make future calculations more simple. Returns the end time of the
     # sequence of bars
-    _fleshOutBars: () ->
+    _fleshOutBars: =>
 
         # make sure the groups of bars have all the additional attributes
         lastDenominator = 4
