@@ -80,8 +80,8 @@ module.exports = ->
             # on progress as it goes. The default one loads from http. Once
             # the loader is complete, the track should have channel and
             # buffer properties
-            if not ('_loader' in d)
-                if 'channel' in d
+            if not ('_loader' of d)
+                if '_channel' of d
                     # if we already have a channel set, set a 'do nothing' loader
                     d._loader = (_,callback) -> callback()
                 else
