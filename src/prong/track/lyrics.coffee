@@ -17,8 +17,6 @@ module.exports = ->
         if i > 0 then i--
         return i
 
-
-
     lyrics = (selection, options) ->
 
         sequence = lyrics.sequence()
@@ -28,35 +26,49 @@ module.exports = ->
             .text(prong.trackName) 
         
         height = selection.datum().height || sequence.trackHeight() || 128
-        display = selection.append('div').style('height', height + 'px')    
-        #selection.text(' ');
+        display = selection.append('div')
+            .style('height', height + 'px')
+            .style('width', sequence.width() + 'px') 
         display.classed('lyrics', true)
 
         uid = prong.uid()
         data = selection.datum().data
-        timeouts = []
+        timer = null
+        i = null
 
+        showLyric = -> display.text(data[i].text)
 
-        sequence.on 'play.lyrics' + uid, ->
-            currentTime = sequence.currentTime()
-            # find the position of the first lyric to show
-            i = lyricIndexAtTime(data, currentTime)
-            display.text(data[i].text)
-            for d in data.slice(i+1)
+        setTimerForNextLyric = ->
+            hasNextLyric = data.length > (i + 1)
+            if hasNextLyric
+                nextLyric = data[i + 1]
+                currentTime = sequence.currentTime()
+                delay = (nextLyric.time - currentTime) * 1000
                 after = ->
-                    display.text(d.text)
-                timeouts.push(setTimeout(after, 1000 * (d.time - currentTime)))
+                    i++
+                    showLyric()
+                    setTimerForNextLyric()
+                timer = setTimeout(after, delay)
 
+        play = ->
+            currentTime = sequence.currentTime()
+            i = lyricIndexAtTime(data, currentTime)
+            showLyric()
+            setTimerForNextLyric()
 
-        sequence.on 'stop.lyrics' + uid, ->
-            timeouts.map(clearTimeout)
+        stop = ->
+            if timer
+                clearTimeout(timer)
 
-        # sequence.on('scrub.lyrics' + uid, ->
-        #     console.log('scrubbibg')
-
+        sequence.on 'play.lyrics' + uid, play
+        sequence.on 'stop.lyrics' + uid, stop
+        sequence.on 'loop.lyrics' + uid, (start) ->
+            stop()
+            play()
+            
         sequence.timeline().on 'timeselect.lyrics' + uid, (time) ->
             i = lyricIndexAtTime(data, time)
-            display.text(data[i].text)
+            showLyric()
         
 
     lyrics.on = (type, listener) ->
