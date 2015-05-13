@@ -29,7 +29,6 @@ module.exports = ->
                 nonBlankChannels.push(i)    
         return nonBlankChannels
 
-
     # the default sound loader
     httpSoundLoader = (loadingMessage, callback) ->
         track = this
@@ -100,9 +99,9 @@ module.exports = ->
                 dispatch.load(d)
 
             uid = prong.uid()
+            playing = false
 
-            sequence.on 'play.audio'+uid, ->
-
+            play = ->
                 audioOut = sequence.audioOut()
                 if (!audioOut || !d._buffer) then return
                 audioContext = prong.audioContext()
@@ -134,20 +133,31 @@ module.exports = ->
                 panner.connect(audioOut)
 
                 timeOffset = sequence.currentTime() - (d.startTime || 0)
+
                 whenToStart = if timeOffset < 0 then audioContext.currentTime - timeOffset else 0
                 offset = if timeOffset > 0 then timeOffset else 0
-
                 source.start(whenToStart, offset)
-                                
-                d.source = source
                 d.gain = gain
-            
+                d.source = source
 
-            sequence.on 'stop.audio'+uid, ->
+            sequence.on 'play.audio' + uid, ->
+                playing = true
+                play()
+            
+            sequence.on 'stop.audio' + uid, ->
+                playing = false
+                if not ('source' of d)
+                    console.log('stopping but no source set')
                 if (d.source)
                     d.source.stop(0)
                 delete d.source
-    
+
+            sequence.on 'loop.audio' + uid, (start) ->
+                if d.source
+                    d.source.stop(0)
+                if playing
+                    play()
+
             sequence.on 'volumeChange.audio'+uid, ->
                 console.log('IS THIS VOLUME CHANGE EVENT USED (or necessary)?')
                 d.gain.gain.value = d.volume / 100.0

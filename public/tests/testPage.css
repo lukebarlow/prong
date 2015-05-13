@@ -39,6 +39,16 @@ iframe {
   fill:none;
 }
 
+.area.loop {
+    fill: steelblue;
+    fill-opacity: 0.7;
+}
+
+.line.loop {
+    stroke: steelblue;
+    stroke-opacity: 0.7;
+}
+
 /* timeline */
 
 .timeline path,
@@ -71,6 +81,36 @@ iframe {
     cursor:ew-resize;
 }
 
+.timeline .loopSelector {
+    cursor: col-resize;
+    fill: transparent;
+}
+
+.timeline .loopSelector:hover {
+    fill: rgba(0,0,0,0.05);
+}
+
+.timeline .loop {
+    fill:steelblue;
+    fill-opacity: 0.7;
+    cursor: ew-resize;
+}
+
+.timeline .loop.disabled {
+    fill-opacity:0.15;
+    cursor: col-resize;
+}
+
+.timeline .loopStart {
+    cursor: w-resize;
+    fill: transparent;
+}
+
+.timeline .loopEnd {
+    cursor: e-resize;
+    fill: transparent;
+}
+
 /* play line */
 
 .playLine {
@@ -79,6 +119,14 @@ iframe {
     height:600px;
     top:0px;
     position:absolute;
+}
+
+/* audio regions */
+
+.audioRegion rect {
+    stroke:orange;
+    fill:steelblue;
+    fill-opacity:0.05;
 }
 
 /* transport */
@@ -186,3 +234,20 @@ iframe {
     text-align: right;
     color:steelblue;
 }
+
+.trackLoading {
+    color:steelblue;
+    font-size:10pt;
+    position:relative;
+    top:-7px;
+    margin-left:5px;
+}
+
+/* text track */
+
+.textTrack {
+    text-align: center;
+    vertical-align: center;
+    display:inline-block;
+}
+

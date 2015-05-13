@@ -2,7 +2,7 @@ d3 = require('../d3-prong-min')
 commonProperties = require('../commonProperties')
 video = require('./video')
 audio = require('./audio')
-lyrics = require('./lyrics')
+text = require('./text')
 audioRegions = require('./audioRegions')
 
 # the mapping from track type strings to component constructor functions
@@ -10,7 +10,7 @@ trackTypeMappings = {
     'audio' : audio,
     'audioRegions' : audioRegions,
     'video' : video,
-    'lyrics' : lyrics
+    'text' : text
 }
 
 # the mapping from file endings to track type strings

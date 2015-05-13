@@ -19,6 +19,7 @@
   },
   "dependencies": {
     "async": "latest",
+    "browserify": "latest",
     "browserify-middleware": "latest",
     "caching-coffeeify": "latest",
     "coffee-script": "latest",

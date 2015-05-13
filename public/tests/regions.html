@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<html>
+    <head>
+        <title>Regions</title>
+        <script src="../js/prong.js"></script>
+        <link rel='stylesheet' href='testPage.css'></link>
+        <script src="qadi-min.js"></script>
+        <link rel="stylesheet" type="text/css" href="qadi.css"/>
+    </head>
+    <body>
+        <iframe src="./"></iframe>
+        <div id="main">
+        Regions<br />
+        <ul id="qadi" style="font-size:10pt">
+            <li>There are multiple regions on each track</li>
+            <li>The waveforms of each region are draw correctly</li>
+            <li>Zooming and scrolling works</li>
+            <li>Playback works correctly and plays the regions as shown</li>
+            <li>Looping playback works correctly, even when you adjust the end
+            points of the loop whilst playing</li>
+        </ul>
+        <br />
+        <br />
+        <div id="transport"></div>
+        <br />
+        <br />
+        <div id="sequence"></div>
+        </div>
+        <!-- pool and tracks are defined in here -->
+        <script src="drum_cutup.js"></script>
+
+        <script>
+
+var x = prong.d3.scale.linear().domain([0, 8]).range([0, 500]);
+
+sequence = prong.sequence()
+    .x(x)
+    .poolResources(pool)
+    .tracks(tracks)
+    .trackHeight(60)
+    .historyKey('s')
+    .canSelectLoop(true)
+    .audioOut(prong.audioContext().destination);
+
+transport = prong.transport().sequence(sequence);
+
+prong.d3.select('#sequence').call(sequence);
+prong.d3.select('#transport').call(transport);
+
+        </script>
+    </body>
+</html>

@@ -1,17 +1,26 @@
 commonProperties = require('../commonProperties')
 d3 = require('../d3-prong-min')
+LoopSelector = require('./loopSelector')
+History = require('../history/history')
 
 #  a timeline is the axis which usually appears above a number of tracks
 #  in a sequence. It also manages dragging to zoom, like Logic and Cubase, and
 #  horizontal scrolling to move back and forth along the timeline
 module.exports = ->
 
-    dispatch = d3.dispatch('change','end','timeselect') #  event dispatcher
+    dispatch = d3.dispatch('change', 'end', 'timeselect', 'loopChange', 
+        'loopChanging') #  event dispatcher
     selection = null #  remembers the selection this component is bound to
     axis = null #  the underlying d3.svg.axis object
     secondsFormatter = null #  formatter
     scrollZone = null #  the selection on which this timeline will detect scroll events
     zoomable = true
+    canSelectLoop = false
+    loopSelector = null
+    history = null
+    loopDomain = [null, null] # only used to store loop domain before the loop
+        # selector is created
+    loopDisabled = false
 
 
     setSecondsFormatter = ->
@@ -114,8 +123,47 @@ module.exports = ->
             .attr('x1', x)
             .attr('x2', x)
         minorLines.exit().remove()
-    
 
+    round = (d) ->
+        return d3.round(d, 6)
+
+    historyCodec = {
+
+        stringify: ->
+            domain = timeline.x().domain().map(round)
+            loopDomain = timeline.loop().map(round)
+            loopDisabled = timeline.loopDisabled()
+            return "#{domain};#{loopDomain};#{if loopDisabled then 1 else 0}"
+
+        parse: (s) ->
+            if not s then return [null, null]
+            [domain, loopDomain, loopDisabled] = s.split(';')
+            domain = domain.split(',').map(parseFloat)
+            loopDomain = loopDomain.split(',').map(parseFloat)
+            loopDisabled = loopDisabled == '1'
+            return [domain, loopDomain, loopDisabled]
+    }
+
+
+    createHistory = ->
+        #debugger
+        if not(historyKey = timeline.historyKey()) then return
+        history = History(historyKey, historyCodec)
+
+        update = (domain, loopDomain, loopDisabled) ->
+            if domain then timeline.domain(domain)
+            if loopDomain then timeline.loop(loopDomain)
+            timeline.loopDisabled(loopDisabled)
+
+        [domain, loopDomain, loopDisabled] = history.get()
+        update(domain, loopDomain, loopDisabled)
+
+        history.on 'change', ([domain, loopDomain, loopDisabled]) ->
+            update(domain, loopDomain, loopDisabled)
+            [start, end] = loopDomain or [null, null]
+            dispatch.loopChange(start, end, loopDisabled)
+
+    
     timeline = (_selection) ->
         selection = _selection
         x = timeline.x()
@@ -123,7 +171,6 @@ module.exports = ->
         axis = d3.svg.axis()
             .scale(x)
             .tickSize(10, 5, 0)
-            # .tickSubdivide(10)
             .ticks(width > 50 ? 10 : 2)
             .tickFormat(formatSeconds)
         setSecondsFormatter()
@@ -134,8 +181,10 @@ module.exports = ->
         downY = null #  the pixel y (relative to the timeline) which the drag starts on
         lhs = null
         rhs = null # the amount of time to the left and right of the downTime when the drag starts
+        lastPointerX = null
 
-    
+        createHistory()
+
         dragStart = (pointerX, pointerY) ->
             d3.event.preventDefault()
             d3.event.stopPropagation()
@@ -147,10 +196,11 @@ module.exports = ->
             downDomain = x.domain()
             lhs = downTime - downDomain[0]
             rhs = downDomain[1] - downTime
-            dispatch.timeselect(downTime)
+            if not d3.event.altKey
+                dispatch.timeselect(downTime)
             if not zoomable then return
             prong._dragging = true
-
+            lastPointerX = pointerX
 
         dragMove = ->
             if not zoomable then return
@@ -161,15 +211,18 @@ module.exports = ->
             pointerY = pointer[1]
             if isNaN(downY) or not dragging
                 return
-            
-            diff = pointerY - downY
+
+            x = timeline.x()
+            # dragging sideways moves the whole wave left and right
+            deltaX = pointerX - lastPointerX
+            lastPointerX = pointerX
+            downTime += x.invert(pointerX) - x.invert(pointerX + deltaX)
             #  dragging down (positive diff) zooms in, centering on the point
             #  where you first clicked
+            diff = pointerY - downY
             zoomFactor = Math.pow(2, diff/100)
             newDomain = [downTime - (lhs / zoomFactor), downTime + (rhs / zoomFactor)]
-            newDomain = notBelowZero(newDomain)
-            x = timeline.x().domain(newDomain)
-            timeline.x(x)
+            x.domain(notBelowZero(newDomain))
             movedSinceDragStart = true
             setSecondsFormatter()
             selection.call(axis.scale(x))
@@ -177,7 +230,6 @@ module.exports = ->
             dispatch.change(x)
             prong._dragging = true
 
-        
         dragEnd = ->
             dragging = false
             d3.select(window)
@@ -185,12 +237,11 @@ module.exports = ->
                 .on('mouseup.timeline', null)
                 
             if movedSinceDragStart
-                # dispatch.change(x)
                 dispatch.end(x)
+                if history then history.set()
             
             prong._dragging = false
         
-
         selection
             .attr('width',width)
             .call(axis)
@@ -204,13 +255,31 @@ module.exports = ->
             .attr('height', '100%')
             .attr('fill','transparent')
 
-        axisOverlay.on 'mousedown.timeline', (d) ->
+        if canSelectLoop
+            loopSelector = LoopSelector()
+                .timeline(timeline)
+                .domain(timeline.loop())
+                .disabled(timeline.loopDisabled())
+                .on 'changing', (start, end, disabled) ->
+                    dispatch.loopChanging(start, end, disabled)
+                .on 'change', (start, end, disabled) ->
+                    dispatch.loopChange(start, end, disabled)
+                    if history then history.set()
+
+            loopOverlay = selection.append('g')
+                .call(loopSelector)
+
+        mousedownHandler = (d) ->
             pointer = d3.mouse(selection.node())
             dragStart(pointer[0],pointer[1])
             d3.select(window)
                 .on('mousemove.timeline', dragMove)
                 .on('mouseup.timeline', dragEnd)
             d3.event.preventDefault()
+
+        axisOverlay.on 'mousedown.timeline', mousedownHandler
+        if scrollZone
+            scrollZone.on 'mousedown.timeline', mousedownHandler
 
 
     timeline.fireChange = ->
@@ -256,6 +325,12 @@ module.exports = ->
         if not arguments.length then return zoomable
         zoomable = _zoomable
         return timeline
+
+
+    timeline.canSelectLoop = (_canSelectLoop) ->
+        if not arguments.length then return canSelectLoop
+        canSelectLoop = _canSelectLoop
+        return timeline
     
 
     timeline.domain = (domain) ->
@@ -272,4 +347,32 @@ module.exports = ->
         return timeline
 
 
-    return d3.rebind(timeline, commonProperties(), 'x', 'width',' height','sequence')
+    timeline.loop = (domain) ->
+        if not arguments.length
+            if loopSelector
+                return loopSelector.domain()
+            else
+                return loopDomain or [null, null]
+        if loopSelector
+            console.log('setting domain on loop selector', domain)
+            loopSelector.domain(domain)
+        else
+            loopDomain = domain
+        return timeline
+
+
+    timeline.loopDisabled = (_disabled) ->
+        if not arguments.length
+            if loopSelector
+                return loopSelector.disabled()
+            else
+                return loopDisabled
+        if loopSelector
+            loopSelector.disabled(_disabled)
+        else
+            loopDisabled = _disabled
+        return timeline
+
+
+    return d3.rebind(timeline, commonProperties(), 'x', 'width',' height',
+            'sequence', 'historyKey')

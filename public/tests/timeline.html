@@ -2,17 +2,15 @@
 <meta charset="utf-8">
 <html>
     <head>
+        <title>Timeline</title>
         <script src="../js/prong.js"></script>
         <link rel='stylesheet' href='testPage.css'></link>
         <script src="qadi-min.js"></script>
         <link rel="stylesheet" type="text/css" href="qadi.css"/>
     </head>
     <body>
-
         <iframe src="./"></iframe>
-
         <div id="main">
-
             Timeline<br />
             <span>
             <ul id="qadi">
@@ -23,17 +21,22 @@
                     two fingers left and right on the track pad.</li>
                 <li>You can click and drag vertically on the timeline to zoom
                     in and out.</li>
+                <li>If you click and drag horizontally, then it scrolls the
+                    timeline left and right</li>
+                <li>In this example clicking amd dragging anywhere on the 
+                    bottom half of the timeline, or anywhere on the waveform 
+                    will do the move and zoom behavior</li>
             </ul>
             </span>
-            <svg style="width:700px">
-            <g id="timeline" transform="translate(10,10)" class="timeline"></g>
+            <svg style="width:700px;height:500px">
+            <g id="timeline" transform="translate(10,20)" class="timeline"></g>
             <g id="waveform" transform="translate(10,30)"></g>
             </svg>
         </div>
-
         <script>
         // first load the sound
-        prong.sound('https://dl.dropboxusercontent.com/u/5613860/audio/four_devices_computer.mp3', function(buffer){
+        var url = 'https://dl.dropboxusercontent.com/u/5613860/audio/four_devices_computer.mp3';
+        prong.sound(url, function(buffer){
 
             var d3 = prong.d3;
             // then create the timeline
@@ -42,10 +45,17 @@
             var timeline = prong
                 .timeline()
                 .x(x)
-                .scrollZone(d3.select('svg'));
+                .scrollZone(d3.select('svg'))
+                .canSelectLoop(true)
+                .historyKey('tl')
+                .on('loopChange', function(start, end){
+                    console.log('loop change', start, end)
+                });
+
             d3.select('#timeline').call(timeline);
             // then a single waveform
             var waveform = prong.waveform()
+                .height(200)
                 .x(x)
                 .timeline(timeline); // bound to the timeline
             d3.select('#waveform')

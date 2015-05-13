@@ -2,6 +2,7 @@
 <meta charset="utf-8">
 <html>
     <head>
+        <title>Sequence</title>
         <script src="../js/prong.js"></script>
         <link rel='stylesheet' href='testPage.css'></link>
         <script src="qadi-min.js"></script>
@@ -13,18 +14,23 @@
         <div id="main">
         Sequence<br />
         <br />
-        <ul id="qadi">
+        <ul id="qadi" style="font-size:10pt">
             <li>The whole sequence starts and stops with the play/stop button.
             </li>
             <li>The play line is in the correct place, even when you scroll
             and zoom around.</li>
-            <li>The play line does not appear when it is out of range of the
-            timeline.</li>
             <li>When the play line reaches the right hand side, the timeline
             pages forward, keeping the zoom level constant.</li>
             <li>You can zoom to any level by clicking and dragging on the
             timeline, and the waveforms redraw without too much stickiness
             and look correct at every level.</li>
+            <li>When you click on the timeline it sets the play line at the
+            position clicked</li>
+            <li>If you hold alt while clicking on the timeline it does not set
+            the play line, but you can still hold the mouse button down and drag
+            to zoom</li>
+            <li>The loading message does not overlap the track titles while
+            the track is loading</li>
         </ul>
         <span>
         <br />
@@ -80,6 +86,9 @@ sequence = prong.sequence()
     .x(x)
     .tracks(tracks)
     .trackHeight(30)
+    .canSelectLoop(true)
+    .historyKey('s')
+    //.scrollZone(d3.select('#sequence'))
     .audioOut(prong.audioContext().destination);
 
 transport = prong.transport().sequence(sequence)

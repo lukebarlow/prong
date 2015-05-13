@@ -6,46 +6,47 @@ typically when these are shared by different regions in a track
 sound = require('./sound').sound
 async = require('async')
 
-module.exports = (_resources) ->
+module.exports = (_clips) ->
 
-    resources = _resources
-    urls = resources.map((r) -> r.src)
+    clips = _clips
+    urls = clips.map((r) -> r.src)
     pool = {}
     loaded = false
     loadCallbacks = []
 
-    pool.getBufferForId = (id, callback) ->
-        resource = resources.filter((r) -> r.id == id)
+    pool.getClipById = (id, callback) ->
+        clip = clips.filter((r) -> r.id == id)
         
-        if resource.length != 1
-            throw (if resource.length then "Pool resource id not unique" else "Pool resource id not found")
+        if clip.length != 1
+            throw (if clip.length then "Pool clip id not unique" else "Pool clip id not found")
 
         else
-            resource = resource[0]
+            clip = clip[0]
 
             # if it's already loaded, then return that buffer
-            if resource.buffer
-                callback(resource.buffer)
+            if clip._buffer
+                callback(clip)
             # if it's already loading, then we add our callback to the list
             # of things that want to know when loading is finished
-            else if resource._loading
-                resource._loadCallbacks.push(callback)
+            else if clip._loading
+                clip._loadCallbacks.push(callback)
             # otherwise initiate loading it
             else
-                resource._loading = true
-                resource._loadCallbacks = []
-                sound resource.src, (buffer) ->
-                    resource.buffer = buffer
-                    resource._loading = false
-                    if resource._loadCallbacks
-                        resource._loadCallbacks.forEach (cb) ->
-                            cb(resource.buffer)
-                    callback(resource.buffer)
+                clip._loading = true
+                clip._loadCallbacks = []
+                sound clip.src, (buffer) ->
+                    clip._buffer = buffer
+                    clip._channel = buffer.getChannelData(0)
+                    clip._loading = false
+                    if clip._loadCallbacks
+                        clip._loadCallbacks.forEach (cb) ->
+                            cb(clip)
+                    callback(clip)
         
     
-    pool.resources = ->
+    pool.clips = ->
         loaded = false
-        return resources
+        return clips
 
 
     return pool

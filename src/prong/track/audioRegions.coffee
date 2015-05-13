@@ -42,13 +42,13 @@ setPlayHandler = (track) ->
     panner.connect(audioOut)
     trackOut = gain
 
-    sequence.on 'play.audio'+uid(), ->
-
+    
+    play = ->
         regions.forEach(stop)
 
         regions.forEach (region) ->
             # if no audio buffer, then can't play
-            if not region._buffer then return
+            if not region._clip then return
             # if this region is already in the past, then skip
             if (sequence.currentTime() > region.startTime + (region.clipEnd - region.clipStart)) then return
 
@@ -59,22 +59,39 @@ setPlayHandler = (track) ->
             playingTime = region.clipEnd - region.clipStart - (if timeOffset > 0 then timeOffset else 0)
 
             source = audioContext.createBufferSource()
-            source.buffer = region._buffer
+            source.buffer = region._clip._buffer
             region._source = source
             source.connect(trackOut)
             source.start(whenToStart, offset)
             source.stop(whenToStart + playingTime)
-    
 
-setStopHandler = (d) ->
-    sequence.on 'stop.audio'+uid(), ->
-        stop(d)
+    stop = ->
+        regions.forEach (region) ->
+            if region._source
+                region._source.stop(0)
+                delete region._source
+
+    loopHandler = ->
+        stop()
+        play()
+
+    _uid = uid()
+
+    sequence.on('play.region'+_uid, play)
+    sequence.on('stop.region'+_uid, stop)
+    sequence.on('loop.region'+_uid, loopHandler)
 
 
-stop = (region) ->
-    if region._source
-        region._source.stop(0)
-    delete region._source
+
+# setStopHandler = (d) ->
+#     sequence.on 'stop.audio'+uid(), ->
+#         stop(d)
+
+
+# stop = (region) ->
+#     if region._source
+#         region._source.stop(0)
+#     delete region._source
 
 
 module.exports = ->
@@ -118,7 +135,7 @@ module.exports = ->
                 .attr('width', (d) -> x(d.clipEnd) - x(d.clipStart) )
                 .attr('y',0)
                 .attr('height', height)
-                .each(setStopHandler)
+                #.each(setStopHandler)
 
             setPlayHandler(track)
 
@@ -132,11 +149,13 @@ module.exports = ->
 
         selection.selectAll('g.audioRegion')
             .each (d,i) ->
-                thiz = d3.select(this)
-                sequence.pool().getBufferForId d.clipId, (buffer) ->
-                    d._buffer = buffer
-                    d._channel = buffer.getChannelData(0)
-                    thiz.call(waveform)
+                container = d3.select(this)
+                sequence.pool().getClipById d.clipId, (clip) ->
+                    # d._resource
+                    # d._buffer = buffer
+                    # d._channel = buffer.getChannelData(0)
+                    d._clip = clip
+                    container.call(waveform)
                     dispatch.load(d)
             
 

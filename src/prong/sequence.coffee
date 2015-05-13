@@ -22,17 +22,19 @@ module.exports = ->
     timelineHeight = 40
     waveformVerticalZoom = 1
     pool = null
-    dispatch = d3.dispatch('scrub','change','play','stop','tick','load','volumeChange')
+    dispatch = d3.dispatch('scrub','change','play','stop','loop','tick',
+        'load','volumeChange')
     scrollZone = null
     timeline = null
     musicalTime = null
     zoomable = true
     following = true # toggle for whether the display updates to follow playback
     propertyPanelWidth = 95
+    canSelectLoop = false
+    loopDomain = [null, null] # only to store domain before timeline created
+    loopDisabled = false
 
     setPlaylinePosition = ->
-        # the -2 in the next line ensures the play line is not directly
-        # underneath the mouse, so you can click on tracks when scrubbing
         x = sequence.x()
         [start, end] = x.domain()
         if currentTime < start or currentTime > end
@@ -50,13 +52,21 @@ module.exports = ->
             .x(x)
             .sequence(sequence)
             .zoomable(zoomable)
+            .canSelectLoop(canSelectLoop)
             .scrollZone(scrollZone or element) # create the timeline
+            .loop(loopDomain)
+            .loopDisabled(loopDisabled)
+
+
+        if historyKey = sequence.historyKey()
+            timeline.historyKey(historyKey+'tl')
 
         element.classed('sequence', true)
 
         # propertyPanel height is set after tracks are drawn
         propertyPanel = element.append('div')
             .style('width', propertyPanelWidth + 'px')
+            .style('height', "#{tracks.length * trackHeight + timelineHeight}px")
             .attr('class','propertyPanel')
 
         container = element.append('div')
@@ -72,7 +82,7 @@ module.exports = ->
             .attr('width', '100%')
             .attr('class','timeline')
             .append('g')
-            .attr('transform','translate(0,1)')
+            .attr('transform','translate(0,15)')
             .call(timeline)
 
         tracksContainer = container.append('div')
@@ -90,13 +100,6 @@ module.exports = ->
 
         tracksContainer.datum(tracks).call(_track)
 
-        # tracksContainer.selectAll('.track')
-        #   .data(tracks)
-        #   .enter()
-        #   .append('div')
-        #   .attr('class','track')
-        #   .call(_track);
-
         _track.on 'load', ->
             trackLoadCount++
             if trackLoadCount == tracks.length
@@ -108,7 +111,7 @@ module.exports = ->
         playLine = playlineContainer.append('div')
             .style('height', '100px') # this soon gets clobbered when the tracks load
             .attr('class','playLine')
-            .style('top','1px')
+            .style('top','15px')
 
         setPlaylinePosition()
         timeline.on 'change.playline', ->
@@ -245,11 +248,17 @@ module.exports = ->
     playStartSequenceTime = null
     playStartComputerTime = null
 
-    sequence.play = (time, end, looping) ->
+    sequence.play = (time) ->
+
         if playing
             console.log('already playing, so returning')
             return
         
+        [loopStart, loopEnd] = timeline.loop()
+ 
+        if time == undefined and loopStart!= null and loopEnd != null and (not timeline.loopDisabled())
+            time = loopStart
+
         currentTime = time or currentTime
         playStartSequenceTime = currentTime
         playStartComputerTime = new Date()
@@ -260,9 +269,33 @@ module.exports = ->
         startTime = currentTime
 
         # this doesn't work when tab is not in focus
-
         tick = ->
             currentTime = ((Date.now() - startTimestamp) / 1000) + startTime
+            
+            [loopStart, loopEnd] = sequence.loop()
+            looping = (not sequence.loopDisabled()) and loopStart != null
+
+            # the 'currentTime < loopStart' bit allows you to scrub. It does
+            # not follow the behavior of other sequencers
+            if looping and (currentTime > loopEnd or currentTime < loopStart)
+                #dispatch.stop()
+                currentTime = loopStart
+                playStartSequenceTime = currentTime
+                playStartComputerTime = new Date()
+                startTimestamp = Date.now()
+                startTime = currentTime
+                setPlaylinePosition()
+                dispatch.loop(loopStart)
+                return false
+
+                # else
+                #     sequence.stop()
+                #     currentTime = end
+                #     setPlaylinePosition()
+                #     return true
+            else
+                dispatch.tick(currentTime)
+
             if following
                 domain = x.domain()
                 if currentTime > domain[1]
@@ -270,19 +303,7 @@ module.exports = ->
                     domain = [domain[0] + width, domain[1] + width]
                     sequence.timeline().domain(domain)
             setPlaylinePosition()
-            if end and currentTime > end
-                if looping
-                    dispatch.stop()
-                    currentTime = time
-                    startTimestamp = Date.now()
-                    startTime = currentTime
-                    dispatch.play(currentTime)
-                    return false
-                else
-                    sequence.stop()
-                    return true
-            else
-                dispatch.tick(currentTime)
+
             return (not playing)
 
 
@@ -376,6 +397,41 @@ module.exports = ->
         if not arguments.length then return propertyPanelWidth
         propertyPanelWidth = _propertyPanelWidth
         return sequence
+
+
+    sequence.canSelectLoop = (_canSelectLoop) ->
+        if not arguments.length then return canSelectLoop
+        canSelectLoop = _canSelectLoop
+        return sequence
+
+
+    sequence.loop = (domain) ->
+        if not arguments.length
+            if timeline
+                return timeline.loop()
+            else
+                return loopDomain or [null, null]
+        if timeline
+            timeline.loop(domain)
+        else
+            loopDomain = domain
+        canSelectLoop = true
+        return sequence
+
+
+    sequence.loopDisabled = (_loopDisabled) ->
+        if not arguments.length
+            if timeline
+                return timeline.loopDisabled()
+            else
+                return loopDisabled
+        if timeline
+            timeline.loopDisabled(_loopDisabled)
+        else
+            loopDisabled = _loopDisabled
+        canSelectLoop = true
+        return sequence
     
 
-    return d3.rebind(sequence, commonProperties(), 'x', 'width', 'sequence', 'timeline')
+    return d3.rebind(sequence, commonProperties(), 'x', 'width', 'sequence', 
+            'timeline', 'historyKey')

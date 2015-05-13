@@ -2,6 +2,7 @@
 <meta charset="utf-8">
 <html>
     <head>
+        <title>Waveform</title>
         <script src="../js/prong.js"></script>
         <link rel='stylesheet' href='testPage.css'></link>
         <script src="qadi-min.js"></script>
@@ -22,18 +23,15 @@
             and below the line.</li>
         </ul>
         <svg id="waveform2" height="200"></svg>
-        <ul id="qadi">
-            <li>When zoomed in even more, the waveform is just shown
-            as a single line.</li>
-        </ul>
-        <svg id="waveform3" height="200"></svg>
         <div>
 
         <script>
 
 
         // first load the sound ...
-        prong.sound('https://dl.dropboxusercontent.com/u/5613860/audio/four_devices_computer.mp3', function(buffer){
+
+        var url = 'https://dl.dropboxusercontent.com/u/5613860/audio/four_devices_computer.mp3';
+        prong.sound(url, function(buffer){
 
             var d3 = prong.d3;
             var width = 600;
@@ -57,19 +55,6 @@
                 .height(200);
 
             d3.select('#waveform2')
-                .datum({
-                    _buffer : buffer,
-                    _channel : buffer.getChannelData(0)
-                })
-                .call(waveform);
-
-            // do the zoomed in level
-            var x = d3.scale.linear().domain([6.5, 6.52]).range([0, width]);
-            var waveform = prong.waveform()
-                .x(x)
-                .height(200);
-
-            d3.select('#waveform3')
                 .datum({
                     _buffer : buffer,
                     _channel : buffer.getChannelData(0)

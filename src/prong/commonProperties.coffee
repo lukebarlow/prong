@@ -6,6 +6,7 @@ module.exports = ->
     height = null
     timeline = null
     sequence = null
+    historyKey = null
     commonProperties = {}
 
     # getter/setter for x scale
@@ -38,6 +39,12 @@ module.exports = ->
     commonProperties.timeline = (_timeline) ->
         if (!arguments.length) then return timeline
         timeline = _timeline
+        return commonProperties
+
+
+    commonProperties.historyKey = (_historyKey) ->
+        if (!arguments.length) then return historyKey
+        historyKey = _historyKey
         return commonProperties
     
 

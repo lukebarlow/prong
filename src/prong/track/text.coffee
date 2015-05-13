@@ -17,9 +17,9 @@ module.exports = ->
         if i > 0 then i--
         return i
 
-    lyrics = (selection, options) ->
+    text = (selection, options) ->
 
-        sequence = lyrics.sequence()
+        sequence = text.sequence()
         selection.append('div')
             .attr('class','trackName')
             .append('span')
@@ -29,7 +29,7 @@ module.exports = ->
         display = selection.append('div')
             .style('height', height + 'px')
             .style('width', sequence.width() + 'px') 
-        display.classed('lyrics', true)
+        display.classed('textTrack', true)
 
         uid = prong.uid()
         data = selection.datum().data
@@ -62,21 +62,21 @@ module.exports = ->
             if timer
                 clearTimeout(timer)
 
-        sequence.on 'play.lyrics' + uid, play
-        sequence.on 'stop.lyrics' + uid, stop
-        sequence.on 'loop.lyrics' + uid, (start) ->
+        sequence.on 'play.text' + uid, play
+        sequence.on 'stop.text' + uid, stop
+        sequence.on 'loop.text' + uid, (start) ->
             stop()
             play()
             
-        sequence.timeline().on 'timeselect.lyrics' + uid, (time) ->
+        sequence.timeline().on 'timeselect.text' + uid, (time) ->
             i = lyricIndexAtTime(data, time)
             showLyric()
         
 
-    lyrics.on = (type, listener) ->
+    text.on = (type, listener) ->
         dispatch.on(type, listener)
-        return lyrics
+        return text
 
 
-    return d3.rebind(lyrics, commonProperties(), 'sequence','height')
+    return d3.rebind(text, commonProperties(), 'sequence','height')
 
