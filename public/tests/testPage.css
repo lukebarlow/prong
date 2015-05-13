@@ -81,6 +81,8 @@ iframe {
     cursor:ew-resize;
 }
 
+/* looping */
+
 .timeline .loopSelector {
     cursor: col-resize;
     fill: transparent;

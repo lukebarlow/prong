@@ -27,42 +27,44 @@
         </div>
         <script>
 
+var root = 'https://dl.dropboxusercontent.com/u/5613860/audio/nino_rota/'
+
 var tracks = [
     {
         'type' : 'audio',
-        'src' : 'https://dl.dropboxusercontent.com/u/5613860/audio/nino_rota/sax1.mp3'
+        'src' : root + 'sax1.mp3'
     },
     {
         'type' : 'audio',
-        'src' : 'https://dl.dropboxusercontent.com/u/5613860/audio/nino_rota/sax2.mp3'
+        'src' : root + 'sax2.mp3'
     },
     {
         'type' : 'audio',
-        'src' : 'https://dl.dropboxusercontent.com/u/5613860/audio/nino_rota/flute.mp3'
+        'src' : root + 'flute.mp3'
     },
     {
         'type' : 'audio',
-        'src' : 'https://dl.dropboxusercontent.com/u/5613860/audio/nino_rota/snare.mp3'
+        'src' : root + 'snare.mp3'
     },
     {
         'type' : 'audio',
-        'src' : 'https://dl.dropboxusercontent.com/u/5613860/audio/nino_rota/trombone.mp3'
+        'src' : root + 'trombone.mp3'
     },
     {
         'type' : 'audio',
-        'src' : 'https://dl.dropboxusercontent.com/u/5613860/audio/nino_rota/trumpet.mp3'
+        'src' : root + 'trumpet.mp3'
     },
     {
         'type' : 'audio',
-        'src' : 'https://dl.dropboxusercontent.com/u/5613860/audio/nino_rota/tuba.mp3'
+        'src' : root + 'tuba.mp3'
     },
     {
         'type' : 'audio',
-        'src' : 'https://dl.dropboxusercontent.com/u/5613860/audio/nino_rota/bass_drum.mp3'
+        'src' : root + 'bass_drum.mp3'
     },
     {
         'type' : 'audio',
-        'src' : 'https://dl.dropboxusercontent.com/u/5613860/audio/nino_rota/cymbals.mp3'
+        'src' : root + 'cymbals.mp3'
     }
 ]
 
@@ -74,6 +76,8 @@ sequence = prong.sequence()
     .tracks(tracks)
     .trackHeight(25)
     .propertyPanelWidth(95)
+    .canSelectLoop(true)
+    .historyKey('s')
     .audioOut(prong.audioContext().destination);
 
 transport = prong.transport().sequence(sequence)

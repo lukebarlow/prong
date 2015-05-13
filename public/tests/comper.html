@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<html>
+    <head>
+        <title>Looping Playback</title>
+        <script src="../js/prong.js"></script>
+        <link rel='stylesheet' href='testPage.css'></link>
+        <script src="qadi-min.js"></script>
+        <link rel="stylesheet" type="text/css" href="qadi.css"/>
+    </head>
+    <body>
+
+        <iframe src="./"></iframe>
+        <div id="main">
+        Looping Playback<br />
+        <ul id="qadi" style="font-size:10pt">
+            <li>If you click play without selecting any loop, then it will play
+            normally</li>
+            <li>When the loop is set, the clicking play will cause it to start 
+            from the loop start, and loop when it gets to the end of the 
+            loop</li>
+            <li>If you set the loop size very small, it will still play
+            back correctly, and will completely stop when you click stop.</li>
+            <li>You can adjust the loop start and end points while it is playing
+            and the loop will change</li>
+            <li>If you set it playing a loop, then click on the timeline
+            at another point inside the loop, then playback will move to that
+            point</li>
+        </ul>
+        <span>
+        <br />
+        </span>
+        <div id="transport"></div>
+        <div id="sequence"></div>
+        </div>
+        <script>
+
+root = 'https://dl.dropboxusercontent.com/u/5613860/audio/'
+
+var tracks = [
+    {
+        'type' : 'audio',
+        'src' : root + 'four_devices_android.mp3',
+        'name' : 'android'
+    },
+    {
+        'type' : 'audio',
+        'src' : root + 'four_devices_computer.mp3',
+        'name' : 'computer'
+    },
+    {
+        'type' : 'audio',
+        'src' : root + 'four_devices_ipad.mp3',
+        'name' : 'ipad'
+    }
+]
+
+var d3 = prong.d3;
+var x = d3.scale.linear().domain([0, 5]).range([0, 500]);
+
+sequence = prong.sequence()
+    .x(x)
+    .tracks(tracks)
+    .trackHeight(100)
+    .canSelectLoop(true)
+    .historyKey('s')
+    .audioOut(prong.audioContext().destination);
+
+transport = prong.transport().sequence(sequence)
+
+d3.select('#sequence').call(sequence);
+d3.select('#transport').call(transport);
+
+// var comper = prong.comper()
+//     .x(x)
+//     .timeline(sequence.timeline())
+//     .height(100)
+//     .history('c')
+
+// d3.select('#sequence').selectAll('svg').call(comper)
+
+
+        </script>
+    </body>
+</html>
