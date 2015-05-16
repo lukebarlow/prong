@@ -2,6 +2,7 @@ d3 = require('./d3-prong-min')
 commonProperties = require('./commonProperties')
 Track = require('./track/track')
 Timeline = require('./components/timeline')
+MusicalTimeline = require('./components/musicalTimeline')
 Pool = require('./pool')
 
 
@@ -77,13 +78,30 @@ module.exports = ->
             .style('position','absolute')
             .attr('class','playlineContainer')
 
-        timelineContainer = container.append('svg')
-            .attr('height', timelineHeight)
+        timelineContainer = container.append('div')
+            .style('height', timelineHeight + 'px')
+            .style('width', '100%')
+            .attr('class', 'timelineContainer')
+
+        timelineSvg = timelineContainer.append('svg')
+            .style('position', 'absolute')
+            .attr('height', 300)
             .attr('width', '100%')
             .attr('class','timeline')
-            .append('g')
+            
+        timelineSvg.append('g')
             .attr('transform','translate(0,15)')
             .call(timeline)
+
+        if musicalTime
+            timelineHeight += 30
+            timelineContainer.style('height', timelineHeight + 'px')
+            musicalTimeline = MusicalTimeline()
+                .musicalTime(musicalTime)
+                .timeline(timeline)
+            timelineSvg.append('g')
+            .attr('transform','translate(0,45)')
+            .call(musicalTimeline)
 
         tracksContainer = container.append('div')
             .attr('width', '100%')

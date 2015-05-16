@@ -1,5 +1,5 @@
 var commonProperties = require('../commonProperties'),
-    fx = require('../analysis/fx'),
+    //fx = require('../analysis/fx'),
     uid = require('../uid');
 
 // a contour is very similar to a waveform, but usually at a much lower sample

@@ -46,7 +46,7 @@ module.exports = () ->
 
         axis = d3.svg.axis()
             .scale(x)
-            .tickSize(15,5,0)
+            .tickSize(10,5,0)
             .tickValues(ticks)
             .tickFormat(tickFormat)
 

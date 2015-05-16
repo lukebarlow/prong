@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<html>
+    <head>
+        <title>Musical Timeline</title>
+        <script src="../js/prong.js"></script>
+        <link rel='stylesheet' href='testPage.css'></link>
+        <script src="qadi-min.js"></script>
+        <link rel="stylesheet" type="text/css" href="qadi.css"/>
+    </head>
+    <body>
+        <iframe src="./"></iframe>
+        <div id="main">
+        Musical Timeline<br />
+         <ul id="qadi" style="font-size:10pt">
+            <li>In addition to the timeline indicating seconds, there is
+            a second timeline which shows bars and beats.</li>
+         <!--    <li>The lines from this timeline cross all the tracks, so
+            you can clearly see where the bars start relative to the contents
+            of the track</li>
+            <li>The lines pass underneath the track content rather than over the
+            top of it.</li>
+            <li>Changes in time signature are indicated on the timeline</li>
+            <li>When dragging to create a loop, by default it will snap to
+            the musical time divisions</li>
+            <li>If you hold the ctrl key while dragging a loop, then it will
+            not snap to the musical time divisions</li> -->
+        </ul>
+        <span>
+        <br />
+        </span>
+        <div id="transport"></div>
+        <br />
+        <br />
+        <div id="musicalTimeline"></div>
+        <div id="sequence"></div>
+        </div>
+        <script>
+
+root = 'https://dl.dropboxusercontent.com/u/5613860/audio/nino_rota/'
+root = '/audio/'
+
+var tracks = [
+    {
+        'type' : 'audio',
+        'src' : root + 'sax1.mp3'
+    }
+]
+
+var x = d3.scale.linear().domain([0, 15]).range([0, 800]);
+
+bars = [
+    {
+        startTime : 1.5,
+        numerator : 4,
+        denominator : 4,
+        numberOfBars : 2,
+        tempo : 120
+    },
+    {
+        numerator : 3,
+        denominator : 4,
+        numberOfBars : 2,
+        tempo : 125
+    },
+    {
+        numerator : 7,
+        denominator : 8,
+        numberOfBars : 3,
+        tempo : 280
+    },
+    {
+        numerator : 4,
+        denominator : 4,
+        numberOfBars : 10,
+        tempo : 110
+    }
+]
+
+musicalTime = new prong.musicalTime(bars)
+
+sequence = prong.sequence()
+    .x(x)
+    .tracks(tracks)
+    .trackHeight(30)
+    .canSelectLoop(true)
+    .audioOut(prong.audioContext().destination)
+    .musicalTime(musicalTime);
+
+transport = prong.transport().sequence(sequence)
+
+d3.select('#sequence').call(sequence);
+d3.select('#transport').call(transport);
+
+
+
+        </script>
+    </body>
+</html>

@@ -77,7 +77,7 @@ class MusicalTime
         time = this.bars[0].startTime
         if not tempo
             throw 'Must specify tempo for the first group of bars'
-        if not time
+        if time == null
             throw 'Must specify the start time (in seconds) for the first group of bars'
         barNumber = 1
         tick = 0 # tempo independent scale of musical time

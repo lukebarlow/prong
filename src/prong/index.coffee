@@ -30,10 +30,7 @@ module.exports = {
     lines : require('./components/lines'),
     mixer : require('./components/mixer'),
     transport : require('./components/transport'),
-    
-    # audio/data manipulation
-    fx : require('./analysis/fx'),
-    
+        
     # history
     history : require('./history/history')
     omniscience : require('./omniscience')
