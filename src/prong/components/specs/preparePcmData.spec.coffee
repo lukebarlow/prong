@@ -1,5 +1,5 @@
 preparePcmData = require('../preparePcmData')
-d3 = require('../../d3-prong-min')
+d3 = require('d3-prong')
 
 # dummy data is 20 seconds long at 100 samples per second
 getD = ->

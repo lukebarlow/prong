@@ -1,5 +1,5 @@
 downsampleCache = require('../downsampleCache')
-d3 = require('../../d3-prong-min')
+d3 = require('d3-prong')
 
 # dummy data is 100 seconds long at 100 samples per second
 getD = ->

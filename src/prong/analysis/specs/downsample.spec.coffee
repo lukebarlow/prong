@@ -1,5 +1,5 @@
 downsample = require('../downsample')
-d3 = require('../../d3-prong-min')
+d3 = require('d3-prong')
 
 data = d3.range(12)
 

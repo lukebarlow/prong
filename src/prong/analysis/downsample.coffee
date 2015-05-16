@@ -7,7 +7,7 @@
  original array.
 ###
 
-d3 = require('../d3-prong-min')
+d3 = require('d3-prong')
 
 aggregatorByName = {
     'max' : d3.max,

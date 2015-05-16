@@ -3,7 +3,7 @@
 # to absolute time (in seconds) and vice versa. It can also work with musical
 # ticks, which are normally 4096 per crotchet
 
-d3 = require('./d3-prong-min')
+d3 = require('d3-prong')
 
 class MusicalTime
 

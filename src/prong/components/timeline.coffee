@@ -1,5 +1,5 @@
 commonProperties = require('../commonProperties')
-d3 = require('../d3-prong-min')
+d3 = require('d3-prong')
 LoopSelector = require('./loopSelector')
 History = require('../history/history')
 prong = require('../')

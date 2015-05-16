@@ -60,7 +60,7 @@ See pcmRendering.spec.coffee for more examples
 ###
 
 downsampleCache = require('../analysis/downsampleCache')
-d3 = require('../d3-prong-min')
+d3 = require('d3-prong')
 
 domainWidth =  (domain) ->
     return domain[1] - domain[0]

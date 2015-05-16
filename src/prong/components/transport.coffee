@@ -1,6 +1,6 @@
 commonProperties = require('../commonProperties')
 playStopButton = require('./playStopButton')
-d3 = require('../d3-prong-min')
+d3 = require('d3-prong')
 
 # a simple transport bar for prong sequences, with buttons for starting and
 # stopping

@@ -1,7 +1,7 @@
 commonProperties = require('../commonProperties')
 preparePcmData = require('./preparePcmData')
 uid = require('../uid')
-d3 = require('../d3-prong-min')
+d3 = require('d3-prong')
 
 
 DISPLAY_ABOVE_AND_BELOW_CUTOFF = 10

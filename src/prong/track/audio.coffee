@@ -1,16 +1,18 @@
-d3 = require('../d3-prong-min')
+d3 = require('d3-prong')
 commonProperties = require('../commonProperties')
 sound = require('../sound').sound
 Waveform = require('../components/waveform')
 Onsets = require('../components/onsets')
-prong = require('../')
+uid = require('../uid')
+global = require('../prongGlobal')
+trackName = require('../trackName')
+AudioContext = require('../audioContext')
 #Lines = require('../components/lines')
 #Note = require('../components/note')
 
 # audioTrack is responsible for drawing out the audio tracks. This is a
 # container for different representations of audio (waveform and/or spectrogram)
 module.exports = ->
-
     width = null
     dispatch = d3.dispatch('load')
 
@@ -56,14 +58,14 @@ module.exports = ->
 
             if not ('volume' of d) then d.volume = 1
 
-            div.append('div').attr('class','trackName').append('span').text(prong.trackName)
+            div.append('div').attr('class','trackName').append('span').text(trackName)
             loadingMessage = div.append('span').attr('class','trackLoading')
 
             svg = div.append('svg')
                 .attr('height',height)
                 .attr('width', '100%')
                 .on 'mouseover', (d) ->
-                    if not prong._dragging
+                    if not global._dragging
                         d3.select(this).classed('over', true)
                         d.over = true
                 .on 'mouseout', (d) ->
@@ -99,13 +101,13 @@ module.exports = ->
                 svg.call(waveform)
                 dispatch.load(d)
 
-            uid = prong.uid()
+            _uid = uid()
             playing = false
 
             play = ->
                 audioOut = sequence.audioOut()
                 if (!audioOut || !d._buffer) then return
-                audioContext = prong.audioContext()
+                audioContext = AudioContext()
                 source = audioContext.createBufferSource()
                 source.buffer = d._buffer
                 
@@ -141,11 +143,11 @@ module.exports = ->
                 d.gain = gain
                 d.source = source
 
-            sequence.on 'play.audio' + uid, ->
+            sequence.on 'play.audio' + _uid, ->
                 playing = true
                 play()
             
-            sequence.on 'stop.audio' + uid, ->
+            sequence.on 'stop.audio' + _uid, ->
                 playing = false
                 if not ('source' of d)
                     console.log('stopping but no source set')
@@ -153,13 +155,13 @@ module.exports = ->
                     d.source.stop(0)
                 delete d.source
 
-            sequence.on 'loop.audio' + uid, (start) ->
+            sequence.on 'loop.audio' + _uid, (start) ->
                 if d.source
                     d.source.stop(0)
                 if playing
                     play()
 
-            sequence.on 'volumeChange.audio'+uid, ->
+            sequence.on 'volumeChange.audio'+ _uid, ->
                 console.log('IS THIS VOLUME CHANGE EVENT USED (or necessary)?')
                 d.gain.gain.value = d.volume / 100.0
 
