@@ -2,6 +2,7 @@ d3 = require('../d3-prong-min')
 commonProperties = require('../commonProperties')
 uid = require('../uid')
 Waveform = require('../components/waveform')
+prong = require('../')
 
 regionCounter = 0
 

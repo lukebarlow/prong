@@ -3,6 +3,7 @@ commonProperties = require('../commonProperties')
 sound = require('../sound').sound
 Waveform = require('../components/waveform')
 Onsets = require('../components/onsets')
+prong = require('../')
 #Lines = require('../components/lines')
 #Note = require('../components/note')
 
