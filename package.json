@@ -28,7 +28,7 @@
     "socket.io": "latest",
     "uglify-js": "latest",
     "fs-extra": "^0.16.3",
-    "d3": "git://github.com/lukebarlow/d3-prong"
+    "d3-prong": "git://github.com/lukebarlow/d3-prong"
   },
   "devDependencies": {
     "jasmine-node": "latest",
