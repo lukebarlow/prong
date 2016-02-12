@@ -112,7 +112,7 @@ module.exports = ->
                 source.buffer = d._buffer
                 
                 gain = audioContext.createGain()
-                panner = audioContext.createPanner()
+                panner = audioContext.createStereoPanner()
 
                 # volume
                 setVolume = ->
@@ -122,12 +122,8 @@ module.exports = ->
 
                 # pan
                 setPan = ->
-                    # pan numbers are between -64 and +63. We convert this
-                    # into an angle in radians, and then into an x,y position
-                    angle = d.pan / 64 * Math.PI * 0.5
-                    x = Math.sin(angle) / 2
-                    y = Math.cos(angle) / 2
-                    panner.setPosition(x, y, 0)
+                    panner.pan.value = d.pan / 64
+
                 d.watch('pan', -> setPan() )
                 setPan()
 

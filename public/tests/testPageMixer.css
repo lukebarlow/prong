@@ -48,6 +48,24 @@ iframe {
     stroke: orange;
 }
 
+.area.loop {
+    fill: steelblue;
+    fill-opacity: 0.7;
+}
+
+.line.loop {
+    stroke: steelblue;
+    stroke-opacity: 0.7;
+}
+
+.over .area.loop {
+    fill: rgb(47, 155, 245);
+}
+
+.over .line.loop {
+    stroke: rgb(47, 155, 245);;
+}
+
 /* timeline */
 
 .timeline path,
@@ -61,6 +79,39 @@ iframe {
   fill:steelblue;
   shape-rendering: crispEdges;
 }
+
+/* looping */
+
+.timeline .loopSelector {
+    cursor: col-resize;
+    fill: transparent;
+}
+
+.timeline .loopSelector:hover {
+    fill: rgba(0,0,0,0.05);
+}
+
+.timeline .loop {
+    fill:steelblue;
+    fill-opacity: 0.7;
+    cursor: ew-resize;
+}
+
+.timeline .loop.disabled {
+    fill-opacity:0.15;
+    cursor: col-resize;
+}
+
+.timeline .loopStart {
+    cursor: w-resize;
+    fill: transparent;
+}
+
+.timeline .loopEnd {
+    cursor: e-resize;
+    fill: transparent;
+}
+
 
 /* play line */
 

@@ -10,7 +10,7 @@ module.exports = ->
     volumeSlider = slider()
         .domain([0,100])
         .height(100)
-        .width(40)
+        .width(34)
         .format(d3.format('f'))
         .key('volume')
         .horizontal(false)
@@ -22,15 +22,15 @@ module.exports = ->
         .key('pan')
         .format(d3.format('d'))
 
-    margin = {top: 40, right: 40, bottom: 40, left: 40}
-    width = 800 - margin.left - margin.right
-    height = 250 - margin.bottom - margin.top
-
 
     mixer = (selection) ->
 
         tracks = sequence.tracks().filter (track) -> 
             track.type in ['audio','audioRegions']
+
+        margin = {top: 40, right: 0, bottom: 40, left: 40}
+        width = tracks.length * 50
+        height = 220 - margin.bottom - margin.top
 
         svg = selection.append("svg")
             .attr("width", width + margin.left + margin.right)
@@ -46,7 +46,7 @@ module.exports = ->
                 .enter()
                 .append('g')
                 .attr 'transform', (d,i) ->
-                    return 'translate(' + (i * 75) + ',0)'
+                    return 'translate(' + (i * 50) + ',0)'
                 .on 'mouseover', (d) ->
                     d3.select(this).classed('over', true)
                     d.over = true;
@@ -59,7 +59,7 @@ module.exports = ->
 
             strips.append('g').call(panPot)
             strips.append('g')
-                .attr('transform', 'translate(-20,50)')
+                .attr('transform', 'translate(-17,50)')
                 .call(volumeSlider);
             strips.append('text')
                 .attr('transform', 'translate(0, 190)')

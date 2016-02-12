@@ -83,6 +83,3 @@ module.exports = () ->
         return musicalTimeline
 
     return d3.rebind(musicalTimeline, commonProperties(), 'timeline')
-
-
-    return musicalTimeline
