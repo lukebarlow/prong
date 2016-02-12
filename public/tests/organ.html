@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<html>
+<head>
+    <title>Organ</title>
+    <script src="../js/prong.js"></script>
+    <link rel='stylesheet' href='testPage.css'></link>
+    <script src="qadi-min.js"></script>
+    <link rel="stylesheet" type="text/css" href="qadi.css"/>
+    <style>
+
+
+.black rect {
+    fill-opacity: 0.2;
+}
+
+.black rect.background {
+    fill: black;
+}
+
+.slider rect {
+    stroke: transparent;
+}
+
+.slider text {
+    display: none;
+}
+
+.slider:hover text {
+    display: block;
+}
+
+
+    </style>
+
+</head>
+<body>
+
+<iframe src="./"></iframe>
+<div id="main">
+
+<button id="setNewValues">set random values</button>
+<div id="organ"></div>
+
+<script>
+
+var organ = prong.organ();
+organ.volume(0.5)
+
+organ.frequencyComponents([[0,1,0,1],[0,0,0,0]])
+
+var cb = d3.select('#organ')
+    .append('input')
+    .attr('type', 'checkbox')
+    .on('click', function(){
+        organ.on(this.checked)
+    })
+
+organController = prong.organController()
+
+d3.select('#organ')
+    .append('svg')
+    .attr('width', 800)
+    .attr('height', 500)
+    .append('g')
+    .attr('transform','translate(20,20)')
+    .call(organController)
+
+organController.on('change', function(components){
+    console.log(JSON.stringify(components, null, 4))
+    organ.frequencyComponents(components)
+})
+
+d3.select('#setNewValues').on('click', function(){
+    var length = ~~(Math.random() * 128)
+    function randomMagnitude(){
+        return Math.random() * 2 - 1
+    }
+    var real = d3.range(length).map(randomMagnitude)
+    var imag = real.map(randomMagnitude)
+
+    organController.frequencyComponents([real, imag])
+})
+
+</script>
+
+
+
+
+</div>
+</body>
+</html>

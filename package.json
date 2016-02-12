@@ -14,7 +14,8 @@
     "transpile": "node scripts/copyJsFiles.js && coffee --compile --output lib/ src/",
     "clean": "rm -r lib",
     "postinstall": "npm run transpile",
-    "build": "export NODE_ENV=production && npm run transpile && browserify ./lib/main.js | uglifyjs -mt > prong-min.js",
+    "build": "export NODE_ENV=production && npm run transpile && browserify ./lib/main.js > prong.js",
+    "build-min": "export NODE_ENV=production && npm run transpile && browserify ./lib/main.js | uglifyjs -mt > prong-min.js",
     "test": "jasmine-node --coffee --verbose --captureExceptions ./src/"
   },
   "dependencies": {

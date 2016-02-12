@@ -13,6 +13,14 @@
     font-size:9pt;
 }
 
+.slider text {
+    display: none;
+}
+
+.slider:hover text {
+    display: block;
+}
+
     </style>
     <script>
 
@@ -124,6 +132,83 @@ function init(){
     </ul>
     <br />
     <svg id="horizontalSliders" width="100%" height="400"><svg>
+    <br />
+    <ul id="qadi">
+        <li>You can define standalone sliders, which work more like widgets (i.e. they
+        don't use d3 data binding). This is done by not setting the 'key'
+        property</li>
+    </ul>
+    <svg width="100%" height="200">
+        <g transform="translate(30, 22)" id="standalone-vertical"></g>
+        <g transform="translate(100, 22)" id="standalone-horizontal"></g>
+    </svg>
+    <br />
+    <script>
+
+verticalStandaloneSlider = prong.slider()
+    .domain([0, 100])
+    .width(20)
+    .height(100)
+    .value(50)
+    .format(d3.format('.3f'))
+    .on('change', function(value){
+        console.log('got a change event', value)
+    })
+
+horizontalStandaloneSlider = prong.slider()
+    .domain([0, 100])
+    .width(20)
+    .height(100)
+    .value(50)
+    .horizontal(true)
+    .format(d3.format('.3f'))
+    .on('change', function(value){
+        console.log('got a change event', value)
+    })
+
+d3.select('#standalone-vertical').call(verticalStandaloneSlider);
+d3.select('#standalone-horizontal').call(horizontalStandaloneSlider);
+
+    </script>
+    <ul id="qadi">
+        <li>You can set the 'exponent' property on the slider, which
+        makes it a non linear scale, following d3.scale.pow().</li>
+    </ul>
+    <svg width="100%" height="200">
+        <g transform="translate(30, 22)" id="exponent-vertical"></g>
+        <g transform="translate(100, 22)" id="exponent-horizontal"></g>
+    </svg>
+    <br />
+    <script>
+
+verticalStandaloneSlider = prong.slider()
+    .domain([0, 100])
+    .width(20)
+    .height(100)
+    .value(50)
+    .exponent(0.2)
+    .format(d3.format('.3f'))
+    .on('change', function(value){
+        console.log('got a change event', value)
+    })
+
+horizontalStandaloneSlider = prong.slider()
+    .domain([0, 100])
+    .width(20)
+    .height(300)
+    .value(50)
+    .exponent(0.3)
+    .horizontal(true)
+    .format(d3.format('.3f'))
+    .on('change', function(value){
+        console.log('got a change event', value)
+    })
+
+d3.select('#exponent-vertical').call(verticalStandaloneSlider);
+d3.select('#exponent-horizontal').call(horizontalStandaloneSlider);
+
+    </script>
+
 
 </div>
 </body>

@@ -14,15 +14,16 @@ module.exports = ->
         .format(d3.format('f'))
         .key('volume')
         .horizontal(false)
+        .circleStyle(true)
 
     panPot = pot()
         .domain([-64,+63])
-        .radius(20)
+        .radius(0)
         .key('pan')
         .format(d3.format('d'))
 
     margin = {top: 40, right: 40, bottom: 40, left: 40}
-    width = 1200 - margin.left - margin.right
+    width = 800 - margin.left - margin.right
     height = 250 - margin.bottom - margin.top
 
 

@@ -6,14 +6,15 @@ module.exports = ->
     width = 40
     height = 100
     horizontal = false
-    scale = d3.scale.linear().range(0,height).clamp(true)
+    scale = d3.scale.pow().exponent(1).range([0,height]).clamp(true)
     format = d3.format('.2f')
-    dispatch = d3.dispatch('change','end')
+    dispatch = d3.dispatch('change')
     prefix = ''
     title = ''
     key = null
     padding = 1
-
+    value = null
+    circleStyle = false # square style means the slider is drawn differently
 
     dragstart = (e) ->
         dragging = true
@@ -26,19 +27,35 @@ module.exports = ->
 
 
     slider = (selection) ->
-        if key is null then throw "Must set 'key' for slider"
+
+        getText = (d) -> 
+            if key
+                prefix + format(d[key])
+            else
+                prefix + format(value)
 
         dragmove = (d, i) ->
             if !dragging then return
-            d[key] = scale.invert(if horizontal then d3.event.x else d3.event.y)          
-            text.text(prefix + format(d[key]))
+            _value = scale.invert(if horizontal then d3.event.x else d3.event.y) 
+            
+            last = if key then d[key] else value
+            if last == _value then return
+
+            if key
+                d[key] = _value
+            else
+                value = _value        
+            text.text(getText(d))
             redraw()
-            dispatch.change(d, i, key)
+            if key
+                dispatch.change(d, i, key)
+            else
+                dispatch.change(value)
             d3.event.sourceEvent.stopPropagation()
 
         g = selection
 
-        g.attr('class','slider')
+        g.classed('slider', true)
 
         drag = d3.behavior.drag()
             .on('dragstart',dragstart)
@@ -51,37 +68,51 @@ module.exports = ->
 
         height = Math.abs(scale.range()[0] - scale.range()[1])
 
-        position = (d) -> scale(d[key])
-
-        text = (d) -> prefix + format(d[key])
+        position = (d) ->
+            if key
+                scale(d[key]) 
+            else 
+                scale(value)
 
         cy = (d) -> position(d) + 1
+
         backgroundLength = (d) -> 
             if horizontal
-                position(d) + width
+                position(d) + circleStyle * width + 1
             else
-                height - position(d) + width - padding * 2
+                Math.abs(scale(0) - position(d)) + circleStyle * (width - padding * 2)
 
-        verticalBackgroundY = (d) -> position(d) - (width / 2) + 1
+        verticalBackgroundY = (d) -> 
+            p = Math.min(position(d), scale(0))
+            return p  - (circleStyle * width / 2) + 1
+            
         verticalTextY = (d) -> position(d) + 3
+
+        rounding = (selection) ->
+            if circleStyle
+                selection
+                    .attr('rx',width / 2)
+                    .attr('ry',width / 2)
+
+        draggerDisplay = (selection) ->
+            if not circleStyle
+                selection.style('opacity','0')
 
         if horizontal
             g.append('rect')
                 .attr('y', 0)
-                .attr('x', scale.range()[0] - width / 2)
+                .attr('x', scale.range()[0] - circleStyle * width / 2)
                 .attr('height', width)
-                .attr('width', height + width)
-                .attr('rx', width / 2)
-                .attr('ry', width / 2)
+                .attr('width', height + circleStyle * width)
+                .call(rounding)
 
             background = g.append('rect')
                 .attr('class','background')
-                .attr('x', 0 - width / 2)
+                .attr('x', 0 - circleStyle * width / 2)
                 .attr('y', padding)
                 .attr('height', width - padding * 2)
                 .attr('width', (d) -> backgroundLength(d) - 1)
-                .attr('rx',width / 2)
-                .attr('ry',width / 2)
+                .call(rounding)
 
             circle = g.append('circle')
                 .attr('cy', width / 2)
@@ -90,6 +121,7 @@ module.exports = ->
                 .style('cursor', 'pointer')
                 .attr('fill', 'white')
                 .call(drag)
+                .call(draggerDisplay)
 
             text = g.append('text')
                 .attr('x', (d) -> position(d) - 1)
@@ -97,16 +129,15 @@ module.exports = ->
                 .attr('text-anchor', 'middle')
                 .attr('alignment-baseline','middle')
                 .attr('cursor', 'pointer')
-                .text(text)
+                .text(getText)
                 .call(drag)
         else
             g.append('rect')
                 .attr('x', 0)
-                .attr('y',scale.range()[1] - width / 2)
-                .attr('height',height + width)
+                .attr('y', scale.range()[1] - circleStyle * width / 2)
+                .attr('height',height + circleStyle * width)
                 .attr('width', width)
-                .attr('rx', width / 2)
-                .attr('ry', width / 2)
+                .call(rounding)
 
             background = g.append('rect')
                 .attr('class','background')
@@ -114,8 +145,7 @@ module.exports = ->
                 .attr('y', verticalBackgroundY)
                 .attr('height', backgroundLength)
                 .attr('width', width - padding * 2)
-                .attr('rx',width / 2)
-                .attr('ry',width / 2)
+                .call(rounding)
 
             circle = g.append('circle')
                 .attr('cx', width / 2 )
@@ -124,6 +154,7 @@ module.exports = ->
                 .style('cursor','pointer')
                 .attr('fill','white')
                 .call(drag)
+                .call(draggerDisplay)
 
             text = g.append('text')
                 .attr('x',width / 2)
@@ -131,26 +162,26 @@ module.exports = ->
                 .attr('text-anchor','middle')
                 .attr('alignment-baseline','middle')
                 .attr('cursor','pointer')
-                .text(text)
+                .text(getText)
                 .call(drag)
 
-
-        selection.each (d) ->
-            d.watch key, ->
-                redraw(d)
+        if key
+            selection.each (d) ->
+                d.watch key, ->
+                    redraw(d)
         
 
         redraw = (d) ->
             if (horizontal)
                 circle.attr('cx', (d) -> position(d) - 1)
-                text.attr('x', (d) -> scale(d[key]) - 1)
-                    .text( (d) -> prefix + format(d[key]))
+                text.attr('x', (d) -> position(d) - 1)
+                    .text(getText)
                 background
                     .attr('width', (d) -> backgroundLength(d) - 1)
             else
                 circle.attr('cy', cy)
                 text.attr('y', verticalTextY )
-                    .text( (d) -> prefix + format(d[key]))
+                    .text(getText)
                 background
                     .attr('y', verticalBackgroundY)
                     .attr('height', backgroundLength)
@@ -159,6 +190,12 @@ module.exports = ->
     slider.domain = (_domain) ->
         if not arguments.length then return scale.domain()
         scale.domain(_domain)
+        return slider
+
+
+    slider.exponent = (_exponent) ->
+        if not arguments.length then return scale.exponent()
+        scale.exponent(_exponent)
         return slider
 
 
@@ -214,6 +251,18 @@ module.exports = ->
     slider.title = (_title) ->
         if not arguments.length then return title
         title = _title
+        return slider
+
+
+    slider.value = (_value) ->
+        if not arguments.length then return value
+        value = _value
+        return slider
+
+
+    slider.circleStyle = (_circleStyle) ->
+        if not arguments.length then return circleStyle
+        circleStyle = _circleStyle
         return slider
 
 

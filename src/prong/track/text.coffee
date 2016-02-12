@@ -32,11 +32,11 @@ module.exports = ->
         display.classed('textTrack', true)
 
         uid = prong.uid()
-        data = selection.datum().data
+        data = selection.datum().data or []
         timer = null
         i = null
 
-        showLyric = -> display.text(data[i].text)
+        showLyric = -> display.text(data[i] and data[i].text or '')
 
         setTimerForNextLyric = ->
             if timer

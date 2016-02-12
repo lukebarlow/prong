@@ -6,6 +6,7 @@ module.exports = ->
 
     dragging = false
     radius = 20
+    outerRadius = radius + 12
     angle = Math.PI * 0.65
     scale = d3.scale.linear().range([-angle, angle]).clamp(true)
     format = d3.format('f')
@@ -15,17 +16,22 @@ module.exports = ->
     key = null
 
 
-    dragstart = ->
-        dragging = true
-        d3.event.sourceEvent.stopPropagation()
-
-
-    dragend = ->
-        dragging = false
-        d3.event.sourceEvent.stopPropagation()
-
-
     pot = (selection) ->
+
+        textYOffset = radius / 4
+        if radius == 0
+            outerRadius = radius + 20
+            textYOffset = 18
+
+        dragstart = ->
+            selection.classed('dragging', true)
+            dragging = true
+            d3.event.sourceEvent.stopPropagation()
+
+        dragend = ->
+            selection.classed('dragging', false)
+            dragging = false
+            d3.event.sourceEvent.stopPropagation()
 
         dragmove = (d, i) ->
             d[key] -= d3.event.dy
@@ -44,13 +50,13 @@ module.exports = ->
             .on('dragend',dragend)
 
         backgroundArc = d3.svg.arc()
-            .outerRadius(radius + 12)
+            .outerRadius(outerRadius)
             .innerRadius(radius)
             .startAngle(-angle)
             .endAngle(angle)
 
         arc = d3.svg.arc()
-            .outerRadius(radius + 12)
+            .outerRadius(outerRadius)
             .innerRadius(radius)
             .startAngle (d) ->
                 value = d[key]
@@ -80,7 +86,7 @@ module.exports = ->
 
         selection.append('text')
             .attr('text-anchor','middle')
-            .attr('transform', "translate(0,#{radius/4})")
+            .attr('transform', "translate(0,#{textYOffset})")
             .text( (d) -> d[key] )
 
         # use the Object.watch feature to listen for changes to the datum
@@ -110,7 +116,6 @@ module.exports = ->
         if not arguments.length then return radius
         radius = _radius
         return pot
-    
 
     # getter/setter for format
     pot.format = (_format) ->

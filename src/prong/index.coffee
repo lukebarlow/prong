@@ -1,14 +1,3 @@
-# add remove method to array
-Array.prototype.remove = (item) ->
-    index = this.indexOf(item)
-    if (index != -1)
-        return this.splice(index, 1)
-    
-# a few useful methods to have on Float32Arrays
-Float32Array.prototype.map = Array.prototype.map
-Float32Array.prototype.slice = Float32Array.prototype.subarray
-Float32Array.prototype.some = Array.prototype.some
-
 sound = require('./sound')
 
 module.exports = {
@@ -42,7 +31,10 @@ module.exports = {
     guid : require('./guid'),
     audioContext : require('./audioContext'),
     sound : sound.sound,
-    sounds : sound.sounds
+    sounds : sound.sounds,
+
+    organ : require('./organ'),
+    organController : require('./components/organController')
 
     # this is the custom build of d3 with just the features needed for prong
     d3 : require('d3-prong')

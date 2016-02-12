@@ -355,7 +355,6 @@ module.exports = ->
             else
                 return loopDomain or [null, null]
         if loopSelector
-            console.log('setting domain on loop selector', domain)
             loopSelector.domain(domain)
         else
             loopDomain = domain

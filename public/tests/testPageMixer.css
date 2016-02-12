@@ -193,9 +193,6 @@ iframe {
 
 /* mixer */
 
-#mixer {
-    height:300px;
-}
 
 /* pot */
 
@@ -220,7 +217,7 @@ iframe {
     stroke-opacity:1;
 }
 
-.over .pot path.pan {
+.over .pot path.pan, .dragging .pot path.pan {
     fill: orange;
 }
 
@@ -229,9 +226,7 @@ iframe {
     stroke: transparent;
 }
 
-
-
-.over path.pan {
+.over path.pan, .dragging path.pan {
     fill:orange;
 }
 
