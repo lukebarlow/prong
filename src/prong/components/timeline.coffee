@@ -253,7 +253,7 @@ module.exports = ->
             .attr('x',0)
             .attr('y', 0)
             .attr('width', width)
-            .attr('height', '100%')
+            #.attr('height', '100%')
             .attr('fill','transparent')
 
         if canSelectLoop

@@ -85,7 +85,7 @@ module.exports = ->
 
         timelineSvg = timelineContainer.append('svg')
             .style('position', 'absolute')
-            .attr('height', 300)
+            .attr('height', 40)
             .attr('width', '100%')
             .attr('class','timeline')
             
@@ -122,7 +122,8 @@ module.exports = ->
             trackLoadCount++
             if trackLoadCount == tracks.length
                 dispatch.load()
-            playLine.style('height', sequence.height() + 'px')
+            playlineHeight = sequence.height() - 15
+            playLine.style('height', playlineHeight + 'px')
             propertyPanel.style('height', sequence.height() + 'px')
         
         # and the play line
@@ -185,7 +186,17 @@ module.exports = ->
         _tracks.forEach (track) ->
             if not ('volume' of track) then track.volume = 60
             if not ('pan' of track) then track.pan = 0
-        
+
+        # replace each track with a proxy, and give it a watch method
+        # which can be used to listen for changes
+        # _tracks = _tracks.map (track) =>
+        #     dispatch = d3.dispatch('change')
+        #     handler = {
+        #         set: (target, property, value, receiver) =>
+        #             console.log('set a value', target, property, value, receiver)
+        #     }
+        #     proxy = new Proxy(track, handler)
+        #     return proxy
 
         # for now, track id is just the src attribute. May change
         id = (track) ->
@@ -211,6 +222,14 @@ module.exports = ->
                 newTracks.push(track)
             
         tracks = newTracks
+
+        window.tracks = tracks
+
+        if sequence.historyKey()
+            tracks.forEach (track) =>
+                track.watch 'automation', =>
+                    console.log('saw an automation change in tracks')
+
         return sequence
     
 

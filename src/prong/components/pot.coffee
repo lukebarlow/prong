@@ -92,10 +92,10 @@ module.exports = ->
         # use the Object.watch feature to listen for changes to the datum
         # and redraw
         selection.each (d) ->
-            d.watch key, ->
+            d.watch key, (property, oldValue, newValue) ->
                 redraw(d)
+                return newValue
         
-
         redraw = (d) ->
             selection.selectAll('.arc').attr('d', arc)
             selection.selectAll('text').text( (d) -> d[key] )

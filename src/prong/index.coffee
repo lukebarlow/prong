@@ -1,4 +1,6 @@
 sound = require('./sound')
+#require('chrome-proxy')
+
 
 module.exports = {
 
@@ -19,9 +21,9 @@ module.exports = {
     transport : require('./components/transport'),
         
     # history
-    history : require('./history/history')
+    history : require('./history/history'),
     omniscience : require('./omniscience')
-
+    
     # sequencer
     sequence : require('./sequence'),
     registerTrackType : require('./track/track').registerTrackType,

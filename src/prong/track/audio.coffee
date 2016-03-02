@@ -2,6 +2,7 @@ d3 = require('d3-prong')
 commonProperties = require('../commonProperties')
 sound = require('../sound').sound
 Waveform = require('../components/waveform')
+Automation = require('../components/automation')
 Onsets = require('../components/onsets')
 uid = require('../uid')
 global = require('../prongGlobal')
@@ -14,7 +15,7 @@ AudioContext = require('../audioContext')
 # container for different representations of audio (waveform and/or spectrogram)
 module.exports = ->
     width = null
-    dispatch = d3.dispatch('load')
+    dispatch = d3.dispatch('load', 'automationChange')
 
     # gets the first non blank channel in a buffer
     getFirstNonBlankChannel = (buffer) ->
@@ -72,9 +73,14 @@ module.exports = ->
                     d3.select(this).classed('over', false)
                     d.over = false
                 .each (d) ->
-                    d.watch 'over', ->
-                        svg.classed('over', d.over)
-                    
+                    d.watch 'over', (property, oldValue, newValue) ->
+                        #console.log('audio over seen')
+                        svg.classed('over', newValue)
+                        return newValue
+
+            middleground = svg.append('g').attr('class', 'middleground')
+            foreground = svg.append('g').attr('class', 'foreground')
+  
             src = d.audioSrc || d.src
 
             # each track has a 'loader' method which is responsible for
@@ -89,7 +95,6 @@ module.exports = ->
                 else
                     d._loader = httpSoundLoader
 
-
             d._loader loadingMessage, ->
                 loadingMessage.remove()
                 waveform = Waveform()
@@ -98,9 +103,22 @@ module.exports = ->
                     .verticalZoom(sequence.waveformVerticalZoom())
                     .timeline(sequence.timeline())
 
-                svg.call(waveform)
+                middleground.call(waveform)
+
+                if d.automation
+                    automation = Automation()
+                        .x(x)
+                        .height(height)
+                        .timeline(sequence.timeline())
+                        .on 'change', () => 
+                            console.log('automation change')
+                            dispatch.automationChange()
+
+                    foreground.call(automation)
+
                 dispatch.load(d)
 
+            
             _uid = uid()
             playing = false
 
@@ -117,14 +135,21 @@ module.exports = ->
                 # volume
                 setVolume = ->
                     gain.gain.value = d.volume / 100.0
-                d.watch( 'volume', -> setVolume() )
+
+                d.watch 'volume', (property, oldValue, newValue) ->
+                    setVolume()
+                    return newValue
+
                 setVolume()
 
                 # pan
                 setPan = ->
                     panner.pan.value = d.pan / 64
 
-                d.watch('pan', -> setPan() )
+                d.watch 'pan', (property, oldValue, newValue) ->
+                    setPan()
+                    return newValue
+
                 setPan()
 
                 source.connect(gain)

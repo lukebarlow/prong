@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<html>
+<head>
+    <title>Slider</title>
+    <script src="../js/prong.js"></script>
+    <link rel='stylesheet' href='testPageMixer.css'></link>
+    <script src="qadi-min.js"></script>
+    <link rel="stylesheet" type="text/css" href="qadi.css"/>
+
+    <script>
+
+var d3 = prong.d3
+
+var values = [
+    { volume : 6 },
+    { volume : 83 },
+    { volume : 19 }
+]
+
+// code similar this commented out below can be used once the Proxy object
+// becomes more widespread in browsers
+
+// values = bareValues.map(function(track){
+//     var traps = {
+//         set : function(target, property, value, receiver){
+//             if (property == 'watch'){
+//                 return
+//             }
+//             if (value != target[property]){
+//                target[property] = value
+//                 if (receiver._listeners && receiver._listeners[property]){
+//                     receiver._listeners[property].forEach(function(handler){
+//                         handler()
+//                     })
+//                 } 
+//             }        
+//         },
+//         get : function(target, name){
+//             return target[name]
+//         }
+//     }
+//     var proxy = new Proxy(track, traps)
+//     proxy._listeners = {}
+//     proxy.listenForChanges = function(property, handler){
+//         if (!(proxy._listeners[property])){
+//             proxy._listeners[property] = []
+//         }
+//         proxy._listeners[property].push(handler)
+//     }
+//     return proxy
+// })
+
+
+function init(){
+
+    var margin = {top: 30, right: 50, bottom: 20, left: 30},
+        width = 960 - margin.left - margin.right,
+        height = 260 - margin.bottom - margin.top;
+
+    var d3 = prong.d3;
+
+    verticalSlider = prong.slider()
+        .domain([0,100])
+        .width(50)
+        .height(200)
+        .horizontal(false)
+        .key('volume')
+        .format(d3.format('f'))
+        .circleStyle(true);
+
+    var svg = d3.select('svg#verticalSliders')
+        .attr('width', width + margin.left + margin.right)
+        .attr('height', height + margin.top + margin.bottom)
+        .append('g')
+        .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
+
+    svg.selectAll('.slider')
+        .data(values)
+        .enter()
+        .append('g')
+        .attr('class','slider')
+        .attr('transform',function(d,i){
+            return 'translate(' + i*100 + ',0)';
+        })
+        .call(verticalSlider)
+
+    verticalSlider.on('change', function(d,i){
+        // console.log('d', d)
+        // console.log('i', i)
+        // console.log('event', prong.event)
+        // console.log('this', this)
+    })
+
+    margin.top = 5
+
+    horizontalSlider = prong.slider()
+        .domain([0, 100])
+        .width(20)
+        .height(300)
+        .horizontal(true)
+        .key('volume')
+        .format(d3.format('f'))
+        .circleStyle(true);
+
+    svg = d3.select('svg#horizontalSliders')
+        .attr('width', width + margin.left + margin.right)
+        .attr('height', height + margin.top + margin.bottom)
+        .append('g')
+        .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
+
+    svg.selectAll('.slider')
+        .data(values    )
+        .enter()
+        .append('g')
+        .attr('class','slider')
+        .attr('transform',function(d,i){
+            return 'translate(0,' + (i * 30) + ')';
+        })
+        .call(horizontalSlider)
+
+}
+    
+    </script>
+</head>
+<body onload="init()">
+
+<iframe src="./"></iframe>
+<div id="main">
+
+    Watching Properties<br />
+    <br />
+    If sliders and pots are used as a component, and bound to a key on an
+    object, then they will also watch the object for changes to that property,
+    and update themselves.
+    <ul id="qadi">
+        <li>You can see three sliders vertical and three horizontal sliders.</li>
+        <li>When you slide a vertical slider, the corresponding horizontal slider also changes, and vice versa.</li>
+    </ul>
+    <br />
+    <svg id="verticalSliders" width="100%" height="400"><svg>
+    <br />
+    <svg id="horizontalSliders" width="100%" height="400"><svg>
+
+
+</div>
+</body>
+</html>

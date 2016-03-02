@@ -48,14 +48,17 @@ module.exports = ->
                 .attr 'transform', (d,i) ->
                     return 'translate(' + (i * 50) + ',0)'
                 .on 'mouseover', (d) ->
-                    d3.select(this).classed('over', true)
+                    #d3.select(this).classed('over', true)
                     d.over = true;
                 .on 'mouseout',  (d) ->
-                    d3.select(this).classed('over', false)
+                    #d3.select(this).classed('over', false)
                     d.over = false
                 .each (d) ->
                     thiz = d3.select(this)
-                    d.watch('over', -> thiz.classed('over', d.over) )
+                    d.watch 'over', (property, oldValue, newValue) ->
+                        #console.log('mixer over seen')
+                        thiz.classed('over', newValue)
+                        return newValue
 
             strips.append('g').call(panPot)
             strips.append('g')

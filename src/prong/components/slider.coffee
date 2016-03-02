@@ -36,7 +36,9 @@ module.exports = ->
 
         dragmove = (d, i) ->
             if !dragging then return
-            _value = scale.invert(if horizontal then d3.event.x else d3.event.y) 
+
+            position = if horizontal then d3.event.x else d3.event.y
+            _value = scale.invert(position) 
             
             last = if key then d[key] else value
             if last == _value then return
@@ -44,8 +46,8 @@ module.exports = ->
             if key
                 d[key] = _value
             else
-                value = _value        
-            text.text(getText(d))
+                value = _value
+                
             redraw()
             if key
                 dispatch.change(d, i, key)
@@ -167,8 +169,11 @@ module.exports = ->
 
         if key
             selection.each (d) ->
-                d.watch key, ->
-                    redraw(d)
+                d.watch key, (property, oldValue, newValue) ->
+                    after = ->
+                        redraw(d)
+                    setTimeout(after, 1)
+                    return newValue
         
 
         redraw = (d) ->

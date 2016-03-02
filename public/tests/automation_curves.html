@@ -2,7 +2,7 @@
 <meta charset="utf-8">
 <html>
     <head>
-        <title>Mixer</title>
+        <title>Automation</title>
         <script src="../js/prong.js"></script>
         
         <link rel='stylesheet' href='testPageMixer.css'></link>
@@ -15,7 +15,7 @@
         <iframe src="./"></iframe>
         <div id="main">
 
-        Mixer<br />
+        Automation<br />
         <ul id="qadi">
             <li>Beneath the sequence you can see a mixer, with a volume slider
             and a pan pot for each track</li>
@@ -44,39 +44,27 @@ rootUrl = '/audio/'
 var tracks = [
     {
         'type' : 'audio',
-        'src' : rootUrl + 'sax1.mp3'
+        'src' : rootUrl + 'sax1.mp3',
+        'automation' : {
+            'volume' : [
+                [0, 100],
+                [2, 50],
+                [3, 20],
+                [10, 100],
+                [30, 80]
+            ]
+        }
     },
     {
         'type' : 'audio',
-        'src' : rootUrl + 'sax2.mp3'
-    },
-    {
-        'type' : 'audio',
-        'src' : rootUrl + 'flute.mp3'
-    },
-    {
-        'type' : 'audio',
-        'src' : rootUrl + 'snare.mp3'
-    },
-    {
-        'type' : 'audio',
-        'src' : rootUrl + 'trombone.mp3'
-    },
-    {
-        'type' : 'audio',
-        'src' : rootUrl + 'trumpet.mp3'
-    },
-    {
-        'type' : 'audio',
-        'src' : rootUrl + 'tuba.mp3'
-    },
-    {
-        'type' : 'audio',
-        'src' : rootUrl + 'bass_drum.mp3'
-    },
-    {
-        'type' : 'audio',
-        'src' : rootUrl + 'cymbals.mp3'
+        'src' : rootUrl + 'sax2.mp3'//,
+        // 'automation' : {
+        //     'volume' : [
+        //         [0, 0],
+        //         [5, 0.8],
+        //         [20, 0.9]
+        //     ]
+        // }
     }
 ]
 
@@ -86,9 +74,10 @@ var x = d3.scale.linear().domain([0, 60]).range([0, 800]);
 var sequence = prong.sequence()
     .x(x)
     .tracks(tracks)
-    .trackHeight(20)
+    .trackHeight(40)
     .canSelectLoop(true)
-    .audioOut(prong.audioContext().destination);
+    .audioOut(prong.audioContext().destination)
+    .historyKey('s');
 
 var transport = prong.transport().sequence(sequence);
 

@@ -55,7 +55,8 @@ function init(){
         .height(200)
         .horizontal(false)
         .key('volume')
-        .format(d3.format('f'));
+        .format(d3.format('f'))
+        //.circleStyle(true);
 
     var svg = d3.select('svg#verticalSliders')
         .attr('width', width + margin.left + margin.right)

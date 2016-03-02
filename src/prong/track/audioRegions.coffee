@@ -123,8 +123,9 @@ module.exports = ->
                     d3.select(this).classed('over', false)
                     d.over = false
                 .each (d) ->
-                    d.watch 'over', ->
+                    d.watch 'over', (property, oldValue, newValue) ->
                         svg.classed('over', d.over)
+                        return newValue
 
             svg.selectAll('g')
                 .data(track.regions)

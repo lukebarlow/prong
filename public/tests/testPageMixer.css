@@ -66,6 +66,26 @@ iframe {
     stroke: rgb(47, 155, 245);;
 }
 
+/* automation */
+
+.automation path {
+    stroke: steelblue;
+    stroke-width: 2;
+    fill: transparent;
+    cursor: pointer;
+}
+
+.automation circle {
+    fill: steelblue;
+    cursor: pointer;
+}
+
+.automation circle:hover {
+    stroke: black;
+    stroke-width: 2px;
+}
+
+
 /* timeline */
 
 .timeline path,
