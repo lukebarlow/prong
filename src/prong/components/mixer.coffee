@@ -1,6 +1,7 @@
 d3 = require('d3-prong')
 slider = require('./slider')
 pot = require('./pot')
+omniscience = require('../omniscience')
 #trackName = require('../')
 
 module.exports = ->
@@ -55,10 +56,8 @@ module.exports = ->
                     d.over = false
                 .each (d) ->
                     thiz = d3.select(this)
-                    d.watch 'over', (property, oldValue, newValue) ->
-                        #console.log('mixer over seen')
-                        thiz.classed('over', newValue)
-                        return newValue
+                    omniscience.watch d, () =>
+                        thiz.classed('over', d.over)
 
             strips.append('g').call(panPot)
             strips.append('g')

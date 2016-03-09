@@ -1,6 +1,7 @@
 # A rotating circular tweakable knob, like a pan or fx control 
 
 d3 = require('d3-prong')
+omniscience = require('../omniscience')
 
 module.exports = ->
 
@@ -23,14 +24,16 @@ module.exports = ->
             outerRadius = radius + 20
             textYOffset = 18
 
-        dragstart = ->
-            selection.classed('dragging', true)
-            dragging = true
+        dragstart = (d) ->
+            selection.filter((_d) => _d == d)
+                .classed('dragging', true)
+            d.dragging = dragging = true
             d3.event.sourceEvent.stopPropagation()
 
-        dragend = ->
-            selection.classed('dragging', false)
-            dragging = false
+        dragend = (d) ->
+            selection.filter((_d) => _d == d)
+                .classed('dragging', false)
+            d.dragging = dragging = false
             d3.event.sourceEvent.stopPropagation()
 
         dragmove = (d, i) ->
@@ -92,9 +95,11 @@ module.exports = ->
         # use the Object.watch feature to listen for changes to the datum
         # and redraw
         selection.each (d) ->
-            d.watch key, (property, oldValue, newValue) ->
+            # d.watch key, (property, oldValue, newValue) ->
+            #     redraw(d)
+            #     return newValue
+            omniscience.watch d, () =>
                 redraw(d)
-                return newValue
         
         redraw = (d) ->
             selection.selectAll('.arc').attr('d', arc)

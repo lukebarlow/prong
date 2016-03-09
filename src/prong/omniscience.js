@@ -1,145 +1,87 @@
-/*
-Allows you to watch a parent object, and receive event notifications when
-any property changes on any property of the object, or any property of any
-child object, all the way down the tree of descendants.
-*/
+var d3 = require('d3-prong')
+var uid = require('./uid')
 
+function beginsWithUnderscore(s){
+    return s.slice(0,1) == '_'
+}
 
-/* 
-This object.watch code is borrowed from https://gist.github.com/eligrey/384583,
-with some modifications, mainly to allow multiple handlers on a single
-property. This enables us to receive events when properties
-change on objects
-*/
-if (!Object.prototype.watch) {
+function makeWatchable(o){
+    
+    if (o._watchable){
+        return o
+    }
 
-    Object.defineProperty(Object.prototype, 'watch', {
-        enumerable: false,
-        configurable: true,
-        writable: false,
-        value: function (prop, handler) {
+    var dispatch = d3.dispatch('change', 'syncChange')
+    var timeout = null
 
-            if (!this.hasOwnProperty('_watchHandlers')){
-                Object.defineProperty(this, '_watchHandlers', {
-                    enumerable : false,
-                    configurable : false,
-                    writable : false,
-                    value : {}
+    function fireChangeAtEndOfThread(){
+        dispatch.syncChange()
+        if (timeout == null){
+            timeout = setTimeout(function(){
+                timeout = null
+                dispatch.change()
+            }, 0)
+        }
+    }
+
+    var handler = {
+        set: function(target, key, value, receiver){
+            var hidden = beginsWithUnderscore(key)
+            if (hidden){
+                target[key] = value
+                return
+            }
+            var changed = (target[key] != value)
+            var alreadyExisted = key in target
+            var valueIsObject = typeof(value) == 'object'
+            // if a new object property is added, then watch that too
+            if (valueIsObject && !alreadyExisted && !hidden){
+                value = makeWatchable(value)
+                value._on('syncChange.' + uid(), function(){
+                    fireChangeAtEndOfThread()
                 })
             }
-
-            var watchHandlers = this._watchHandlers;
-            if (!(prop in watchHandlers)){
-                watchHandlers[prop] = []
+            target[key] = value
+            if (changed && !hidden){
+                fireChangeAtEndOfThread()
             }
-            watchHandlers[prop].push(handler);
-            var thiz = this;
-
-            var oldval = this[prop],
-                newval = oldval,
-                getter = function () {
-                    return newval;
-                },
-                setter = function (val) {
-                    oldval = newval;
-                    newval = val;
-                    if (newval != oldval){
-                        thiz._watchHandlers[prop].forEach(function(handler){
-                            handler.call(thiz, prop, oldval, val);
-                        })
-                    }
-                    return val;
-                };
-            
-            if (delete this[prop]) { // can't watch constants
-                Object.defineProperty(this, prop, {
-                    get: getter,
-                    set: setter,
-                    enumerable: true,
-                    configurable: true
-                });
-            }
+            return true
         }
-    });
-}
- 
-// object.unwatch
-if (!Object.prototype.unwatch) {
-    Object.defineProperty(Object.prototype, 'unwatch', {
-            enumerable: false,
-            configurable: true,
-            writable: false,
-            value: function (prop) {
-                var val = this[prop];
-                delete this[prop]; // remove accessors
-                this[prop] = val;
-            }
-    });
-}
-
-/* walk all the descendants of the parent[key] object, calling the callback
-for each one. The path argument is simply passed on to the callback
-*/
-function walk(parent, key, callback, path){
-
-    if (!path){
-        path = key
-    }else{
-        path += ',' + key;
     }
 
-    callback(parent, key, path);
+    var proxy = new Proxy(o, handler)
+    proxy._on = function(type, handler){
+        dispatch.on(type, handler)
+    }
+
+    proxy.sort = function(){
+        Array.prototype.sort.apply(o, arguments)
+    }
     
-    if (typeof(parent[key]) == 'object'){
-         Object.keys(parent[key]).forEach(function(_key){
-            walk(parent[key], _key, callback, path)
-        })
-    }
-}
+    Object.keys(o).forEach(function(key){
 
-function getObjectFromPath(parent, path){
-    var current = parent;
-    path.forEach(function(prop){
-        current = current[prop]
-    })
-    return current;
-}
-
-module.exports =  function(parent, key){
-    var omniscience = {},
-        dispatch = d3.dispatch('propertyChange');
-
-    function setupWatches(parent, key, path){
-        walk(parent, key, function(_parent, _key, path){
-            _parent.watch(_key, function(property, oldValue, newValue){
-                changeHandler(path.split(','), newValue, oldValue)
+        if (!beginsWithUnderscore(key) && typeof(o[key]) == 'object'){
+            o[key] = makeWatchable(o[key])
+            o[key]._on('syncChange.' + uid(), function(){
+                fireChangeAtEndOfThread()
             })
-        }, path)
-    }
-
-    setupWatches(parent, key);
-
-    function changeHandler(path, newValue, oldValue){
-        // if the new value is an object, then we need to set up new watches
-        // on it
-        if (typeof(newValue) == 'object'){
-            var p = getObjectFromPath(parent, path);
-            Object.keys(p).forEach(function(k){
-                setupWatches(p, k, path.join(','))
-            })
-
-            // TODO : unwatch the old value?
         }
+    })
 
-        dispatch.propertyChange(parent, path, newValue, oldValue);
-        path.slice(1)
+    proxy._watchable = true
+    return proxy
+}
+
+
+function watch(o, changeHandler){
+    if (!o._watchable){
+        o = makeWatchable(o)
     }
+    o._on('change.' + uid(), changeHandler)
+    return o
+}
 
-    /* for attaching event listeners to this omniscience object */
-    omniscience.on = function(type, listener){
-        dispatch.on(type, listener)
-        return omniscience;
-    }
-
-    return omniscience;
+module.exports = { 
+    watch : watch,
+    makeWatchable : makeWatchable
 }

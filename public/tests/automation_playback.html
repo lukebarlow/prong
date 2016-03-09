@@ -2,9 +2,8 @@
 <meta charset="utf-8">
 <html>
     <head>
-        <title>Automation</title>
+        <title>Automation Playback</title>
         <script src="../js/prong.js"></script>
-        
         <link rel='stylesheet' href='testPageMixer.css'></link>
         <script src="qadi-min.js"></script>
         <link rel="stylesheet" type="text/css" href="qadi.css"/>
@@ -15,16 +14,17 @@
         <iframe src="./"></iframe>
         <div id="main">
 
-        Automation<br />
+        Automation Playback<br />
         <ul id="qadi">
-            <li>Beneath the sequence you can see a mixer, with a volume slider
-            and a pan pot for each track</li>
-            <li>When you adjust the volume and pan for each track, you can
-            hear the results, and the audio changes volume and pan in the
-            correct way</li>
-            <li>When you roll the mouse over an audio track, then the
-            corresponding channel in the mixer 'lights up' (i.e. the orange
-            colour becomes brighter).</li>
+            <li>You see two tracks, each with automation lines</li>
+            <li>When yo click to set the playhead, the volumes change to
+            match the automation value at that time</li>
+            <li>When you play the audio, the faders move to reflect the
+            changes in the automation curve</li>
+            <li>When you play the audio, you can hear the changes in audio
+            volume corresponding to the changes in the automation curve</li>
+            <li>If you set a loop and play it, then when it loops the volume is 
+            correct (both visually and audibly)</li>
         </ul>
         <span>
         
@@ -46,25 +46,33 @@ var tracks = [
         'type' : 'audio',
         'src' : rootUrl + 'sax1.mp3',
         'automation' : {
-            'volume' : [
-                [0, 100],
-                [2, 50],
-                [3, 20],
-                [10, 100],
-                [30, 80]
-            ]
+            'volume' : {
+                'interpolate' : 'step-after',
+                'points' : [
+                    [0, 100],
+                    [2, 50],
+                    [3, 20],
+                    [10, 100],
+                    [11, 80]
+                ]
+            }
         }
     },
     {
         'type' : 'audio',
-        'src' : rootUrl + 'sax2.mp3'//,
-        // 'automation' : {
-        //     'volume' : [
-        //         [0, 0],
-        //         [5, 0.8],
-        //         [20, 0.9]
-        //     ]
-        // }
+        'src' : rootUrl + 'sax2.mp3',
+        'automation' : {
+            'volume' : {
+                'interpolate' : 'step-after',
+                'points' : [
+                    [0, 100],
+                    [2, 50],
+                    [13, 20],
+                    [20, 100],
+                    [22, 80]
+                ]
+            }
+        }
     }
 ]
 

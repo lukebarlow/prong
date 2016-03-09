@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<html>
+<head>
+    <title>Slider</title>
+    <script src="../js/prong.js"></script>
+    <link rel='stylesheet' href='testPage.css'></link>
+    <script src="qadi-min.js"></script>
+    <link rel="stylesheet" type="text/css" href="qadi.css"/>
+    <style>
+
+#horizontalSliders text {
+    font-size:9pt;
+}
+
+.slider text {
+    display: none;
+}
+
+.slider:hover text {
+    display: block;
+}
+
+    </style>
+    <script>
+
+var values = [
+    { volume : 6, pan : 0},
+    { volume : 83, pan : 0 },
+    { volume : 19, pan : 0 }
+]
+
+
+values = prong.omniscience.makeWatchable(values)
+
+
+var margin = {top: 30, right: 50, bottom: 20, left: 30},
+    width = 960 - margin.left - margin.right,
+    height = 260 - margin.bottom - margin.top;
+
+
+function init(){
+
+    var d3 = prong.d3;
+
+    var verticalSlider = prong.slider()
+        .domain([0,100])
+        .width(50)
+        .height(150)
+        .horizontal(false)
+        .key('volume')
+        .format(d3.format('f'));
+
+    var pot = prong.pot()
+        .domain([-64,+63])
+        .radius(20)
+        .key('pan')
+        .format(d3.format('d'));
+
+    var svg = d3.select('svg#verticalSliders')
+        .attr('width', width + margin.left + margin.right)
+        .attr('height', height + margin.top + margin.bottom)
+        .append('g')
+        .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
+
+    svg.selectAll('.slider')
+        .data(values)
+        .enter()
+        .append('g')
+        .attr('class','slider')
+        .attr('transform',function(d,i){
+            return 'translate(' + i*100 + ',30)';
+        })
+        .call(verticalSlider)
+
+    svg.selectAll('.pot')
+        .data(values)
+        .enter()
+        .append('g')
+        .attr('class','pot')
+        .attr('transform',function(d,i){
+            xOffset = i * 100 + 25
+            return 'translate(' + xOffset + ', 10)';
+        })
+        .call(pot)
+
+
+    verticalSlider2 = prong.slider()
+        .domain([0,100])
+        .width(20)
+        .height(150)
+        .horizontal(true)
+        .key('volume')
+        .format(d3.format('f'));
+
+    var pot2 = prong.pot()
+        .domain([-64,+63])
+        .radius(0)
+        .key('pan')
+        .format(d3.format('d'));
+
+    var svg = d3.select('svg#verticalSliders2')
+        .attr('width', width + margin.left + margin.right)
+        .attr('height', height + margin.top + margin.bottom)
+        .append('g')
+        .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
+
+    svg.selectAll('.slider')
+        .data(values)
+        .enter()
+        .append('g')
+        .attr('class','slider')
+        .attr('transform',function(d,i){
+            return 'translate(30,' + (i * 60) + ')';
+        })
+        .call(verticalSlider2)
+
+    svg.selectAll('.pot')
+        .data(values)
+        .enter()
+        .append('g')
+        .attr('class','pot')
+        .attr('transform',function(d,i){
+            xOffset = i * 100 + 25
+            return 'translate(0,' + (i * 60) + ')';
+        })
+        .call(pot2)
+
+}
+    
+    </script>
+</head>
+<body onload="init()">
+
+<iframe src="./"></iframe>
+<div id="main">
+    Omniscience<br />
+    <br />
+    Omniscience is a module used internally to watch for changes to properties,
+    so that multiple visual components can be bound to the same data, and will
+    automatically update themselves when something changes.
+    <ul id="qadi">
+        <li>The two sets of sliders are bound together. Changing one immediately
+        changes the other</li>
+        <li>The same goes for the pan setting</li>
+    </ul>
+    <br />
+    <svg id="verticalSliders" width="100%" height="400"><svg>
+    <br />
+    <br />
+    <svg id="verticalSliders2" width="100%" height="400"><svg> 
+   
+
+
+</div>
+</body>
+</html>

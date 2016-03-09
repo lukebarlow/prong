@@ -1,4 +1,5 @@
 d3 = require('d3-prong')
+omniscience = require('../omniscience')
 
 module.exports = ->
 
@@ -14,15 +15,15 @@ module.exports = ->
     key = null
     padding = 1
     value = null
-    circleStyle = false # square style means the slider is drawn differently
+    circleStyle = false # circle style means the slider is drawn differently
 
-    dragstart = (e) ->
-        dragging = true
+    dragstart = (d) ->
+        d.dragging = dragging = true
         d3.event.sourceEvent.stopPropagation()
 
 
-    dragend = (e) ->
-        dragging = false
+    dragend = (d) ->
+        d.dragging = dragging = false
         d3.event.sourceEvent.stopPropagation()
 
 
@@ -169,13 +170,9 @@ module.exports = ->
 
         if key
             selection.each (d) ->
-                d.watch key, (property, oldValue, newValue) ->
-                    after = ->
-                        redraw(d)
-                    setTimeout(after, 1)
-                    return newValue
+                omniscience.watch d, () =>
+                    redraw(d)
         
-
         redraw = (d) ->
             if (horizontal)
                 circle.attr('cx', (d) -> position(d) - 1)
@@ -269,6 +266,10 @@ module.exports = ->
         if not arguments.length then return circleStyle
         circleStyle = _circleStyle
         return slider
+
+
+    slider.dragging = ->
+        return dragging
 
 
     return slider

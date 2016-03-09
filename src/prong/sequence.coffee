@@ -4,6 +4,7 @@ Track = require('./track/track')
 Timeline = require('./components/timeline')
 MusicalTimeline = require('./components/musicalTimeline')
 Pool = require('./pool')
+omniscience = require('./omniscience')
 
 
 module.exports = ->
@@ -24,7 +25,7 @@ module.exports = ->
     waveformVerticalZoom = 1
     pool = null
     dispatch = d3.dispatch('scrub','change','play','stop','loop','tick',
-        'load','volumeChange')
+        'load', 'timeselect')
     scrollZone = null
     timeline = null
     musicalTime = null
@@ -85,7 +86,7 @@ module.exports = ->
 
         timelineSvg = timelineContainer.append('svg')
             .style('position', 'absolute')
-            .attr('height', 40)
+            .attr('height', 80)
             .attr('width', '100%')
             .attr('class','timeline')
             
@@ -144,8 +145,8 @@ module.exports = ->
                     sequence.stop()
                     sequence.play(time)
                 dispatch.tick()
-            
-    
+            dispatch.timeselect()
+
         # the scrubbing behavior (only works if scrubbing is set to true)
         element.on 'mousemove', ->
             if not playing and scrubbing
@@ -170,6 +171,7 @@ module.exports = ->
 
     sequence.tracks = (_tracks) ->
         if not arguments.length then return tracks
+
         # sometimes the track objects will have extra properties and methods
         # added to them, in which case we don't want to clobber the existing
         # objects with the new data passed to this method. So, rather than 
@@ -221,14 +223,14 @@ module.exports = ->
             else
                 newTracks.push(track)
             
-        tracks = newTracks
+        tracks = omniscience.makeWatchable(newTracks)
 
-        window.tracks = tracks
+        #omniscience.makeWatchable(tracks)
 
-        if sequence.historyKey()
-            tracks.forEach (track) =>
-                track.watch 'automation', =>
-                    console.log('saw an automation change in tracks')
+        # if sequence.historyKey()
+        #     tracks.forEach (track) =>
+        #         track.watch 'automation', =>
+        #             console.log('saw an automation change in tracks')
 
         return sequence
     

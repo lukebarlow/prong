@@ -2,7 +2,8 @@ d3 = require('d3-prong')
 commonProperties = require('../commonProperties')
 uid = require('../uid')
 Waveform = require('../components/waveform')
-prong = require('../')
+AudioContext = require('../audioContext')
+omniscience = require('../omniscience')
 
 regionCounter = 0
 
@@ -17,33 +18,26 @@ setPlayHandler = (track) ->
 
     audioOut = sequence.audioOut()
     if (!audioOut) then return
-    audioContext = prong.audioContext()
+    audioContext = AudioContext()
 
     gain = audioContext.createGain()
     panner = audioContext.createPanner()
 
     # volume
-    setVolume = ->
-        gain.gain.value = track.volume / 100.0
-    track.watch( 'volume', -> setVolume() )
-    setVolume()
+    setVolumeAndPan = =>
+        if track._gain
+            track._gain.gain.value = track.volume / 100.0
+        if track._panner
+            track._panner.pan.value = track.pan / 64
 
-    # pan
-    setPan = ->
-        # pan numbers are between -64 and +63. We convert this
-        # into an angle in radians, and then into an x,y position
-        angle = track.pan / 64 * Math.PI * 0.5
-        x = Math.sin(angle) / 2
-        y = Math.cos(angle) / 2
-        panner.setPosition(x, y, 0)
-    track.watch('pan', -> setPan() )
-    setPan()
+    omniscience.watch track, =>
+        if track.dragging
+            setVolumeAndPan()
 
     gain.connect(panner)
     panner.connect(audioOut)
     trackOut = gain
 
-    
     play = ->
         regions.forEach(stop)
 
@@ -107,6 +101,7 @@ module.exports = ->
             
         selection.each (track,i) ->
 
+            track = omniscience.makeWatchable(track)
             div = d3.select(this)
             height = track.height || sequence.trackHeight() || 128
 
@@ -123,9 +118,8 @@ module.exports = ->
                     d3.select(this).classed('over', false)
                     d.over = false
                 .each (d) ->
-                    d.watch 'over', (property, oldValue, newValue) ->
+                    omniscience.watch d, () =>
                         svg.classed('over', d.over)
-                        return newValue
 
             svg.selectAll('g')
                 .data(track.regions)

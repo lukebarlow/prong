@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<html>
+<head>
+    <title>Slider</title>
+    <script src="../js/prong.js"></script>
+    <link rel='stylesheet' href='testPageMixer.css'></link>
+    <script src="qadi-min.js"></script>
+    <link rel="stylesheet" type="text/css" href="qadi.css"/>
+    <style>
+
+#horizontalSliders text {
+    font-size:9pt;
+}
+
+.slider text {
+    display: none;
+}
+
+.slider:hover text {
+    display: block;
+}
+
+    </style>
+    <script>
+
+var automations = [
+    {
+       'volume' : {
+            'interpolate' : 'step-after',
+            'points' : [
+                [0, 100],
+                [2, 50],
+                [3, 20],
+                [10, 100],
+                [11, 80]
+            ]
+        }  
+    },
+    {
+        'volume' : {
+            'interpolate' : 'linear',
+            'points' : [
+                [0, 30],
+                [5, 40],
+                [6, 50],
+                [8, 80],
+                [9, 23]
+            ]
+        }  
+    }
+]
+
+automations = prong.omniscience.makeWatchable(automations)
+
+var margin = {top: 30, right: 50, bottom: 20, left: 30},
+    width = 960 - margin.left - margin.right,
+    height = 260 - margin.bottom - margin.top;
+
+
+function init(){
+
+    var d3 = prong.d3;
+    var x = d3.scale.linear().domain([0, 20]).range([0, width]);
+
+    var timeline = prong.timeline().x(x)
+        .scrollZone(d3.select('svg'))
+
+    d3.select('#timeline').call(timeline);
+
+    automation = prong.automation()
+        .height(50)
+        .key('volume')
+        .timeline(timeline)
+
+    d3.select('#automation')
+        .selectAll('.automation')
+        .data(automations)
+        .enter()
+        .append('g')
+        .attr('transform', function(_, i){
+            return 'translate(0,' + ((i * 60) + 50) + ')'
+        })
+        .call(automation)
+
+    automation2 = prong.automation()
+        .height(50)
+        .key('volume')
+        .timeline(timeline)
+
+    d3.select('#automation2')
+        .selectAll('.automation')
+        .data(automations)
+        .enter()
+        .append('g')
+        .attr('transform', function(_, i){
+            return 'translate(0,' + (i * 60) + ')'
+        })
+        .call(automation2)
+
+}
+    
+    </script>
+</head>
+<body onload="init()">
+
+<iframe src="./"></iframe>
+<div id="main">
+
+Automation <br />
+This page demonstrates the basic automation component
+
+<ul id="qadi">
+    <li>You see two lines, one stepped and one with linear segments at
+    various angles. Exact copies of the two lines are repeated again below</li>
+    <li>The second line is editable by dragging the points</li>
+    <li>If you a drag a point past another one in the horizontal/time dimension
+    then the points re-order, so that the result always resembles a single-value
+    function</li>
+    <li>The automation curves move and resize with the scaling of the timeline</li>
+</ul>
+
+<svg style="width:700px;height:700px">
+    <g id="timeline" transform="translate(10, 20)" class="timeline"></g>
+    <g id="automation" transform="translate(10, 30)"></g>
+    <g id="automation2" transform="translate(10, 330)"></g>
+</svg>
+
+
+</div>
+</body>
+</html>

@@ -8,6 +8,7 @@ uid = require('../uid')
 global = require('../prongGlobal')
 trackName = require('../trackName')
 AudioContext = require('../audioContext')
+omniscience = require('../omniscience')
 #Lines = require('../components/lines')
 #Note = require('../components/note')
 
@@ -51,6 +52,8 @@ module.exports = ->
     audio = (selection) ->
 
         selection.each (d,i) ->
+            d = omniscience.makeWatchable(d)
+
             sequence = audio.sequence()
             x = sequence.x()
             width = sequence.width()
@@ -73,10 +76,8 @@ module.exports = ->
                     d3.select(this).classed('over', false)
                     d.over = false
                 .each (d) ->
-                    d.watch 'over', (property, oldValue, newValue) ->
-                        #console.log('audio over seen')
-                        svg.classed('over', newValue)
-                        return newValue
+                    omniscience.watch d, () =>
+                        svg.classed('over', d.over)
 
             middleground = svg.append('g').attr('class', 'middleground')
             foreground = svg.append('g').attr('class', 'foreground')
@@ -107,20 +108,44 @@ module.exports = ->
 
                 if d.automation
                     automation = Automation()
-                        .x(x)
                         .height(height)
                         .timeline(sequence.timeline())
-                        .on 'change', () => 
-                            console.log('automation change')
-                            dispatch.automationChange()
+                        .key('volume')
 
-                    foreground.call(automation)
+                    foreground.append('g')
+                        .datum(d.automation)
+                        .call(automation)
 
                 dispatch.load(d)
 
-            
             _uid = uid()
             playing = false
+
+            lastVolumePointBeforeNow = =>
+                timeOffset = sequence.currentTime() - (d.startTime || 0)
+                points = d.automation.volume.points
+                i = 0
+                while points.length > (i + 1) and points[i+1][0] < timeOffset
+                    i++
+                return points[i]
+
+            setVolumeAndPan = =>
+                if d._gain
+                    d._gain.gain.value = d.volume / 100.0
+                if d._panner
+                    d._panner.pan.value = d.pan / 64
+
+                # if the fader volume disagrees with what we would expect from
+                # the automation curves, then we add a point to the automation
+                if d.automation and d.automation.volume and playing
+                    expectedVolume = lastVolumePointBeforeNow()[1]
+                    if d.volume != expectedVolume
+                        timeOffset = sequence.currentTime() - (d.startTime || 0)
+                        d.automation.volume.points.push([timeOffset, d.volume])
+
+            omniscience.watch d, =>
+                if d.dragging
+                    setVolumeAndPan()
 
             play = ->
                 audioOut = sequence.audioOut()
@@ -132,26 +157,6 @@ module.exports = ->
                 gain = audioContext.createGain()
                 panner = audioContext.createStereoPanner()
 
-                # volume
-                setVolume = ->
-                    gain.gain.value = d.volume / 100.0
-
-                d.watch 'volume', (property, oldValue, newValue) ->
-                    setVolume()
-                    return newValue
-
-                setVolume()
-
-                # pan
-                setPan = ->
-                    panner.pan.value = d.pan / 64
-
-                d.watch 'pan', (property, oldValue, newValue) ->
-                    setPan()
-                    return newValue
-
-                setPan()
-
                 source.connect(gain)
                 gain.connect(panner)
                 panner.connect(audioOut)
@@ -161,30 +166,57 @@ module.exports = ->
                 whenToStart = if timeOffset < 0 then audioContext.currentTime - timeOffset else 0
                 offset = if timeOffset > 0 then timeOffset else 0
                 source.start(whenToStart, offset)
-                d.gain = gain
-                d.source = source
 
-            sequence.on 'play.audio' + _uid, ->
+                d._gain = gain
+                d._panner = panner
+                d._source = source
+                d._timeouts = []
+                setVolumeAndPan()
+
+                if d.automation and d.automation.volume
+                    d.volume = lastVolumePointBeforeNow()[1]
+                    points = d.automation.volume.points
+                    futurePoints = points.filter (p) => p[0] > timeOffset
+                    futurePoints.forEach (p, i) =>
+                        diff = p[0] - timeOffset
+                        #whenToChange = audioContext.currentTime + diff
+                        #d._gain.gain.setValueAtTime(p[1] / 100.0, whenToChange)
+                        changeSlider = =>
+                            if !d.dragging
+                                d.volume = p[1]
+                            else
+                                index = points.indexOf(p)
+                                points.splice(index, 1)
+
+                        d._timeouts.push(setTimeout(changeSlider, diff * 1000))
+
+            sequence.on 'play.audio' + _uid, =>
                 playing = true
                 play()
+
+            sequence.on 'timeselect.audio' + _uid, =>
+                if d.automation and d.automation.volume
+                    d.volume = lastVolumePointBeforeNow()[1]
             
-            sequence.on 'stop.audio' + _uid, ->
+            sequence.on 'stop.audio' + _uid, =>
                 playing = false
-                if not ('source' of d)
+                if not ('_source' of d)
                     console.log('stopping but no source set')
-                if (d.source)
-                    d.source.stop(0)
-                delete d.source
+                if d._source
+                    d._source.stop(0)
+                if d._gain
+                    d._gain.gain.cancelScheduledValues(0)
+                if d._timeouts
+                    d._timeouts.forEach (to) =>
+                        clearTimeout(to)
+
+                delete d._source
 
             sequence.on 'loop.audio' + _uid, (start) ->
-                if d.source
-                    d.source.stop(0)
+                if d._source
+                    d._source.stop(0)
                 if playing
                     play()
-
-            sequence.on 'volumeChange.audio'+ _uid, ->
-                console.log('IS THIS VOLUME CHANGE EVENT USED (or necessary)?')
-                d.gain.gain.value = d.volume / 100.0
 
 
     audio.redraw = (selection, options) ->

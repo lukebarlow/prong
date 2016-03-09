@@ -3,20 +3,18 @@ preparePcmData = require('./preparePcmData')
 uid = require('../uid')
 d3 = require('d3-prong')
 keysort = require('../keysort')
-
-entries = (object) =>
-    Object.keys(object).map (key) =>
-        [key, object[key]]
+omniscience = require('../omniscience')
 
 
 module.exports = ->
 
+    key = null
     dispatch = d3.dispatch('changing', 'change')
 
     automation = ->
 
         selection = this
-        x = automation.x()
+        x = automation.timeline().x()
         width = automation.width()
 
         y = d3.scale.linear()
@@ -31,73 +29,69 @@ module.exports = ->
             .x(lineX)
             .y(lineY)
 
-        selection.each (d) ->
-            container = d3.select(this)
-            
-            automationEntries = entries(d.automation)
+        selection.classed('automation', true)
 
-            g = container
-                .selectAll('g.automation')
-                .data(automationEntries)
-                .enter()
-                .append('g')
-                #.attr('transform', 'translate(0, 20)')
-                .attr('class', 'automation')
+        dragstart = ->
+            d3.event.sourceEvent.stopPropagation()
 
-            path = g.append('path')
-                .attr('d', ([name, data]) => line(data))
+        dragmove = (e) ->
+            d3.event.sourceEvent.stopPropagation()
+            dx = (x.invert(d3.event.dx) - x.invert(0))
+            dy = (y.invert(d3.event.dy) - y.invert(0))
+            e[0] += dx
+            e[1] += dy
+            update()
 
+            # TODO : if you drag past it in time, then switch the order
+            #originalArray = d.automation.volume
+            #originalArray.sort(keysort(0))
+            dispatch.changing()
 
-            path.on 'click', () =>
+        dragend = ->
+            d3.event.sourceEvent.stopPropagation()
+            dispatch.change()
+
+        # this is the behavior for dragging points around. It is not used
+        # when the points are not exposed
+        drag = d3.behavior.drag()
+            .on('dragstart', dragstart)
+            .on('drag', dragmove)
+            .on('dragend', dragend)
+
+        path = selection.append('path')
+
+        circleContainer = selection.append('g')
+        
+        update = =>
+            path.attr 'd', (d) =>
+                # sort the points in time to keep the line coherent
+                d[key].points.sort(keysort(0))
+
+                line.interpolate(d[key].interpolate)
+                line(d[key].points)
+
+            circleJoin = circleContainer
+                .filter((d) => d[key].interpolate == 'linear')
+                .selectAll('circle')
+                .data((d) => d[key].points)                
                 
+            circleJoin.attr('cx', lineX).attr('cy', lineY)
 
-            circle = g.selectAll('circle')
-                .data(([name, data]) => data)
-                .enter()
+            circleJoin.enter()
                 .append('circle')
                 .attr('cx', lineX)
                 .attr('cy', lineY)
                 .attr('r', 5)
-                
-            dragstart = ->
-                d3.event.sourceEvent.stopPropagation()
+                .call(drag)
 
-            dragmove = (e) ->
-                d3.event.sourceEvent.stopPropagation()
-                dx = (x.invert(d3.event.dx) - x.invert(0))
-                dy = (y.invert(d3.event.dy) - y.invert(0))
-                e[0] += dx
-                e[1] += dy
-                circle.attr('cx', lineX).attr('cy', lineY)
-                path.attr('d', ([name, data]) => line(data))
+            circleJoin.exit().remove()
 
-                # TODO : if you drag past it in time, then switch the order
-                originalArray = d.automation.volume
-                originalArray.sort(keysort(0))
-                dispatch.changing()
+        update()
 
-            dragend = ->
-                d3.event.sourceEvent.stopPropagation()
-                dispatch.change()
-
-            drag = d3.behavior.drag()
-                .on('dragstart', dragstart)
-                .on('drag', dragmove)
-                .on('dragend', dragend)
-
-            circle.call(drag)
-
+        selection.each (d) ->
+            omniscience.watch(d, update)
             
-        automation.timeline().on "change.#{uid()}", =>
-
-            x = automation.timeline().x()
-            lineX = (d) -> x(d[0])
-            selection.selectAll('g.automation circle')
-                .attr('cx', lineX)
-                .attr('cy', lineY)
-
-            selection.selectAll('g.automation path')
-                .attr('d', ([name, data]) => line(data))
+        automation.timeline().on("change.#{uid()}", update)
 
 
     automation.on = (type, listener) ->
@@ -105,6 +99,12 @@ module.exports = ->
         return automation
 
 
-    return d3.rebind(automation, commonProperties(), 'x', 'width', 'height', 
+    automation.key = (_key) ->
+        if not arguments.length then return key
+        key = _key
+        return automation
+
+
+    return d3.rebind(automation, commonProperties(), 'width', 'height', 
             'timeline')
 

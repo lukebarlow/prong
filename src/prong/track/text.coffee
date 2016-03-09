@@ -1,5 +1,6 @@
 d3 = require('d3-prong')
 commonProperties = require('../commonProperties')
+trackName = require('../trackName')
 
 module.exports = ->
 
@@ -23,7 +24,7 @@ module.exports = ->
         selection.append('div')
             .attr('class','trackName')
             .append('span')
-            .text(prong.trackName) 
+            .text(trackName) 
         
         height = selection.datum().height || sequence.trackHeight() || 128
         display = selection.append('div')

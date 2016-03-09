@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<html>
+    <head>
+        <title>Automation</title>
+        <script src="../js/prong.js"></script>
+        
+        <link rel='stylesheet' href='testPageMixer.css'></link>
+        <script src="qadi-min.js"></script>
+        <link rel="stylesheet" type="text/css" href="qadi.css"/>
+
+    </head>
+    <body>
+
+        <iframe src="./"></iframe>
+        <div id="main">
+
+        Automation<br />
+        <ul id="qadi">
+            <li>Beneath the sequence you can see a mixer, with a volume slider
+            and a pan pot for each track</li>
+            <li>When you adjust the volume and pan for each track, you can
+            hear the results, and the audio changes volume and pan in the
+            correct way</li>
+            <li>When you roll the mouse over an audio track, then the
+            corresponding channel in the mixer 'lights up' (i.e. the orange
+            colour becomes brighter).</li>
+        </ul>
+        <span>
+        
+        <br />
+        </span>
+
+        <table>
+        <tr>
+        <td>
+
+            <div id="transport1"></div>
+            <div id="sequence1"></div>
+            <br />
+            <div id="mixer1"></div>
+        </td>
+        <td>
+            <br />
+            <div id="transport2"></div>
+            <div id="sequence2"></div>
+            <br />
+            <div id="mixer2"></div>
+        </td>
+        </tr>
+        </table>
+
+        </div>
+        <script>
+
+var rootUrl = 'https://dl.dropboxusercontent.com/u/5613860/audio/nino_rota/'
+
+rootUrl = '/audio/'
+
+var tracks = [
+    {
+        'type' : 'audio',
+        'src' : rootUrl + 'sax1.mp3',
+        'automation' : {
+            'volume' : {
+                'interpolate' : 'linear',
+                'points' : [
+                    [0, 100],
+                    [2, 50],
+                    [3, 20],
+                    [10, 100],
+                    [11, 80]
+                ]
+            }
+        }
+    },
+    {
+        'type' : 'audio',
+        'src' : rootUrl + 'sax2.mp3',
+        'automation' : {
+            'volume' : {
+                'interpolate' : 'linear',
+                'points' : [
+                    [0, 100],
+                    [2, 50],
+                    [13, 20],
+                    [20, 100],
+                    [22, 80]
+                ]
+            }
+        }
+    }
+]
+
+tracks = prong.omniscience.makeWatchable(tracks)
+
+var d3 = prong.d3;
+var x = d3.scale.linear().domain([0, 60]).range([0, 200]);
+
+var sequence1 = prong.sequence()
+    .x(x)
+    .tracks(tracks)
+    .trackHeight(40)
+    .canSelectLoop(true)
+    .audioOut(prong.audioContext().destination)
+    .historyKey('s1');
+
+var transport1 = prong.transport().sequence(sequence1);
+var mixer1 = prong.mixer().sequence(sequence1);
+
+d3.select('#sequence1').call(sequence1);
+d3.select('#transport1').call(transport1);
+d3.select('#mixer1').call(mixer1);
+
+var sequence2 = prong.sequence()
+    .x(x)
+    .tracks(tracks)
+    .trackHeight(40)
+    .canSelectLoop(true)
+    .audioOut(prong.audioContext().destination)
+    .historyKey('s2');
+
+var transport2 = prong.transport().sequence(sequence2);
+var mixer2 = prong.mixer().sequence(sequence2);
+
+d3.select('#sequence2').call(sequence2);
+d3.select('#transport2').call(transport2);
+d3.select('#mixer2').call(mixer2);
+
+        </script>
+    </body>
+</html>

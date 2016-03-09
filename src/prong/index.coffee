@@ -16,6 +16,7 @@ module.exports = {
     slider : require('./components/slider'),
     pot : require('./components/pot'),
     contour : require('./components/contour'),
+    automation : require('./components/automation'),
     lines : require('./components/lines'),
     mixer : require('./components/mixer'),
     transport : require('./components/transport'),

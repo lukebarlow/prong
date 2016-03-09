@@ -19,7 +19,11 @@ module.exports = ->
     # this is a getter which calculates the width just by looking
     # at the extremeties of the x range
     commonProperties.width = ->
-        return Math.abs(x.range()[1] - x.range()[0])
+        if timeline
+            _x = timeline.x()
+        else
+            _x = x
+        return Math.abs(_x.range()[1] - _x.range()[0])
     
 
     # getter/setter for width
