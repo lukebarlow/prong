@@ -20,6 +20,7 @@ module.exports = {
     lines : require('./components/lines'),
     mixer : require('./components/mixer'),
     transport : require('./components/transport'),
+    presetList : require('./components/presetList'),
         
     # history
     history : require('./history/history'),

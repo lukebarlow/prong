@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<html>
+    <head>
+        <title>Preset List</title>
+        <script src="../js/prong.js"></script>
+        <link rel='stylesheet' href='testPageMixer.css'></link>
+        <script src="qadi-min.js"></script>
+        <link rel="stylesheet" type="text/css" href="qadi.css"/>
+        <style>
+
+#presets > div {
+    width: 150px;
+    cursor: pointer;
+    color: black;
+    margin: 2px;
+    padding: 4px;
+    border-radius: 4px;
+    border: 1pt solid rgba(0, 0, 0, 0.3);
+}
+
+#presets > div:hover {
+    background-color: rgba(77, 127, 184, 0.24);;
+    color: black;
+}
+
+#presets > div.selected {
+    background-color: rgba(77, 127, 184, 0.5);;
+    color: black;
+}
+
+#presets div.new {
+    border-style: dashed;
+    color: rgba(0, 0, 0, 0.5);
+}
+
+        </style>
+    </head>
+    <body>
+
+        <iframe src="./"></iframe>
+        <div id="main">
+        Mix Recorder<br />
+        <br />
+        This page removes features to make the task of recording mixes
+        as simple as possible. The specific changes are listed here
+        <ul id="qadi">
+            <li>You cannot zoom the timeline</li>
+            <li>You cannot scroll the timeline</li>
+        </ul>
+        <span>
+        
+        <br />
+        </span>
+        <div id="transport"></div>
+        <div id="sequence"></div>
+        <br />
+        <table>
+        <tr>
+            <td>
+            <br />
+            <span id="presetsLabel">Mix Presets</span><br />
+            <br />
+            <div id="presets"></div></td>
+            <td id="mixer"></td>
+        </tr>
+        </table>
+        </div>
+        <script src="presets.js"></script>
+        <script>
+
+var rootUrl = 'https://dl.dropboxusercontent.com/u/5613860/audio/nino_rota/'
+
+rootUrl = '/audio/'
+
+var tracks = [
+    {
+        'type' : 'audio',
+        'src' : rootUrl + 'sax1.mp3',
+        'trackId' : '1'
+    },
+    {
+        'type' : 'audio',
+        'src' : rootUrl + 'sax2.mp3',
+        'trackId' : '2'
+    },
+    {
+        'type' : 'audio',
+        'src' : rootUrl + 'flute.mp3',
+        'trackId' : '3'
+    },
+    {
+        'type' : 'audio',
+        'src' : rootUrl + 'bass_drum.mp3',
+        'trackId' : '4'
+    },
+    {
+        'type' : 'audio',
+        'src' : rootUrl + 'tuba.mp3',
+        'trackId' : '5'
+    },
+    {
+        'type' : 'audio',
+        'src' : rootUrl + 'trumpet.mp3',
+        'trackId' : '6'
+    }
+]
+
+tracks = prong.omniscience.makeWatchable(tracks)
+
+var d3 = prong.d3;
+var x = d3.scale.linear().domain([0, 30]).range([0, 800]);
+
+var sequence = prong.sequence()
+    .x(x)
+    .tracks(tracks)
+    .trackHeight(40)
+    //.fitTimelineToAudio(true)
+    //.zoomable(false)
+    .canSelectLoop(false)
+    .audioOut(prong.audioContext().destination)
+    .historyKey('s');
+
+var transport = prong.transport().sequence(sequence);
+var mixer = prong.mixer().sequence(sequence);
+var presetList = prong.presetList()
+    .sequence(sequence)
+    .presets(presets)
+    .historyKey('preset');
+
+d3.select('#sequence').call(sequence);
+d3.select('#transport').call(transport);
+d3.select('#mixer').call(mixer);
+d3.select('#presets').call(presetList);
+
+
+
+        </script>
+    </body>
+</html>

@@ -60,24 +60,26 @@ var tracks = [
     },
     {
         'type' : 'audio',
-        'src' : rootUrl + 'sax2.mp3',
+        'src' : rootUrl + 'tuba.mp3',
         'automation' : {
             'volume' : {
                 'interpolate' : 'step-after',
                 'points' : [
                     [0, 100],
-                    [2, 50],
-                    [13, 20],
-                    [20, 100],
-                    [22, 80]
+                    [2, 20],
+                    [4, 80],
+                    [5, 30],
+                    [9, 10]
                 ]
             }
         }
     }
 ]
 
+tracks = prong.omniscience.makeWatchable(tracks)
+
 var d3 = prong.d3;
-var x = d3.scale.linear().domain([0, 60]).range([0, 800]);
+var x = d3.scale.linear().domain([0, 15]).range([0, 800]);
 
 var sequence = prong.sequence()
     .x(x)

@@ -95,7 +95,6 @@ module.exports = ->
 
 
         draw = ->
-            #console.log('calling draw')
             if (timeline = waveform.timeline()) and (not timeline.loopDisabled())
                 [loopStart, loopEnd] = waveform.timeline().loop()
             else

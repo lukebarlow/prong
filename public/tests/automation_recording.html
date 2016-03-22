@@ -22,6 +22,9 @@
             moving it, while playing the audio, then the values are overwritten</li>
             <li>While you're holding the slider (with the mouse button down), it
             should never automatically move due to the automation curve changes</li>
+            <li>If you loop the audio then it should continue to behave as
+            expected - new automation points should only be created when you
+            are touching the slider</li>
         </ul>
         <span>
         
@@ -46,11 +49,9 @@ var tracks = [
             'volume' : {
                 'interpolate' : 'step-after',
                 'points' : [
-                    [0, 100],
-                    [2, 50],
-                    [3, 20],
-                    [10, 100],
-                    [11, 80]
+                    [0, 50],
+                    [10, 60],
+                    [12, 20]
                 ]
             }
         }
@@ -74,12 +75,12 @@ var tracks = [
 ]
 
 var d3 = prong.d3;
-var x = d3.scale.linear().domain([0, 60]).range([0, 800]);
+var x = d3.scale.linear().domain([0, 30]).range([0, 800]);
 
 var sequence = prong.sequence()
     .x(x)
     .tracks(tracks)
-    .trackHeight(40)
+    .trackHeight(80)
     .canSelectLoop(true)
     .audioOut(prong.audioContext().destination)
     .historyKey('s');

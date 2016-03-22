@@ -16,6 +16,7 @@ module.exports = ->
     secondsFormatter = null #  formatter
     scrollZone = null #  the selection on which this timeline will detect scroll events
     zoomable = true
+    scrollable = true
     canSelectLoop = false
     loopSelector = null
     history = null
@@ -79,7 +80,7 @@ module.exports = ->
 
         #  if you hold alt key, then it zooms instead of scrolling
         if d3.event.altKey
-            if (!zoomable) then return
+            if not zoomable then return
             pointer = d3.mouse(selection.node())
             downTime = x.invert(pointer[0])
             downDomain = x.domain()
@@ -91,23 +92,20 @@ module.exports = ->
             timeline.domain(newDomain)
             return
 
-        deltaTime = x.invert(0) - x.invert(delta)
+        if not scrollable then return
 
+        deltaTime = x.invert(0) - x.invert(delta)
         before = x(0)
         domain = x.domain()
         domain[0] += deltaTime
         domain[1] += deltaTime
         domain = notBelowZero(domain)
         x.domain(domain)
-
         after = x(0)
         timeline.x(x).redraw()
-        
         if scrollTimeoutId != null
             window.clearTimeout(scrollTimeoutId)
-        
         scrollTimeoutId = window.setTimeout(scrollFinished, 200)
-
         dispatch.change(x)
 
 
@@ -325,6 +323,12 @@ module.exports = ->
     timeline.zoomable = (_zoomable) ->
         if not arguments.length then return zoomable
         zoomable = _zoomable
+        return timeline
+
+
+    timeline.scrollable = (_scrollable) ->
+        if not arguments.length then return scrollable
+        scrollable = _scrollable
         return timeline
 
 

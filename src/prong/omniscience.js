@@ -35,7 +35,7 @@ function makeWatchable(o){
             var alreadyExisted = key in target
             var valueIsObject = typeof(value) == 'object'
             // if a new object property is added, then watch that too
-            if (valueIsObject && !alreadyExisted && !hidden){
+            if (value && valueIsObject && !alreadyExisted && !hidden){
                 value = makeWatchable(value)
                 value._on('syncChange.' + uid(), function(){
                     fireChangeAtEndOfThread()
@@ -55,6 +55,7 @@ function makeWatchable(o){
     }
 
     proxy.sort = function(){
+        return
         Array.prototype.sort.apply(o, arguments)
     }
     

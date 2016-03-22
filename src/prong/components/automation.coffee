@@ -29,69 +29,110 @@ module.exports = ->
             .x(lineX)
             .y(lineY)
 
-        selection.classed('automation', true)
+        # selection.classed('automation', true)
 
-        dragstart = ->
-            d3.event.sourceEvent.stopPropagation()
+        # dragstart = ->
+        #     d3.event.sourceEvent.stopPropagation()
 
-        dragmove = (e) ->
-            d3.event.sourceEvent.stopPropagation()
-            dx = (x.invert(d3.event.dx) - x.invert(0))
-            dy = (y.invert(d3.event.dy) - y.invert(0))
-            e[0] += dx
-            e[1] += dy
-            update()
+        # dragmove = (e) ->
+        #     d3.event.sourceEvent.stopPropagation()
+        #     dx = (x.invert(d3.event.dx) - x.invert(0))
+        #     dy = (y.invert(d3.event.dy) - y.invert(0))
+        #     e[0] += dx
+        #     e[1] += dy
+        #     update()
 
-            # TODO : if you drag past it in time, then switch the order
-            #originalArray = d.automation.volume
-            #originalArray.sort(keysort(0))
-            dispatch.changing()
+        #     # TODO : if you drag past it in time, then switch the order
+        #     #originalArray = d.automation.volume
+        #     #originalArray.sort(keysort(0))
+        #     dispatch.changing()
 
-        dragend = ->
-            d3.event.sourceEvent.stopPropagation()
-            dispatch.change()
+        # dragend = ->
+        #     d3.event.sourceEvent.stopPropagation()
+        #     dispatch.change()
 
-        # this is the behavior for dragging points around. It is not used
-        # when the points are not exposed
-        drag = d3.behavior.drag()
-            .on('dragstart', dragstart)
-            .on('drag', dragmove)
-            .on('dragend', dragend)
+        # # this is the behavior for dragging points around. It is not used
+        # # when the points are not exposed
+        # drag = d3.behavior.drag()
+        #     .on('dragstart', dragstart)
+        #     .on('drag', dragmove)
+        #     .on('dragend', dragend)
 
-        path = selection.append('path')
+        # data = selection.data()
 
-        circleContainer = selection.append('g')
+        # selection.selectAll('path')
+        #     .data(data)
+        #     .enter()
+        #     .append('path')
+
+        # selection.selectAll('g')
+        #     .data(data)
+        #     .enter()
+        #     .append('g')
+
+        path = selection.selectAll('path')
+
+        # circleContainer = selection.selectAll('g').html('')
         
-        update = =>
-            path.attr 'd', (d) =>
-                # sort the points in time to keep the line coherent
-                d[key].points.sort(keysort(0))
+        draw = =>
 
-                line.interpolate(d[key].interpolate)
-                line(d[key].points)
+            selection.selectAll('g.automation').remove()
 
-            circleJoin = circleContainer
-                .filter((d) => d[key].interpolate == 'linear')
-                .selectAll('circle')
-                .data((d) => d[key].points)                
+            selection.each (d) ->
+                container = d3.select(this)
+                    .append('g')
+                    .attr('class', 'automation')
+
+                container.append('path')
+                    .attr 'd', (d) =>
+                        if (not d.automation) then return ''
+                        if (not d.automation[key]) then return ''
+                        line.interpolate(d.automation[key].interpolate)
+                        line(d.automation[key].points)
+
+            # circleJoin = circleContainer
+            #     .filter((d) => d[key].interpolate == 'linear')
+            #     .selectAll('circle')
+            #     .data((d) => d[key].points)                
                 
-            circleJoin.attr('cx', lineX).attr('cy', lineY)
+            # circleJoin.attr('cx', lineX).attr('cy', lineY)
 
-            circleJoin.enter()
-                .append('circle')
-                .attr('cx', lineX)
-                .attr('cy', lineY)
-                .attr('r', 5)
-                .call(drag)
+            # circleJoin.enter()
+            #     .append('circle')
+            #     .attr('cx', lineX)
+            #     .attr('cy', lineY)
+            #     .attr('r', 5)
+            #     .call(drag)
 
-            circleJoin.exit().remove()
+            # circleJoin.exit().remove()
 
-        update()
+        draw()
 
         selection.each (d) ->
-            omniscience.watch(d, update)
+            omniscience.watch(d, draw)
             
-        automation.timeline().on("change.#{uid()}", update)
+        # this timing logic tries to keep waveform redrawing as smooth
+        # as possible. It times how long it takes to redraw the waveform
+        # and makes sure not to redraw more frequently than that
+        lastTimeout = null
+        drawingTime = null
+        lastDrawingStart = null
+
+        drawAndTime = ->
+            start = new Date()
+            draw()
+            drawingTime = new Date() - start
+        
+        automation.timeline().on 'change.' + uid(), ->
+     
+            if (lastTimeout) then clearTimeout(lastTimeout)
+            if (not lastDrawingStart) or (new Date() - lastDrawingStart) > (drawingTime * 2)
+                drawAndTime()
+            else
+                after = ->
+                    drawAndTime()
+                    lastTimeout = null
+                lastTimeout = setTimeout(after, 50)
 
 
     automation.on = (type, listener) ->

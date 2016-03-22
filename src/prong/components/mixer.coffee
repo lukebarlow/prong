@@ -99,15 +99,10 @@ module.exports = ->
                 return position == 1
 
 
-
-
     mixer.sequence = (_sequence) ->
         if not arguments.length
             return sequence
         sequence = _sequence
         return mixer
-
-
-
 
     return mixer

@@ -30,11 +30,13 @@ module.exports = ->
     timeline = null
     musicalTime = null
     zoomable = true
+    scrollable = true
     following = true # toggle for whether the display updates to follow playback
     propertyPanelWidth = 95
     canSelectLoop = false
     loopDomain = [null, null] # only to store domain before timeline created
     loopDisabled = false
+    fitTimelineToAudio = false
 
     setPlaylinePosition = ->
         x = sequence.x()
@@ -54,6 +56,7 @@ module.exports = ->
             .x(x)
             .sequence(sequence)
             .zoomable(zoomable)
+            .scrollable(scrollable)
             .canSelectLoop(canSelectLoop)
             .scrollZone(scrollZone or element) # create the timeline
             .loop(loopDomain)
@@ -86,6 +89,7 @@ module.exports = ->
 
         timelineSvg = timelineContainer.append('svg')
             .style('position', 'absolute')
+            #.style('z-index', -1)
             .attr('height', 80)
             .attr('width', '100%')
             .attr('class','timeline')
@@ -121,7 +125,19 @@ module.exports = ->
 
         _track.on 'load', ->
             trackLoadCount++
+
+            # if we have the 'fitTimelineToAudio' feature then we adjust the
+            # timeline to the longest track
+
+            if fitTimelineToAudio
+                longest = d3.max tracks, (track) => 
+                    if track._buffer then track._buffer.duration else 0
+                if longest != x.domain()[1]
+                    x.domain([0, longest])
+                    timeline.x(x).fireChange()
+
             if trackLoadCount == tracks.length
+                
                 dispatch.load()
             playlineHeight = sequence.height() - 15
             playLine.style('height', playlineHeight + 'px')
@@ -421,6 +437,18 @@ module.exports = ->
     sequence.zoomable = (_zoomable) ->
         if not arguments.length then return zoomable
         zoomable = _zoomable
+        return sequence
+
+
+    sequence.scrollable = (_scrollable) ->
+        if not arguments.length then return scrollable
+        scrollable = _scrollable
+        return sequence
+
+
+    sequence.fitTimelineToAudio = (_fitTimelineToAudio) ->
+        if not arguments.length then return fitTimelineToAudio
+        fitTimelineToAudio = _fitTimelineToAudio
         return sequence
     
 

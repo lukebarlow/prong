@@ -96,6 +96,20 @@ module.exports = ->
                 else
                     d._loader = httpSoundLoader
 
+            # updateAutomation = =>
+            #     # console.log('updating automation')
+            #     return
+            #     data = if d.automation then [d.automation] else []
+            #     join = foreground.selectAll('g.automation').data(data)
+            #     join.enter()
+            #         .append('g')
+            #         .attr('class', 'automation')
+            #         .call(automation)
+                    
+            #     join.call(automation)
+            #     join.exit().remove()
+
+
             d._loader loadingMessage, ->
                 loadingMessage.remove()
                 waveform = Waveform()
@@ -104,17 +118,13 @@ module.exports = ->
                     .verticalZoom(sequence.waveformVerticalZoom())
                     .timeline(sequence.timeline())
 
+                automation = Automation()
+                    .height(height)
+                    .timeline(sequence.timeline())
+                    .key('volume')
+
                 middleground.call(waveform)
-
-                if d.automation
-                    automation = Automation()
-                        .height(height)
-                        .timeline(sequence.timeline())
-                        .key('volume')
-
-                    foreground.append('g')
-                        .datum(d.automation)
-                        .call(automation)
+                foreground.call(automation)
 
                 dispatch.load(d)
 
@@ -137,13 +147,45 @@ module.exports = ->
 
                 # if the fader volume disagrees with what we would expect from
                 # the automation curves, then we add a point to the automation
-                if d.automation and d.automation.volume and playing
+                if d.automation and d.automation.volume and playing and d.dragging
                     expectedVolume = lastVolumePointBeforeNow()[1]
                     if d.volume != expectedVolume
                         timeOffset = sequence.currentTime() - (d.startTime || 0)
-                        d.automation.volume.points.push([timeOffset, d.volume])
+                        timeOffset = d3.round(timeOffset, 3)
+                        # now look through the points for the correct place to
+                        # insert this new automation point. If it's too close
+                        # to an existing point, then we just update that point
+                        points = d.automation.volume.points
+                        
+                        #  TODO : factor out and put automated tests on this logic
+                        if points.length and timeOffset > points.slice(-1)[0][0]
+                            points.push([timeOffset, d.volume])
+                            return
 
+                        index = 0
+                        
+                        while points[index][0] < timeOffset
+                            index++
+
+                        diff = points[index][0] - timeOffset
+                        replace = diff < 0.01
+
+                        if not replace and index > 0
+                            if timeOffset - points[index-1][0] < 0.01
+                                index--
+                                replace = true
+
+                        if replace
+                            points[index][1] = d.volume
+                        else
+                            points.splice(index, 0, [timeOffset, d.volume])
+
+
+            lastChange = null
             omniscience.watch d, =>
+                if lastChange and (new Date() - lastChange) < 10
+                    return
+                lastChange = new Date()
                 if d.dragging
                     setVolumeAndPan()
 
@@ -170,25 +212,31 @@ module.exports = ->
                 d._gain = gain
                 d._panner = panner
                 d._source = source
-                d._timeouts = []
-                setVolumeAndPan()
 
+                if d._timeouts
+                    d._timeouts.forEach (to) =>
+                        clearTimeout(to)
+
+                d._timeouts = []
+                
                 if d.automation and d.automation.volume
-                    d.volume = lastVolumePointBeforeNow()[1]
+                    p = lastVolumePointBeforeNow()
+                    d.volume = p[1]
                     points = d.automation.volume.points
                     futurePoints = points.filter (p) => p[0] > timeOffset
                     futurePoints.forEach (p, i) =>
                         diff = p[0] - timeOffset
-                        #whenToChange = audioContext.currentTime + diff
-                        #d._gain.gain.setValueAtTime(p[1] / 100.0, whenToChange)
                         changeSlider = =>
                             if !d.dragging
                                 d.volume = p[1]
+                                setVolumeAndPan()
                             else
                                 index = points.indexOf(p)
                                 points.splice(index, 1)
 
                         d._timeouts.push(setTimeout(changeSlider, diff * 1000))
+
+                setVolumeAndPan()
 
             sequence.on 'play.audio' + _uid, =>
                 playing = true
