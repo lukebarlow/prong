@@ -7,6 +7,8 @@ omniscience = require('../omniscience')
 module.exports = ->
 
     sequence = null
+    showPan = true
+    showVolume = true
 
     volumeSlider = slider()
         .domain([0,100])
@@ -31,7 +33,10 @@ module.exports = ->
 
         margin = {top: 40, right: 0, bottom: 40, left: 40}
         width = tracks.length * 50
-        height = 220 - margin.bottom - margin.top
+        #height = 220 - margin.bottom - margin.top
+
+        height = (if showPan then 50 else 0) + (if showVolume then 140 else 0) + 30
+        height = height - margin.bottom - margin.top
 
         svg = selection.append("svg")
             .attr("width", width + margin.left + margin.right)
@@ -59,12 +64,20 @@ module.exports = ->
                     omniscience.watch d, () =>
                         thiz.classed('over', d.over)
 
-            strips.append('g').call(panPot)
-            strips.append('g')
-                .attr('transform', 'translate(-17,50)')
-                .call(volumeSlider);
+            y = 0 # keeps track of component vertical
+
+            if showPan
+                strips.append('g').call(panPot)
+                y += 50
+
+            if showVolume
+                strips.append('g')
+                    .attr('transform', "translate(-17,#{y})")
+                    .call(volumeSlider);
+                y += 140
+
             strips.append('text')
-                .attr('transform', 'translate(0, 190)')
+                .attr('transform', "translate(0, #{y})")
                 .attr('text-anchor', 'middle')
                 .text(prong.trackName)
         
@@ -104,5 +117,18 @@ module.exports = ->
             return sequence
         sequence = _sequence
         return mixer
+
+
+    mixer.showPan = (_showPan) ->
+        if not arguments.length then return showPan
+        showPan = _showPan
+        return mixer
+
+
+    mixer.showVolume = (_showVolume) ->
+        if not arguments.length then return showVolume
+        showVolume = _showVolume
+        return mixer
+
 
     return mixer
