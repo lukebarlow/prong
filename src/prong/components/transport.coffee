@@ -21,8 +21,10 @@ module.exports = ->
         selection.append('div').call(playStop)
 
         if transport.sequence()
-            transport.sequence().on 'play', (playing) ->
+            updatePlayState = () -> 
                 playStop.playing(transport.sequence().playing())
 
+            transport.sequence().on('play', updatePlayState)
+            transport.sequence().on('stop', updatePlayState)
 
     return d3.rebind(transport, commonProperties(), 'sequence')

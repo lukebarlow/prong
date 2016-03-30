@@ -16,7 +16,7 @@
         <br />
         This page tests some options that can be set on a sequence
         <ul id="qadi" style="font-size:10pt">
-            <li>fitTimelineToAudio. This option is set to true, which means
+            <li><i>fitTimelineToAudio</i> This option is here set to true, which means
             that when the track loads, the timeline will change to fit all
             the audio in the visible area
             </li>
@@ -26,12 +26,15 @@
              <li><i>scrollable</i> is set to false, which means that there is no
             way to scroll the timeline
             </li>
+            <li>Two play/stop buttons are shown. When either one is clicked, the other should change state to reflect whether the sequence is
+            playing or stopped</li>
         </ul>
         <span>
         <br />
         </span>
         <div id="transport"></div>
         <div id="sequence"></div>
+        <div id="transport2"></div>
         </div>
         <script>
 
@@ -82,7 +85,7 @@ var x = d3.scale.linear().domain([0, 30]).range([0, 700]);
 sequence = prong.sequence()
     .x(x)
     .tracks(tracks)
-    .trackHeight(30)
+    .trackHeight(20)
     .canSelectLoop(false)
     .fitTimelineToAudio(true)
     .zoomable(false)
@@ -90,9 +93,11 @@ sequence = prong.sequence()
     .audioOut(prong.audioContext().destination);
 
 transport = prong.transport().sequence(sequence)
+transport2 = prong.transport().sequence(sequence)
 
 d3.select('#sequence').call(sequence);
 d3.select('#transport').call(transport);
+d3.select('#transport2').call(transport2);
         </script>
     </body>
 </html>
