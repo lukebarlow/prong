@@ -314,7 +314,7 @@ module.exports = ->
         if time == undefined and loopStart!= null and loopEnd != null and (not timeline.loopDisabled())
             time = loopStart
 
-        currentTime = time or currentTime
+        currentTime = if time != undefined then time else currentTime
         playStartSequenceTime = currentTime
         playStartComputerTime = new Date()
         playing = true
