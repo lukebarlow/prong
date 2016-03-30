@@ -1,6 +1,7 @@
 commonProperties = require('../commonProperties')
 playStopButton = require('./playStopButton')
 d3 = require('d3-prong')
+uid = require('../uid')
 
 # a simple transport bar for prong sequences, with buttons for starting and
 # stopping
@@ -24,7 +25,7 @@ module.exports = ->
             updatePlayState = () -> 
                 playStop.playing(transport.sequence().playing())
 
-            transport.sequence().on('play', updatePlayState)
-            transport.sequence().on('stop', updatePlayState)
+            transport.sequence().on('play.transport' + uid(), updatePlayState)
+            transport.sequence().on('stop.transport' + uid(), updatePlayState)
 
     return d3.rebind(transport, commonProperties(), 'sequence')

@@ -113,7 +113,7 @@ module.exports = ->
   
         mouse = () ->
             touches = d3.event.changedTouches
-            reference = timelineContainer
+            reference = timelineSvg
             return if touches then d3.touches(referece, touches)[0] else d3.mouse(reference.node())
 
         sequence.timeline(timeline)

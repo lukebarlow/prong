@@ -21,7 +21,7 @@
   "dependencies": {
     "async": "latest",
     "browserify": "latest",
-    "browserify-middleware": "latest",
+    "browserify-middleware": "^7.0.0",
     "caching-coffeeify": "latest",
     "chrome-proxy": "0.0.9",
     "coffee-script": "latest",
