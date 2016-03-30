@@ -89,7 +89,7 @@ module.exports = ->
             # on progress as it goes. The default one loads from http. Once
             # the loader is complete, the track should have channel and
             # buffer properties
-            if not ('_loader' of d)
+            if not (d._loader)
                 if '_channel' of d
                     # if we already have a channel set, set a 'do nothing' loader
                     d._loader = (_,callback) -> callback()
@@ -111,6 +111,7 @@ module.exports = ->
 
 
             d._loader loadingMessage, ->
+                d._loader = null
                 loadingMessage.remove()
                 waveform = Waveform()
                     .x(x)
@@ -285,5 +286,3 @@ module.exports = ->
 
 
     return d3.rebind(audio, commonProperties(), 'sequence','height')
-
-
