@@ -128,7 +128,6 @@ module.exports = ->
 
             # if we have the 'fitTimelineToAudio' feature then we adjust the
             # timeline to the longest track
-
             if fitTimelineToAudio
                 longest = d3.max tracks, (track) => 
                     if track._buffer then track._buffer.duration else 0
@@ -137,8 +136,8 @@ module.exports = ->
                     timeline.x(x).fireChange()
 
             if trackLoadCount == tracks.length
-                
                 dispatch.load()
+
             playlineHeight = sequence.height() - 15
             playLine.style('height', playlineHeight + 'px')
             propertyPanel.style('height', sequence.height() + 'px')

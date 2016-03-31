@@ -92,23 +92,10 @@ module.exports = ->
             if not (d._loader)
                 if '_channel' of d
                     # if we already have a channel set, set a 'do nothing' loader
-                    d._loader = (_,callback) -> callback()
+                    d._loader = (_,callback) ->
+                        setTimeout(callback, 1)
                 else
                     d._loader = httpSoundLoader
-
-            # updateAutomation = =>
-            #     # console.log('updating automation')
-            #     return
-            #     data = if d.automation then [d.automation] else []
-            #     join = foreground.selectAll('g.automation').data(data)
-            #     join.enter()
-            #         .append('g')
-            #         .attr('class', 'automation')
-            #         .call(automation)
-                    
-            #     join.call(automation)
-            #     join.exit().remove()
-
 
             d._loader loadingMessage, ->
                 d._loader = null
@@ -126,7 +113,6 @@ module.exports = ->
 
                 middleground.call(waveform)
                 foreground.call(automation)
-
                 dispatch.load(d)
 
             _uid = uid()
