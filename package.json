@@ -28,7 +28,7 @@
     "d3-prong": "git://github.com/lukebarlow/d3-prong",
     "express": "3.x",
     "fft": "latest",
-    "fs-extra": "^0.16.3",
+    "fs-extra": "^0.26.7",
     "redux": "^3.3.1",
     "socket.io": "latest",
     "uglify-js": "latest"

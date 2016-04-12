@@ -145,16 +145,12 @@ module.exports = ->
                     x.domain([0, longest])
                     timeline.x(x).fireChange()
 
-            debugger
             if trackLoadCount == tracks.length
                 dispatch.load()
-            debugger
 
             playlineHeight = sequence.height() - 15
             playLine.style('height', playlineHeight + 'px')
             propertyPanel.style('height', sequence.height() + 'px')
-
-            debugger
         
         # and the play line
         playLine = playlineContainer.append('div')
