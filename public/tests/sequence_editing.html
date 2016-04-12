@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<html>
+    <head>
+        <title>Sequence</title>
+        <script src="../js/prong.js"></script>
+        <link rel='stylesheet' href='testPage.css'></link>
+        <script src="qadi-min.js"></script>
+        <link rel="stylesheet" type="text/css" href="qadi.css"/>
+    </head>
+    <body>
+
+        <iframe src="./"></iframe>
+        <div id="main">
+        Sequence Editing<br />
+        <br />
+        To test the code sequence editing functionality, open the console
+        and type the following commands
+        <ul id="qadi" style="font-size:10pt">
+            <li>sequence.tracks.splice(3, 1) : the snare track should disappear</li>
+            <li>sequence.tracks.push(extraTracks[0]) : the tuba track should be added</li>
+            <li>When removing a track, the play line should shorten to be the
+            correct length for the height of the sequence</li>
+            <li>When adding a track, the loading behavior should be the same
+            as the normal track loading behavior</li>
+        </ul>
+        <span>
+        <br />
+        </span>
+        <div id="transport"></div>
+        <div id="sequence"></div>
+        </div>
+        <script>
+
+root = 'https://dl.dropboxusercontent.com/u/5613860/audio/nino_rota/'
+root = '/audio/'
+
+var tracks = [
+    {
+        'type' : 'audio',
+        'src' : root + 'sax1.mp3'
+    },
+    {
+        'type' : 'audio',
+        'src' : root + 'sax2.mp3'
+    },
+    {
+        'type' : 'audio',
+        'src' : root + 'flute.mp3'
+    },
+    {
+        'type' : 'audio',
+        'src' : root + 'snare.mp3'
+    }
+]
+
+extraTracks = [
+    {
+        'type' : 'audio',
+        'src' : root + 'tuba.mp3'
+    },
+    {
+        'type' : 'audio',
+        'src' : root + 'bass_drum.mp3'
+    },
+    {
+        'type' : 'audio',
+        'src' : root + 'cymbals.mp3'
+    },
+    {
+        'type' : 'audio',
+        'src' : root + 'trombone.mp3'
+    },
+    {
+        'type' : 'audio',
+        'src' : root + 'trumpet.mp3'
+    }
+]
+
+var d3 = prong.d3;
+var x = d3.scale.linear().domain([0, 60]).range([0, 700]);
+
+sequence = prong.sequence()
+    .x(x)
+    .tracks(tracks)
+    .trackHeight(30)
+    .canSelectLoop(true)
+    .historyKey('s')
+    //.scrollZone(d3.select('#sequence'))
+    .audioOut(prong.audioContext().destination);
+
+transport = prong.transport().sequence(sequence)
+
+d3.select('#sequence').call(sequence);
+d3.select('#transport').call(transport);
+        </script>
+    </body>
+</html>

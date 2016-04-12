@@ -9,7 +9,7 @@ omniscience = require('./omniscience')
 
 module.exports = ->
 
-    element = null
+    container = null
     tracksContainer = null
     container = null
     tracks = []
@@ -37,6 +37,8 @@ module.exports = ->
     loopDomain = [null, null] # only to store domain before timeline created
     loopDisabled = false
     fitTimelineToAudio = false
+    playLine = null
+    propertyPanel = null
 
     setPlaylinePosition = ->
         x = sequence.x()
@@ -49,8 +51,16 @@ module.exports = ->
             playLine.style('left', position + 'px')
         
 
-    sequence = (_element) ->
-        element = _element
+    drawTracks = ->
+        propertyPanel.style('height', sequence.height() + 'px')
+        if playLine
+            playlineHeight = sequence.height() - 15
+            playLine.style('height', playlineHeight + 'px')
+        tracksContainer.datum(tracks).call(_track)
+
+
+    sequence = (_container) ->
+        container = _container
         x = sequence.x()
         timeline = Timeline()
             .x(x)
@@ -58,7 +68,7 @@ module.exports = ->
             .zoomable(zoomable)
             .scrollable(scrollable)
             .canSelectLoop(canSelectLoop)
-            .scrollZone(scrollZone or element) # create the timeline
+            .scrollZone(scrollZone or container) # create the timeline
             .loop(loopDomain)
             .loopDisabled(loopDisabled)
 
@@ -66,15 +76,15 @@ module.exports = ->
         if historyKey = sequence.historyKey()
             timeline.historyKey(historyKey+'tl')
 
-        element.classed('sequence', true)
+        container.classed('sequence', true)
 
         # propertyPanel height is set after tracks are drawn
-        propertyPanel = element.append('div')
+        propertyPanel = container.append('div')
             .style('width', propertyPanelWidth + 'px')
             .style('height', "#{tracks.length * trackHeight + timelineHeight}px")
             .attr('class','propertyPanel')
 
-        container = element.append('div')
+        container = container.append('div')
             .attr('class','trackContainer')
             .style('left', propertyPanelWidth + 'px')
 
@@ -121,7 +131,7 @@ module.exports = ->
         # create the tracks
         _track = Track().sequence(sequence)
 
-        tracksContainer.datum(tracks).call(_track)
+        drawTracks()
 
         _track.on 'load', ->
             trackLoadCount++
@@ -135,12 +145,16 @@ module.exports = ->
                     x.domain([0, longest])
                     timeline.x(x).fireChange()
 
+            debugger
             if trackLoadCount == tracks.length
                 dispatch.load()
+            debugger
 
             playlineHeight = sequence.height() - 15
             playLine.style('height', playlineHeight + 'px')
             propertyPanel.style('height', sequence.height() + 'px')
+
+            debugger
         
         # and the play line
         playLine = playlineContainer.append('div')
@@ -163,7 +177,7 @@ module.exports = ->
             dispatch.timeselect()
 
         # the scrubbing behavior (only works if scrubbing is set to true)
-        element.on 'mousemove', ->
+        container.on 'mousemove', ->
             if not playing and scrubbing
                 mouseX = mouse()[0]
                 #time = x.invert(mouseX - 100)
@@ -174,7 +188,7 @@ module.exports = ->
                 dispatch.scrub(time)
 
 
-        element.on 'dblclick', ->
+        container.on 'dblclick', ->
             if playing
                 sequence.stop()
                 return
@@ -241,11 +255,14 @@ module.exports = ->
         tracks = omniscience.makeWatchable(newTracks)
 
         #omniscience.makeWatchable(tracks)
-
         # if sequence.historyKey()
         #     tracks.forEach (track) =>
         #         track.watch 'automation', =>
         #             console.log('saw an automation change in tracks')
+
+
+        omniscience.watch tracks, () =>
+            drawTracks()
 
         return sequence
     

@@ -4,6 +4,7 @@ video = require('./video')
 audio = require('./audio')
 text = require('./text')
 audioRegions = require('./audioRegions')
+uid = require('../uid')
 
 # the mapping from track type strings to component constructor functions
 trackTypeMappings = {
@@ -37,15 +38,19 @@ createComponents = (tracks, sequence, dispatch) ->
     return components
 
 
+setTrackKeys = (tracks) ->
+    for track in tracks
+        if not ('key' of track)
+            track.key = uid()
+
+
 # if tracks are the same type (i.e. map to the same component) and the component
 # has the attribute canBeGrouped = true, then the track data will be grouped
 # together so that a single component can draw several adjacent tracks in one
 # operation
 groupTracks = (tracks, components) ->
 
-    # tracks.type = tracks[0].type
-    # grouped = [tracks]
-    # return grouped
+    setTrackKeys(tracks)
 
     lastComponent = null
     lastTrack = null
@@ -55,12 +60,14 @@ groupTracks = (tracks, components) ->
         component = components[track.type]
         if lastComponent and lastComponent == component and component.canBeGrouped
             lastTrack.push(track)
+            lastTrack.key += '-' + track.key
         else
             if component.canBeGrouped
                 group = [track]
                 group.type = track.type
                 groupedTracks.push(group)
                 lastTrack = group
+                lastTrack.key = track.key
             else
                 groupedTracks.push(track)
                 lastTrack = track
@@ -69,24 +76,28 @@ groupTracks = (tracks, components) ->
     return groupedTracks
 
 
+
 module.exports = ->    
     dispatch = d3.dispatch('load')
 
     track = (selection, options) ->
-
         tracks = selection.datum()
+
         components = createComponents(tracks, track.sequence(), dispatch)
         groupedTracks = groupTracks(tracks, components)
 
-        sel = selection.selectAll('.track')
-            .data(groupedTracks)
-            .enter()
+        join = selection.selectAll('.track')
+            .data(groupedTracks, (d) => d.key)
+            
+        newTracks = join.enter()
             .append('div')
             .attr('class','track')
 
-        sel.each (d,i) ->
+        newTracks.each (d,i) ->
             sel = d3.select(this)         
             components[d.type](sel, options)
+
+        join.exit().remove()
 
     track.on = (type, listener) ->
         dispatch.on(type, listener)
