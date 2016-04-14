@@ -26,10 +26,18 @@ function makeWatchable(o){
 
     var handler = {
         set: function(target, key, value, receiver){
+
+            // console.log('setting - - - - ')
+            // console.log('target', target)
+            // console.log('key', key)
+            // console.log('value', value)
+            // console.log('receiver', receiver)
+            // debugger
+
             var hidden = beginsWithUnderscore(key)
             if (hidden){
                 target[key] = value
-                return
+                return true
             }
             var changed = (target[key] != value)
             var alreadyExisted = key in target

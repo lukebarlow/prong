@@ -12,6 +12,9 @@ omniscience = require('../omniscience')
 #Lines = require('../components/lines')
 #Note = require('../components/note')
 
+DEFAULT_VOLUME = 60
+DEFAULT_PAN = 0
+
 # audioTrack is responsible for drawing out the audio tracks. This is a
 # container for different representations of audio (waveform and/or spectrogram)
 module.exports = ->
@@ -34,6 +37,7 @@ module.exports = ->
                 nonBlankChannels.push(i)    
         return nonBlankChannels
 
+
     # the default sound loader
     httpSoundLoader = (loadingMessage, callback) ->
         track = this
@@ -53,6 +57,11 @@ module.exports = ->
 
         selection.each (d,i) ->
             d = omniscience.makeWatchable(d)
+
+            if not ('volume' of d)
+                d.volume = DEFAULT_VOLUME
+            if not ('pan' of d)
+                d.pan = DEFAULT_PAN
 
             sequence = audio.sequence()
             x = sequence.x()
@@ -75,9 +84,6 @@ module.exports = ->
                 .on 'mouseout', (d) ->
                     d3.select(this).classed('over', false)
                     d.over = false
-                .each (d) ->
-                    omniscience.watch d, () =>
-                        svg.classed('over', d.over)
 
             middleground = svg.append('g').attr('class', 'middleground')
             foreground = svg.append('g').attr('class', 'foreground')
@@ -113,6 +119,11 @@ module.exports = ->
 
                 middleground.call(waveform)
                 foreground.call(automation)
+
+                #console.log('just finished loading')
+                if sequence.playing()
+                    play()
+
                 dispatch.load(d)
 
             _uid = uid()
@@ -233,7 +244,7 @@ module.exports = ->
                 if d.automation and d.automation.volume
                     d.volume = lastVolumePointBeforeNow()[1]
             
-            sequence.on 'stop.audio' + _uid, =>
+            stop = =>
                 playing = false
                 if not ('_source' of d)
                     console.log('stopping but no source set')
@@ -244,14 +255,24 @@ module.exports = ->
                 if d._timeouts
                     d._timeouts.forEach (to) =>
                         clearTimeout(to)
-
                 delete d._source
 
+            sequence.on('stop.audio' + _uid, stop)
+                
             sequence.on 'loop.audio' + _uid, (start) ->
                 if d._source
                     d._source.stop(0)
                 if playing
                     play()
+
+            omniscience.watch d, () =>
+                svg.classed('over', d.over)
+                if (d.dead)
+                    stop()
+                    sequence.on('play.audio' + _uid, null)
+                    sequence.on('timeselect.audio' + _uid, null)
+                    sequence.on('stop.audio' + _uid, null)
+                    sequence.on('loop.audio' + _uid, null)
 
 
     audio.redraw = (selection, options) ->

@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<html>
+<head>
+    <title>Omniscience Binding</title>
+    <link rel="shortcut icon" href="../images/icon.png" type="image/gif">
+    <script src="../js/prong.js"></script>
+    <link rel='stylesheet' href='testPage.css'></link>
+    <script src="qadi-min.js"></script>
+    <link rel="stylesheet" type="text/css" href="qadi.css"/>
+    <style>
+
+#horizontalSliders text {
+    font-size:9pt;
+}
+
+.slider text {
+    display: none;
+}
+
+.slider:hover text {
+    display: block;
+}
+
+    </style>
+    <script>
+
+var values = [
+    { volume : 6, pan : 0, key: 'apple'},
+    { volume : 83, pan : 0, key: 'pear'},
+    { volume : 19, pan : 0, key: 'banana'}
+]
+
+values = prong.omniscience.makeWatchable(values)
+
+values.forEach(function(value){
+    prong.omniscience.watch(value, function(){
+        var v = value
+        console.log('got a change to ', v.key, v)
+    })
+})
+
+var margin = {top: 30, right: 50, bottom: 20, left: 30},
+    width = 960 - margin.left - margin.right,
+    height = 260 - margin.bottom - margin.top;
+
+
+function bind(container, selector, component, list) {
+    var temp = selector.split('.')
+    var tag = temp[0]
+    var className = temp[1]
+    function update(){
+        join = container.selectAll(selector).data(list)
+        join.enter()
+            .append(tag)
+            .attr('class', className)
+            .call(component)
+
+        join.exit().remove()
+    }
+    update()
+    prong.omniscience.watch(list, update)
+}
+
+
+function init(){
+
+    var d3 = prong.d3;
+
+    var verticalSlider = prong.slider()
+        .domain([0,100])
+        .width(50)
+        .height(150)
+        .horizontal(false)
+        .key('volume')
+        .format(d3.format('f'));
+
+    var svg = d3.select('svg#verticalSliders')
+        .attr('width', width + margin.left + margin.right)
+        .attr('height', height + margin.top + margin.bottom)
+        .append('g')
+        .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
+
+    function sliderInPosition(selection){
+        selection.attr('transform',function(d,i){
+                return 'translate(' + i*100 + ',30)';
+            })
+            .call(verticalSlider)
+    }
+
+    bind(svg, 'g.slider', sliderInPosition, values)
+}
+    
+    </script>
+</head>
+<body onload="init()">
+
+<iframe src="./"></iframe>
+<div id="main">
+    Omniscience<br />
+    <br />
+    This page is an experiment is a re-usable code pattern for binding   
+</div>
+</body>
+</html>

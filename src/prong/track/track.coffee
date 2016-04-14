@@ -97,7 +97,12 @@ module.exports = ->
             sel = d3.select(this)         
             components[d.type](sel, options)
 
-        join.exit().remove()
+        join.exit()
+            .each (d, i) =>
+                d.dead = true # TODO : build this feature into omniscience,
+                              # so that when an object is orphaned from the
+                              # tree it sends out a death cry event
+            .remove()
 
     track.on = (type, listener) ->
         dispatch.on(type, listener)

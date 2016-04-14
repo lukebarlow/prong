@@ -39,6 +39,14 @@ module.exports = ->
     fitTimelineToAudio = false
     playLine = null
     propertyPanel = null
+    idsOnLastDraw = null
+
+    # for now, track id is just the src attribute. May change
+    ensureTracksHaveIds = (tracks) =>        
+        for track in tracks
+            if not track.id
+                track.id = track.src or track.name
+
 
     setPlaylinePosition = ->
         x = sequence.x()
@@ -51,12 +59,26 @@ module.exports = ->
             playLine.style('left', position + 'px')
         
 
+    idsKey = =>
+        (tracks.map (t) => t.id).join(':')
+
+
     drawTracks = ->
-        propertyPanel.style('height', sequence.height() + 'px')
-        if playLine
-            playlineHeight = sequence.height() - 15
-            playLine.style('height', playlineHeight + 'px')
+        ensureTracksHaveIds(tracks)
+        key = idsKey()
+        if key == idsOnLastDraw
+            return
+        idsOnLastDraw = key
+        h = sequence.height()
+        propertyPanel.style('height', h + 'px')
         tracksContainer.datum(tracks).call(_track)
+        if playLine
+            later = =>
+                h = sequence.height()
+                propertyPanel.style('height', h + 'px')
+                playlineHeight = h - 15
+                playLine.style('height', playlineHeight + 'px')
+            setTimeout(later, 1)
 
 
     sequence = (_container) ->
@@ -183,7 +205,6 @@ module.exports = ->
                 currentTime = time
                 dispatch.scrub(time)
 
-
         container.on 'dblclick', ->
             if playing
                 sequence.stop()
@@ -197,65 +218,12 @@ module.exports = ->
     sequence.tracks = (_tracks) ->
         if not arguments.length then return tracks
 
-        # sometimes the track objects will have extra properties and methods
-        # added to them, in which case we don't want to clobber the existing
-        # objects with the new data passed to this method. So, rather than 
-        # just replacing the old value of tracks with the argument passed to 
-        # this method, we try to match the tracks by looking at the src 
-        # attribute, then leave existing tracks as they are and add and remove
-        # others as appropriate
-
+        ensureTracksHaveIds(_tracks)
         # this method recognises various abbreviations, and unpacks them
         # to a full track dictionary. For example, if a track is just
         # a path then it will detect the type
         Track.unpackTrackData(_tracks)
-
-        _tracks.forEach (track) ->
-            if not ('volume' of track) then track.volume = 60
-            if not ('pan' of track) then track.pan = 0
-
-        # replace each track with a proxy, and give it a watch method
-        # which can be used to listen for changes
-        # _tracks = _tracks.map (track) =>
-        #     dispatch = d3.dispatch('change')
-        #     handler = {
-        #         set: (target, property, value, receiver) =>
-        #             console.log('set a value', target, property, value, receiver)
-        #     }
-        #     proxy = new Proxy(track, handler)
-        #     return proxy
-
-        # for now, track id is just the src attribute. May change
-        id = (track) ->
-            if 'id' of track then return track.id
-            if 'src' of track then return track.src
-            return track.name
-        
-
-        newTracks = []
-        existingIds = tracks.map(id)
-        _tracks.forEach (track) ->
-            trackId = id(track)
-            existingTrackIndex = existingIds.indexOf(trackId)
-            if existingTrackIndex != -1
-                # copy over any new string or numeric values
-                oldTrack = tracks[existingTrackIndex]
-                for key of track
-                    if typeof(track[key]) == 'number' or typeof(track[key]) == 'string'
-                        if track[key] != oldTrack
-                            oldTrack[key] = track[key]
-                newTracks.push(oldTrack)
-            else
-                newTracks.push(track)
-            
-        tracks = omniscience.makeWatchable(newTracks)
-
-        #omniscience.makeWatchable(tracks)
-        # if sequence.historyKey()
-        #     tracks.forEach (track) =>
-        #         track.watch 'automation', =>
-        #             console.log('saw an automation change in tracks')
-
+        tracks = omniscience.makeWatchable(_tracks)
 
         omniscience.watch tracks, () =>
             drawTracks()
@@ -265,40 +233,41 @@ module.exports = ->
 
     sequence.addTrack = (track) ->
         tracks.push(track)
-        sequence.redraw()
     
 
     sequence.removeTrack = (track) ->
         i = tracks.indexOf(track)
-        tracks.splice(i,1)
-        sequence.redraw()
+        tracks.splice(i, 1)
 
 
     sequence.fireChange = ->
         dispatch.change()
     
 
-    sequence.redraw = ->
-        join = tracksContainer.selectAll('.track')
-            .data(tracks, (d) -> d.src)
+    # sequence.redraw = ->
+    #     join = tracksContainer.selectAll('.track')
+    #         .data(tracks, (d) -> d.id)
 
-        join.enter()
-            .append('div')
-            .attr('class','track')
-            .call(_track)
+    #     join.enter()
+    #         .append('div')
+    #         .attr('class','track')
+    #         .call(_track)
 
-        join.exit()
-            .each( (d,i) -> if (d.cleanup) then d.cleanup() )
-            .remove()
+    #     join.exit()
+    #         .each( (d,i) -> 
+    #             debugger
+    #             if (d.cleanup) then d.cleanup() 
+    #         )
+    #         .remove()
 
-        setPlaylinePosition()
+    #     setPlaylinePosition()
     
 
     # redraws all the tracks with their contents
-    sequence.redrawContents = (options) ->
-        tracksContainer.selectAll('.track')
-            .data(tracks, (d) ->  d.src)
-            .call(_track, options)
+    # sequence.redrawContents = (options) ->
+    #     tracksContainer.selectAll('.track')
+    #         .data(tracks, (d) ->  d.src)
+    #         .call(_track, options)
     
 
     sequence.scrubbing = (_scrubbing) ->
@@ -370,9 +339,7 @@ module.exports = ->
                     domain = [domain[0] + width, domain[1] + width]
                     sequence.timeline().domain(domain)
             setPlaylinePosition()
-
             return (not playing)
-
 
         d3.timer(tick, 50)
 
