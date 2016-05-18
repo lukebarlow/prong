@@ -3,38 +3,42 @@
   "description": "A JavaScript library for web based audio applications",
   "version": "0.1.0",
   "main": "lib/prong/index.js",
+  "license": "MIT",
   "repository": {
     "type": "git",
     "url": "git://github.com/lukebarlow/prong"
   },
+  "files" : [
+    "dist",
+    "lib",
+    "src"
+  ],
   "scripts": {
     "start": "node server.js",
     "production-server": "export NODE_ENV=production && node server.js",
     "prod": "npm run production-server",
     "transpile": "node scripts/copyJsFiles.js && coffee --compile --output lib/ src/",
     "clean": "rm -r lib",
-    "postinstall": "npm run transpile",
     "build": "export NODE_ENV=production && npm run transpile && browserify ./lib/main.js > prong.js",
-    "build-min": "export NODE_ENV=production && npm run transpile && browserify ./lib/main.js | uglifyjs -mt > prong-min.js",
+    "build:min": "export NODE_ENV=production && npm run transpile && browserify ./lib/main.js | uglifyjs -mt > prong-min.js",
     "test": "jasmine-node --coffee --verbose --captureExceptions ./src/"
   },
   "dependencies": {
     "async": "latest",
     "omniscience": "^1.0.0",
+    "d3-prong": "git://github.com/lukebarlow/d3-prong",
+    "fft": "latest"
+  },
+  "devDependencies": {
+    "jasmine-node": "latest",
     "browserify": "latest",
     "browserify-middleware": "^7.0.0",
     "caching-coffeeify": "latest",
     "chrome-proxy": "0.0.9",
     "coffee-script": "latest",
-    "d3-prong": "git://github.com/lukebarlow/d3-prong",
     "express": "3.x",
-    "fft": "latest",
     "fs-extra": "^0.26.7",
     "socket.io": "latest",
     "uglify-js": "latest"
-  },
-  "devDependencies": {
-    "jasmine-node": "latest",
-    "jsdom": "3"
   }
 }

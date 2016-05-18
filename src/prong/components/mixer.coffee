@@ -50,8 +50,11 @@ module.exports = ->
                 return
             idsOnLastDraw = key
 
-            width = sequence.tracks().length * 50
-            svg.attr("width", width + margin.left + margin.right)
+            width = (sequence.tracks().length + 1) * 50
+
+            d3.select(svg.node().parentElement)
+                .attr("width", width + margin.left + margin.right)
+
             tracks = sequence.tracks().filter (track) -> 
                 track.type in ['audio','audioRegions']
 
