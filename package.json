@@ -1,14 +1,14 @@
 {
   "name": "prong",
   "description": "A JavaScript library for web based audio applications",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "main": "lib/prong/index.js",
   "license": "MIT",
   "repository": {
     "type": "git",
     "url": "git://github.com/lukebarlow/prong"
   },
-  "files" : [
+  "files": [
     "dist",
     "lib",
     "src"
