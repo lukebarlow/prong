@@ -69,7 +69,7 @@ iframe {
 /* automation */
 
 .automation path {
-    stroke: steelblue;
+    stroke: rgb(64, 95, 113);
     stroke-width: 2;
     fill: transparent;
     cursor: pointer;

@@ -223,6 +223,9 @@ iframe {
 
 .trackName {
     position:absolute;
+    font-size:10pt;
+    color:steelblue;
+    fill:steelblue;
 }
 
 .trackName > span {
@@ -232,9 +235,7 @@ iframe {
     left:-10px;
     width:100px;
     top:10px;
-    font-size:10pt;
     text-align: right;
-    color:steelblue;
 }
 
 .trackLoading {

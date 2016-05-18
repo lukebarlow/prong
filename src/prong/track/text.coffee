@@ -1,6 +1,7 @@
 d3 = require('d3-prong')
 commonProperties = require('../commonProperties')
 trackName = require('../trackName')
+Uid = require('../uid')
 
 module.exports = ->
 
@@ -32,7 +33,7 @@ module.exports = ->
             .style('width', sequence.width() + 'px') 
         display.classed('textTrack', true)
 
-        uid = prong.uid()
+        uid = Uid()
         data = selection.datum().data or []
         timer = null
         i = null

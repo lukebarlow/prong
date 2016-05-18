@@ -4,8 +4,7 @@ Track = require('./track/track')
 Timeline = require('./components/timeline')
 MusicalTimeline = require('./components/musicalTimeline')
 Pool = require('./pool')
-omniscience = require('./omniscience')
-
+omniscience = require('omniscience')
 
 module.exports = ->
 
@@ -122,7 +121,7 @@ module.exports = ->
         timelineSvg = timelineContainer.append('svg')
             .style('position', 'absolute')
             #.style('z-index', -1)
-            .attr('height', 80)
+            .attr('height', timelineHeight)
             .attr('width', '100%')
             .attr('class','timeline')
             
@@ -223,9 +222,9 @@ module.exports = ->
         # to a full track dictionary. For example, if a track is just
         # a path then it will detect the type
         Track.unpackTrackData(_tracks)
-        tracks = omniscience.makeWatchable(_tracks)
+        tracks = omniscience.watch(_tracks)
 
-        omniscience.watch tracks, () =>
+        tracks.on 'change', =>
             drawTracks()
 
         return sequence

@@ -16,7 +16,7 @@
         <div id="main">
 
         Omniscience on Automation<br />
-        <ul id="qadi">
+        <ul id="qadi" style="font-size:10pt">
             <li>Beneath the sequence you can see a mixer, with a volume slider
             and a pan pot for each track</li>
             <li>When you adjust the volume and pan for each track, you can
@@ -25,6 +25,11 @@
             <li>When you roll the mouse over an audio track, then the
             corresponding channel in the mixer 'lights up' (i.e. the orange
             colour becomes brighter).</li>
+            <li>When you roll the mouse over the mixer, then the audio
+            track lights up.</li>
+            <li>The timelines of the two sequences should be entirely
+            independent. i.e. when you move one the other one should
+            not move</li>
         </ul>
         <span>
         
@@ -63,7 +68,7 @@ var tracks = [
         'src' : rootUrl + 'sax1.mp3',
         'automation' : {
             'volume' : {
-                'interpolate' : 'linear',
+                'interpolate' : 'step-after',
                 'points' : [
                     [0, 100],
                     [2, 50],
@@ -79,7 +84,7 @@ var tracks = [
         'src' : rootUrl + 'sax2.mp3',
         'automation' : {
             'volume' : {
-                'interpolate' : 'linear',
+                'interpolate' : 'step-after',
                 'points' : [
                     [0, 100],
                     [2, 50],
@@ -92,10 +97,10 @@ var tracks = [
     }
 ]
 
-tracks = prong.omniscience.makeWatchable(tracks)
+tracks = prong.omniscience.watch(tracks)
 
 var d3 = prong.d3;
-var x = d3.scale.linear().domain([0, 60]).range([0, 200]);
+var x = d3.scale.linear().domain([0, 60]).range([0, 200])
 
 var sequence1 = prong.sequence()
     .x(x)
@@ -112,8 +117,10 @@ d3.select('#sequence1').call(sequence1);
 d3.select('#transport1').call(transport1);
 d3.select('#mixer1').call(mixer1);
 
+var x2 = d3.scale.linear().domain([0, 60]).range([0, 200])
+
 var sequence2 = prong.sequence()
-    .x(x)
+    .x(x2)
     .tracks(tracks)
     .trackHeight(40)
     .canSelectLoop(true)

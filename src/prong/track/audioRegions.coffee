@@ -3,7 +3,7 @@ commonProperties = require('../commonProperties')
 uid = require('../uid')
 Waveform = require('../components/waveform')
 AudioContext = require('../audioContext')
-omniscience = require('../omniscience')
+omniscience = require('omniscience')
 
 regionCounter = 0
 
@@ -30,7 +30,7 @@ setPlayHandler = (track) ->
         if track._panner
             track._panner.pan.value = track.pan / 64
 
-    omniscience.watch track, =>
+    track.on 'change', =>
         if track.dragging
             setVolumeAndPan()
 
@@ -101,7 +101,7 @@ module.exports = ->
             
         selection.each (track,i) ->
 
-            track = omniscience.makeWatchable(track)
+            track = omniscience.watch(track)
             div = d3.select(this)
             height = track.height || sequence.trackHeight() || 128
 
@@ -118,7 +118,7 @@ module.exports = ->
                     d3.select(this).classed('over', false)
                     d.over = false
                 .each (d) ->
-                    omniscience.watch d, () =>
+                    d.on 'change', () =>
                         svg.classed('over', d.over)
 
             svg.selectAll('g')

@@ -8,7 +8,7 @@ uid = require('../uid')
 global = require('../prongGlobal')
 trackName = require('../trackName')
 AudioContext = require('../audioContext')
-omniscience = require('../omniscience')
+omniscience = require('omniscience')
 #Lines = require('../components/lines')
 #Note = require('../components/note')
 
@@ -56,7 +56,7 @@ module.exports = ->
     audio = (selection) ->
 
         selection.each (d,i) ->
-            d = omniscience.makeWatchable(d)
+            d = omniscience.watch(d)
 
             if not ('volume' of d)
                 d.volume = DEFAULT_VOLUME
@@ -180,7 +180,7 @@ module.exports = ->
 
 
             lastChange = null
-            omniscience.watch d, =>
+            d.on 'change', =>
                 if lastChange and (new Date() - lastChange) < 10
                     return
                 lastChange = new Date()
@@ -265,7 +265,7 @@ module.exports = ->
                 if playing
                     play()
 
-            omniscience.watch d, () =>
+            d.on 'change', () =>
                 svg.classed('over', d.over)
                 if (d.dead)
                     stop()

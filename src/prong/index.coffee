@@ -24,7 +24,7 @@ module.exports = {
         
     # history
     history : require('./history/history'),
-    omniscience : require('./omniscience')
+    omniscience : require('omniscience')
     
     # sequencer
     sequence : require('./sequence'),

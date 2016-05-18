@@ -3,7 +3,7 @@ preparePcmData = require('./preparePcmData')
 uid = require('../uid')
 d3 = require('d3-prong')
 keysort = require('../keysort')
-omniscience = require('../omniscience')
+omniscience = require('omniscience')
 
 
 module.exports = ->
@@ -109,7 +109,7 @@ module.exports = ->
         draw()
 
         selection.each (d) ->
-            omniscience.watch(d, draw)
+            d.on('change', draw)
             
         # this timing logic tries to keep waveform redrawing as smooth
         # as possible. It times how long it takes to redraw the waveform

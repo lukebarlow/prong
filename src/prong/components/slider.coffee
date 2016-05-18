@@ -1,5 +1,5 @@
 d3 = require('d3-prong')
-omniscience = require('../omniscience')
+omniscience = require('omniscience')
 
 module.exports = ->
 
@@ -170,8 +170,9 @@ module.exports = ->
 
         if key
             selection.each (d) ->
-                omniscience.watch d, () =>
+                d.on 'change', =>
                     redraw(d)
+                    
         
         redraw = (d) ->
             if (horizontal)

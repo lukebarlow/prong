@@ -6,6 +6,7 @@
         <link rel="shortcut icon" href="../images/icon.png" type="image/gif">
         <script src="../js/prong.js"></script>
         <link rel='stylesheet' href='testPageMixer.css'></link>
+        <link rel='stylesheet' href='testPage.css'></link>
         <script src="qadi-min.js"></script>
         <link rel="stylesheet" type="text/css" href="qadi.css"/>
 
@@ -48,14 +49,28 @@ var tracks = [
         'src' : rootUrl + 'sax1.mp3',
         'automation' : {
             'volume' : {
+                'interpolate' : 'linear',
+                'points' : [[0, 100],[2, 50],[3, 20],[10, 100],[11, 80]]
+            }
+        }
+    },
+    {
+        'type' : 'audio',
+        'src' : rootUrl + 'sax2.mp3',
+        'automation' : {
+            'volume' : {
                 'interpolate' : 'step-after',
-                'points' : [
-                    [0, 100],
-                    [2, 50],
-                    [3, 20],
-                    [10, 100],
-                    [11, 80]
-                ]
+                'points' : [[0, 45],[2, 50],[3, 45],[4, 40],[5, 35]]
+            }
+        }
+    },
+    {
+        'type' : 'audio',
+        'src' : rootUrl + 'flute.mp3',
+        'automation' : {
+            'volume' : {
+                'interpolate' : 'step-after',
+                'points' : [[0, 30],[2, 50],[3, 60],[4, 70],[5, 80]]
             }
         }
     },
@@ -65,13 +80,7 @@ var tracks = [
         'automation' : {
             'volume' : {
                 'interpolate' : 'step-after',
-                'points' : [
-                    [0, 100],
-                    [2, 20],
-                    [4, 80],
-                    [5, 30],
-                    [9, 10]
-                ]
+                'points' : [[0, 100],[2, 20],[4, 80],[5, 30],[9, 10]]
             }
         }
     }

@@ -1,7 +1,7 @@
 # A rotating circular tweakable knob, like a pan or fx control 
 
 d3 = require('d3-prong')
-omniscience = require('../omniscience')
+omniscience = require('omniscience')
 
 module.exports = ->
 
@@ -95,12 +95,9 @@ module.exports = ->
         # use the Object.watch feature to listen for changes to the datum
         # and redraw
         selection.each (d) ->
-            # d.watch key, (property, oldValue, newValue) ->
-            #     redraw(d)
-            #     return newValue
-            omniscience.watch d, () =>
+            d.on 'change.pot', =>
                 redraw(d)
-        
+
         redraw = (d) ->
             selection.selectAll('.arc').attr('d', arc)
             selection.selectAll('text').text( (d) -> d[key] )

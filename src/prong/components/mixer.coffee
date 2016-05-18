@@ -1,8 +1,8 @@
 d3 = require('d3-prong')
 slider = require('./slider')
 pot = require('./pot')
-omniscience = require('../omniscience')
-#trackName = require('../')
+omniscience = require('omniscience')
+trackName = require('../trackName')
 
 module.exports = ->
 
@@ -10,6 +10,7 @@ module.exports = ->
     showPan = true
     showVolume = true
     idsOnLastDraw = null
+    showTrackNames = true
 
     volumeSlider = slider()
         .domain([0,100])
@@ -34,6 +35,8 @@ module.exports = ->
     mixer = (selection) ->
         margin = {top: 40, right: 0, bottom: 40, left: 40}
         height = (if showPan then 50 else 0) + (if showVolume then 140 else 0) + 30
+
+        height += if showTrackNames then 30 else 0
         height = height - margin.bottom - margin.top
 
         svg = selection.append('svg')
@@ -74,8 +77,8 @@ module.exports = ->
                     d.over = false
                 .each (d) ->
                     thiz = d3.select(this)
-                    omniscience.watch d, () =>
-                        thiz.classed('over', d.over)
+                    d.on 'change', =>
+                        thiz.classed('over', d.over)                        
 
             join.exit().remove()
 
@@ -94,13 +97,16 @@ module.exports = ->
             newlyAdded.append('text')
                 .attr('transform', "translate(0, #{y})")
                 .attr('text-anchor', 'middle')
-                .text(prong.trackName)
+                .text(trackName)
+                .attr('class', 'trackName')
         
         draw()
 
-        omniscience.watch(sequence.tracks(), () =>
-            draw()
-        )
+        sequence.tracks().on('change', draw)
+        # console.log('watching the tracks')
+        # omniscience.watch(sequence.tracks(), () =>
+        #     draw()
+        # )
 
         mixer.loadPreset = (preset, duration) ->
             for track in tracks
