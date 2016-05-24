@@ -86,12 +86,16 @@ module.exports = ->
         components = createComponents(tracks, track.sequence(), dispatch)
         groupedTracks = groupTracks(tracks, components)
 
-        join = selection.selectAll('.track')
+        join = selection.selectAll('g.track')
             .data(groupedTracks, (d) => d.key)
-            
+        
+        join.transition().duration(500)
+            .attr('transform', (d, i) => "translate(0,#{d.offset})")
+
         newTracks = join.enter()
-            .append('div')
+            .append('g')
             .attr('class','track')
+            .attr('transform', (d, i) => "translate(0,#{d.offset})")
 
         newTracks.each (d,i) ->
             sel = d3.select(this)         
@@ -106,6 +110,7 @@ module.exports = ->
 
     track.on = (type, listener) ->
         dispatch.on(type, listener)
+
 
     return d3.rebind(track, commonProperties(), 'sequence')
 

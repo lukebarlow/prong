@@ -170,8 +170,11 @@ module.exports = ->
 
         if key
             selection.each (d) ->
-                d.on 'change', =>
-                    redraw(d)
+                if d.on
+                    d.on 'change', =>
+                        redraw(d)
+                else
+                    console.warn('slider datum is not watchable. Consider using prong.omniscience to watch for changes on it')
                     
         
         redraw = (d) ->

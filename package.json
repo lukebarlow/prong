@@ -25,9 +25,10 @@
   },
   "dependencies": {
     "async": "latest",
-    "omniscience": "^1.0.0",
     "d3-prong": "git://github.com/lukebarlow/d3-prong",
-    "fft": "latest"
+    "d3-time-format": "^0.3.2",
+    "fft": "latest",
+    "omniscience": "^1.0.0"
   },
   "devDependencies": {
     "jasmine-node": "latest",

@@ -95,8 +95,11 @@ module.exports = ->
         # use the Object.watch feature to listen for changes to the datum
         # and redraw
         selection.each (d) ->
-            d.on 'change.pot', =>
-                redraw(d)
+            if d.on
+                d.on 'change.pot', =>
+                    redraw(d)
+            else
+                console.warn('pot datum is not watchable. Consider using prong.omniscience to watch for changes on it')
 
         redraw = (d) ->
             selection.selectAll('.arc').attr('d', arc)

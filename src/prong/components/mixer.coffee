@@ -3,6 +3,7 @@ slider = require('./slider')
 pot = require('./pot')
 omniscience = require('omniscience')
 trackName = require('../trackName')
+resolveElement = require('../resolveElement')
 
 module.exports = ->
 
@@ -33,6 +34,8 @@ module.exports = ->
 
 
     mixer = (selection) ->
+
+        selection = resolveElement(selection)
         margin = {top: 40, right: 0, bottom: 40, left: 40}
         height = (if showPan then 50 else 0) + (if showVolume then 140 else 0) + 30
 
@@ -139,6 +142,8 @@ module.exports = ->
                         track.pan = track._startPan + (track._deltaPan * position)
                 return position == 1
 
+
+    mixer.draw = mixer
 
     mixer.sequence = (_sequence) ->
         if not arguments.length

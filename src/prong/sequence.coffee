@@ -5,6 +5,9 @@ Timeline = require('./components/timeline')
 MusicalTimeline = require('./components/musicalTimeline')
 Pool = require('./pool')
 omniscience = require('omniscience')
+resolveElement = require('./resolveElement')
+fileToTrack = require('./fileToTrack')
+
 
 module.exports = ->
 
@@ -39,12 +42,24 @@ module.exports = ->
     playLine = null
     propertyPanel = null
     idsOnLastDraw = null
+    timeDomain = [0, 60]
+    width = 500
+    x = d3.scale.linear().domain(timeDomain).range([0, width])
 
     # for now, track id is just the src attribute. May change
     ensureTracksHaveIds = (tracks) =>        
         for track in tracks
             if not track.id
                 track.id = track.src or track.name
+
+
+    ensureTracksHaveHeightAndOffset = (tracks) =>
+        offset = 0     
+        for track in tracks
+            if not track.height
+                track.height = trackHeight
+            track.offset = offset
+            offset += track.height
 
 
     setPlaylinePosition = ->
@@ -55,7 +70,8 @@ module.exports = ->
         else
             position = (x(currentTime)) + propertyPanelWidth
             playLine.style('display','')
-            playLine.style('left', position + 'px')
+            #playLine.style('left', position + 'px')
+            playLine.attr('x', position)
         
 
     idsKey = =>
@@ -64,12 +80,18 @@ module.exports = ->
 
     drawTracks = ->
         ensureTracksHaveIds(tracks)
+        ensureTracksHaveHeightAndOffset(tracks)
         key = idsKey()
         if key == idsOnLastDraw
             return
+
         idsOnLastDraw = key
         h = sequence.height()
-        propertyPanel.style('height', h + 'px')
+
+        container.transition().duration(500)
+            .style('height', sequence.height() + 'px')
+
+        #propertyPanel.style('height', h + 'px')
         tracksContainer.datum(tracks).call(_track)
         if playLine
             later = =>
@@ -81,8 +103,23 @@ module.exports = ->
 
 
     sequence = (_container) ->
+        _container = resolveElement(_container)
+        
+        # the whole sequence is done in SVG, so if the supplied container
+        # is not SVG, then we create that
+        if _container.node().tagName not in ['SVG', 'G']
+            _container = _container.append('svg')
+
         container = _container
+        container
+            .style('width', (width + propertyPanelWidth) + 'px')
+            .style('height', sequence.height() + 'px')
+
         x = sequence.x()
+        if not x
+            x = d3.scale.linear().domain(timeDomain).range([0, width])
+            sequence.x(x)
+        
         timeline = Timeline()
             .x(x)
             .sequence(sequence)
@@ -93,39 +130,41 @@ module.exports = ->
             .loop(loopDomain)
             .loopDisabled(loopDisabled)
 
-
         if historyKey = sequence.historyKey()
             timeline.historyKey(historyKey+'tl')
 
         container.classed('sequence', true)
 
         # propertyPanel height is set after tracks are drawn
-        propertyPanel = container.append('div')
-            .style('width', propertyPanelWidth + 'px')
-            .style('height', "#{tracks.length * trackHeight + timelineHeight}px")
-            .attr('class','propertyPanel')
+        # propertyPanel = container.append('div')
+        #     .style('width', propertyPanelWidth + 'px')
+        #     .style('height', "#{tracks.length * trackHeight + timelineHeight}px")
+        #     .attr('class','propertyPanel')
+        propertyPanel = container.append('g')
+            .attr('class', 'propertyPanel')
 
-        container = container.append('div')
-            .attr('class','trackContainer')
-            .style('left', propertyPanelWidth + 'px')
+        # container = container.append('div')
+        #     .attr('class','trackContainer')
+        #     .style('left', propertyPanelWidth + 'px')
 
-        playlineContainer = container.append('div')
-            .style('position','absolute')
-            .attr('class','playlineContainer')
+        # playlineContainer = container.append('div')
+        #     .style('position','absolute')
+        #     .attr('class','playlineContainer')
 
-        timelineContainer = container.append('div')
-            .style('height', timelineHeight + 'px')
-            .style('width', '100%')
-            .attr('class', 'timelineContainer')
+        # timelineContainer = container.append('g')
+        #     .style('height', timelineHeight + 'px')
+        #     .style('width', '100%')
+        #     .attr('class', 'timelineContainer')
 
-        timelineSvg = timelineContainer.append('svg')
-            .style('position', 'absolute')
+        timelineContainer = container.append('g')
+            #.style('position', 'absolute')
             #.style('z-index', -1)
-            .attr('height', timelineHeight)
-            .attr('width', '100%')
+            #.attr('height', timelineHeight)
+            #.attr('width', '100%')
+            .attr('transform', "translate(#{propertyPanelWidth}, 0)")
             .attr('class','timeline')
             
-        timelineSvg.append('g')
+        timelineContainer.append('g')
             .attr('transform','translate(0,15)')
             .call(timeline)
 
@@ -135,23 +174,23 @@ module.exports = ->
             musicalTimeline = MusicalTimeline()
                 .musicalTime(musicalTime)
                 .timeline(timeline)
-            timelineSvg.append('g')
+            timelineContainer.append('g')
             .attr('transform','translate(0,45)')
             .call(musicalTimeline)
 
-        tracksContainer = container.append('div')
-            .attr('width', '100%')
+        tracksContainer = container.append('g')
+            .attr('class', 'tracks')
+            .attr('transform', "translate(#{propertyPanelWidth}, #{timelineHeight})")
   
         mouse = () ->
             touches = d3.event.changedTouches
-            reference = timelineSvg
+            reference = timelineContainer
             return if touches then d3.touches(referece, touches)[0] else d3.mouse(reference.node())
 
         sequence.timeline(timeline)
 
         # create the tracks
         _track = Track().sequence(sequence)
-
         drawTracks()
 
         _track.on 'load', ->
@@ -170,14 +209,16 @@ module.exports = ->
                 dispatch.load()
 
             playlineHeight = sequence.height() - 15
-            playLine.style('height', playlineHeight + 'px')
-            propertyPanel.style('height', sequence.height() + 'px')
+            #playLine.style('height', playlineHeight + 'px')
+            #propertyPanel.style('height', sequence.height() + 'px')
+            #debugger
+            container.style('height', sequence.height() + 'px')
         
-        # and the play line
-        playLine = playlineContainer.append('div')
-            .style('height', '100px') # this soon gets clobbered when the tracks load
-            .attr('class','playLine')
-            .style('top','15px')
+        playLine = container.append('rect')
+            .attr('height', sequence.height())
+            .attr('width', '1')
+            .attr('class', 'playLine')
+            .attr('y', 15)
 
         setPlaylinePosition()
         timeline.on 'change.playline', ->
@@ -214,10 +255,13 @@ module.exports = ->
             sequence.play(time)
 
 
+    sequence.draw = sequence
+
     sequence.tracks = (_tracks) ->
         if not arguments.length then return tracks
 
         ensureTracksHaveIds(_tracks)
+        ensureTracksHaveHeightAndOffset(_tracks)
         # this method recognises various abbreviations, and unpacks them
         # to a full track dictionary. For example, if a track is just
         # a path then it will detect the type
@@ -232,6 +276,10 @@ module.exports = ->
 
     sequence.addTrack = (track) ->
         tracks.push(track)
+
+
+    sequence.addFile = (file) =>
+        tracks.push(fileToTrack(file))
     
 
     sequence.removeTrack = (track) ->
@@ -435,7 +483,7 @@ module.exports = ->
     
 
     sequence.height = ->
-        return container.node().clientHeight
+        return this.tracks().length * trackHeight + timelineHeight
 
 
     sequence.propertyPanelWidth = (_propertyPanelWidth) ->
@@ -447,6 +495,26 @@ module.exports = ->
     sequence.canSelectLoop = (_canSelectLoop) ->
         if not arguments.length then return canSelectLoop
         canSelectLoop = _canSelectLoop
+        return sequence
+
+
+    sequence.timeDomain = (_timeDomain) ->
+        if not arguments.length
+            return x.domain()
+        x.domain(_timeDomain)
+        return sequence
+
+
+    sequence.width = (_width) ->
+        if not arguments.length
+            return x.range()[1]
+        x.range([0, _width])
+        return sequence
+
+
+    sequence.x = (_x) ->
+        if not arguments.length then return x
+        x = _x
         return sequence
 
 
@@ -478,5 +546,5 @@ module.exports = ->
         return sequence
     
 
-    return d3.rebind(sequence, commonProperties(), 'x', 'width', 'sequence', 
+    return d3.rebind(sequence, commonProperties(), 'sequence', 
             'timeline', 'historyKey')

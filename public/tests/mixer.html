@@ -80,23 +80,20 @@ var tracks = [
     }
 ]
 
-var d3 = prong.d3;
-var x = d3.scale.linear().domain([0, 60]).range([0, 800]);
-
 var sequence = prong.sequence()
-    .x(x)
+    .timeDomain([0, 60])
+    .width(500)
     .tracks(tracks)
-    .trackHeight(20)
+    .trackHeight(30)
     .canSelectLoop(true)
-    .audioOut(prong.audioContext().destination);
+    .audioOut(prong.audioContext().destination)
 
-var transport = prong.transport().sequence(sequence);
+var transport = prong.transport().sequence(sequence)
+var mixer = prong.mixer().sequence(sequence)
 
-var mixer = prong.mixer().sequence(sequence);
-
-d3.select('#sequence').call(sequence);
-d3.select('#transport').call(transport);
-d3.select('#mixer').call(mixer);
+sequence.draw('#sequence')
+transport.draw('#transport')
+mixer.draw('#mixer')
 
         </script>
     </body>

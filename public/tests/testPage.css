@@ -246,6 +246,39 @@ iframe {
     margin-left:5px;
 }
 
+.trackHeader {
+    cursor: pointer;
+}
+
+.trackHeader rect {
+    fill: transparent;
+}
+
+.trackHeader:hover rect {
+    fill: rgba(70, 130, 180, 0.5);
+}
+
+.closeButton {
+    display: none;
+}
+
+.trackHeader:hover .closeButton {
+    display: block;
+}
+
+.trackHeader circle {
+    fill: white;
+}
+
+.closeButton text {
+    font-family: arial;
+    fill: rgba(0, 0, 0, 0.5);
+}
+
+.closeButton:hover circle {
+    fill: orange;
+}
+
 /* text track */
 
 .textTrack {

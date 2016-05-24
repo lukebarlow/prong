@@ -2,6 +2,7 @@ d3 = require('d3-prong')
 commonProperties = require('../commonProperties')
 trackName = require('../trackName')
 Uid = require('../uid')
+TrackHeader = require('./trackHeader')
 
 module.exports = ->
 
@@ -22,15 +23,21 @@ module.exports = ->
     text = (selection, options) ->
 
         sequence = text.sequence()
-        selection.append('div')
-            .attr('class','trackName')
-            .append('span')
-            .text(trackName) 
+
+        selection.append('g')
+            .call(TrackHeader().sequence(sequence))
         
         height = selection.datum().height || sequence.trackHeight() || 128
-        display = selection.append('div')
-            .style('height', height + 'px')
-            .style('width', sequence.width() + 'px') 
+        
+        display = selection.append('text')
+            .attr('x', sequence.width() / 2)
+            .attr('y', (d) => d.height / 2)
+            .attr('width', sequence.width())
+            .attr('height', (d) => d.height)
+            .attr('text-anchor', 'middle')
+            .attr('alignment-baseline', 'middle')
+            .text('')
+
         display.classed('textTrack', true)
 
         uid = Uid()
@@ -38,7 +45,9 @@ module.exports = ->
         timer = null
         i = null
 
-        showLyric = -> display.text(data[i] and data[i].text or '')
+        showLyric = -> 
+            data = selection.datum().data or []
+            display.text(data[i] and data[i].text or '')
 
         setTimerForNextLyric = ->
             if timer
@@ -73,8 +82,21 @@ module.exports = ->
         sequence.timeline().on 'timeselect.text' + uid, (time) ->
             i = lyricIndexAtTime(data, time)
             showLyric()
-        
 
+        selection.each (d) ->
+            if d._loader
+                loadingMessage = d3.select(this).append('text')
+                    .attr('class','trackLoading')
+                    .attr('x', 20)
+                    .attr('y', (d) => d.height / 2)
+                    .attr('alignment-baseline', 'middle')
+                d._loader loadingMessage, ->
+                    loadingMessage.remove()
+                    i = lyricIndexAtTime(data, sequence.currentTime())
+                    showLyric()
+                    console.log('loaded')
+
+        
     text.on = (type, listener) ->
         dispatch.on(type, listener)
         return text

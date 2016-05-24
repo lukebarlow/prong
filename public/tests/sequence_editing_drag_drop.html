@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<html>
+    <head>
+        <title>Drag and Drop Editing</title>
+        <link rel="shortcut icon" href="../images/icon.png" type="image/gif">
+        <script src="../js/prong.js"></script>
+        <link rel='stylesheet' href='testPage.css'></link>
+        <script src="qadi-min.js"></script>
+        <link rel="stylesheet" type="text/css" href="qadi.css"/>
+        <script src="dragdrop.min.js"></script>
+    </head>
+    <body>
+
+        <iframe src="./"></iframe>
+        <div id="main">
+        Drag and Drop Editing<br />
+        <br />
+        You can drag and drop files onto the prong sequence to add them
+        <ul id="qadi" style="font-size:10pt">
+            
+        </ul>
+        <button id="addTrack">add track</button>
+        <button id="removeTrack">remove track</button>
+        <br />
+        <br />
+        <div id="transport"></div>
+        <div id="sequence"></div>
+        <div id="mixer"></div>
+        
+        </div>
+        <script>
+
+root = 'https://dl.dropboxusercontent.com/u/5613860/audio/nino_rota/'
+root = '/audio/'
+
+var tracks = [
+    {
+        'type' : 'audio',
+        'src' : root + 'sax1.mp3'
+    },
+    {
+        'type' : 'audio',
+        'src' : root + 'sax2.mp3'
+    },
+    {
+        'type' : 'audio',
+        'src' : root + 'flute.mp3'
+    },
+    {
+        'type' : 'audio',
+        'src' : root + 'snare.mp3'
+    }
+]
+
+extraTracks = [
+    {
+        'type' : 'audio',
+        'src' : root + 'tuba.mp3'
+    },
+    {
+        'type' : 'audio',
+        'src' : root + 'bass_drum.mp3'
+    },
+    {
+        'type' : 'audio',
+        'src' : root + 'cymbals.mp3'
+    },
+    {
+        'type' : 'audio',
+        'src' : root + 'trombone.mp3'
+    },
+    {
+        'type' : 'audio',
+        'src' : root + 'trumpet.mp3'
+    }
+]
+
+var d3 = prong.d3
+
+var sequence = prong.sequence()
+    .width(500)
+    .tracks(tracks)
+    .trackHeight(30)
+    .canSelectLoop(true)
+    .historyKey('s')
+    .audioOut(prong.audioContext().destination)
+var mixer = prong.mixer().sequence(sequence)
+var transport = prong.transport().sequence(sequence)
+
+sequence.draw('#sequence')
+transport.draw('#transport')
+mixer.draw('#mixer')
+
+d3.select('#addTrack').on('click', function(){
+    sequence.tracks().push(extraTracks.pop())
+})
+
+d3.select('#removeTrack').on('click', function(){
+    sequence.tracks().splice(0, 1)
+})
+
+
+DragDrop('body', function(files) {
+    files.forEach(function(file){
+        sequence.addFile(file)
+    })
+    //console.log('got some files', files)
+})
+
+        </script>
+    </body>
+</html>

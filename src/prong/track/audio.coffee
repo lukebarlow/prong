@@ -11,6 +11,7 @@ AudioContext = require('../audioContext')
 omniscience = require('omniscience')
 #Lines = require('../components/lines')
 #Note = require('../components/note')
+TrackHeader = require('./trackHeader')
 
 DEFAULT_VOLUME = 60
 DEFAULT_PAN = 0
@@ -55,6 +56,8 @@ module.exports = ->
 
     audio = (selection) ->
 
+        trackHeader = TrackHeader().sequence(sequence)
+
         selection.each (d,i) ->
             d = omniscience.watch(d)
 
@@ -66,16 +69,25 @@ module.exports = ->
             sequence = audio.sequence()
             x = sequence.x()
             width = sequence.width()
-            height = d.height || sequence.trackHeight() || 128
-            div = d3.select(this)
+            height = d.height
+            container = d3.select(this)
 
             if not ('volume' of d) then d.volume = 1
 
-            div.append('div').attr('class','trackName').append('span').text(trackName)
-            loadingMessage = div.append('span').attr('class','trackLoading')
+            #container.append('container').attr('class','trackName').append('span').text(trackName)
+            #loadingMessage = container.append('span').attr('class','trackLoading')
+            container.append('g').call(trackHeader)
 
-            svg = div.append('svg')
-                .attr('height',height)
+
+            loadingMessage = container.append('text')
+                .attr('class','trackLoading')
+                .attr('x', 20)
+                .attr('y', (d) => d.height / 2)
+                .attr('alignment-baseline', 'middle')
+
+
+            svg = container.append('svg')
+                .attr('height', height)
                 .attr('width', '100%')
                 .on 'mouseover', (d) ->
                     if not global._dragging

@@ -4,6 +4,7 @@ uid = require('../uid')
 Waveform = require('../components/waveform')
 AudioContext = require('../audioContext')
 omniscience = require('omniscience')
+TrackHeader = require('./trackHeader')
 
 regionCounter = 0
 
@@ -92,6 +93,7 @@ setPlayHandler = (track) ->
 module.exports = ->
 
     dispatch = d3.dispatch('load')
+    trackHeader = TrackHeader().sequence(sequence)
 
     audioRegions = (selection) ->
 
@@ -105,7 +107,7 @@ module.exports = ->
             div = d3.select(this)
             height = track.height || sequence.trackHeight() || 128
 
-            div.append('div').attr('class','trackName').append('span').text(prong.trackName)
+            div.append('g').call(trackHeader)
 
             svg = div.append('svg')
                 .attr('height',height)

@@ -136,7 +136,9 @@ iframe {
 /* play line */
 
 .playLine {
-    background-color:green;
+    fill: green;
+    stroke-width: 0px;
+    stroke: transparent;
     width:1px;
     height:600px;
     top:0px;
@@ -196,10 +198,6 @@ iframe {
     white-space:nowrap;
 }
 
-.sequence .propertyPanel {
-    float:left;
-}
-
 .trackName {
     position:absolute;
 }
@@ -215,6 +213,40 @@ iframe {
     text-align: right;
     color:steelblue;
 }
+
+.trackHeader {
+    cursor: pointer;
+}
+
+.trackHeader rect {
+    fill: transparent;
+}
+
+.trackHeader:hover rect {
+    fill: rgba(70, 130, 180, 0.5);
+}
+
+.closeButton {
+    display: none;
+}
+
+.trackHeader:hover .closeButton {
+    display: block;
+}
+
+.trackHeader circle {
+    fill: white;
+}
+
+.closeButton text {
+    font-family: arial;
+    fill: rgba(0, 0, 0, 0.5);
+}
+
+.closeButton:hover circle {
+    fill: orange;
+}
+
 
 /* play line */
 
