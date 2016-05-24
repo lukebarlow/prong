@@ -35,7 +35,7 @@ module.exports = ->
             .text('x')
 
         closeButton.on 'click', (d) => 
-            sequence.removeTrack(d)
+            trackHeader.sequence().removeTrack(d)
             #console.log('remove track', d)
 
     return d3.rebind(trackHeader, commonProperties(), 'sequence')
