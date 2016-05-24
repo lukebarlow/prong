@@ -4,6 +4,7 @@ and with a loader which will load it correctly
 ###
 
 qtText = require('./qtText')
+audioContext = require('./audioContext')
 
 nameWithoutExtension = (file) =>
     return file.name.substr(0, file.name.lastIndexOf('.'))
@@ -24,7 +25,7 @@ audioDecodeTrack = (file) =>
             loadingMessage.text('decoding audio')
             track._originalFile = reader.result
             track._originalFileName = file.name
-            prong.audioContext().decodeAudioData reader.result, (audioBuffer) =>
+            audioContext().decodeAudioData reader.result, (audioBuffer) =>
                 track._buffer = audioBuffer
                 track._channel = audioBuffer.getChannelData(0)
                 callback()

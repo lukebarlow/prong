@@ -110,9 +110,11 @@ module.exports = ->
         if _container.node().tagName not in ['SVG', 'G']
             _container = _container.append('svg')
 
+
+
         container = _container
         container
-            .style('width', (width + propertyPanelWidth) + 'px')
+            .style('width', (sequence.width() + propertyPanelWidth) + 'px')
             .style('height', sequence.height() + 'px')
 
         x = sequence.x()
