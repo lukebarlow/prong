@@ -78,32 +78,34 @@ extraTracks = [
 
 var d3 = prong.d3
 
-var sequence = prong.sequence()
+var sq = prong.sequence()
     .width(500)
     .tracks(tracks)
     .trackHeight(30)
     .canSelectLoop(true)
     .historyKey('s')
     .audioOut(prong.audioContext().destination)
-var mixer = prong.mixer().sequence(sequence)
-var transport = prong.transport().sequence(sequence)
+    .editable(true)
 
-sequence.draw('#sequence')
+var mixer = prong.mixer().sequence(sq)
+var transport = prong.transport().sequence(sq)
+
+sq.draw('#sequence')
 transport.draw('#transport')
 mixer.draw('#mixer')
 
 d3.select('#addTrack').on('click', function(){
-    sequence.tracks().push(extraTracks.pop())
+    sq.tracks().push(extraTracks.pop())
 })
 
 d3.select('#removeTrack').on('click', function(){
-    sequence.tracks().splice(0, 1)
+    sq.tracks().splice(0, 1)
 })
 
 
 DragDrop('body', function(files) {
     files.forEach(function(file){
-        sequence.addFile(file)
+        sq.addFile(file)
     })
     //console.log('got some files', files)
 })

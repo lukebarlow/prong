@@ -56,7 +56,10 @@ module.exports = ->
 
     audio = (selection) ->
 
+        sequence = audio.sequence()
         trackHeader = TrackHeader().sequence(sequence)
+        x = sequence.x()
+        width = sequence.width()
 
         selection.each (d,i) ->
             d = omniscience.watch(d)
@@ -66,9 +69,6 @@ module.exports = ->
             if not ('pan' of d)
                 d.pan = DEFAULT_PAN
 
-            sequence = audio.sequence()
-            x = sequence.x()
-            width = sequence.width()
             height = d.height
             container = d3.select(this)
 

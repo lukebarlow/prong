@@ -45,6 +45,7 @@ module.exports = ->
     timeDomain = [0, 60]
     width = 500
     x = d3.scale.linear().domain(timeDomain).range([0, width])
+    editable = false
 
     # for now, track id is just the src attribute. May change
     ensureTracksHaveIds = (tracks) =>        
@@ -103,20 +104,20 @@ module.exports = ->
 
 
     sequence = (_container) ->
+
         _container = resolveElement(_container)
-        
+        _container.html('')
         # the whole sequence is done in SVG, so if the supplied container
         # is not SVG, then we create that
         if _container.node().tagName not in ['SVG', 'G']
             _container = _container.append('svg')
 
-
-
         container = _container
+
         container
             .style('width', (sequence.width() + propertyPanelWidth) + 'px')
             .style('height', sequence.height() + 'px')
-
+            
         x = sequence.x()
         if not x
             x = d3.scale.linear().domain(timeDomain).range([0, width])
@@ -137,32 +138,10 @@ module.exports = ->
 
         container.classed('sequence', true)
 
-        # propertyPanel height is set after tracks are drawn
-        # propertyPanel = container.append('div')
-        #     .style('width', propertyPanelWidth + 'px')
-        #     .style('height', "#{tracks.length * trackHeight + timelineHeight}px")
-        #     .attr('class','propertyPanel')
         propertyPanel = container.append('g')
             .attr('class', 'propertyPanel')
 
-        # container = container.append('div')
-        #     .attr('class','trackContainer')
-        #     .style('left', propertyPanelWidth + 'px')
-
-        # playlineContainer = container.append('div')
-        #     .style('position','absolute')
-        #     .attr('class','playlineContainer')
-
-        # timelineContainer = container.append('g')
-        #     .style('height', timelineHeight + 'px')
-        #     .style('width', '100%')
-        #     .attr('class', 'timelineContainer')
-
         timelineContainer = container.append('g')
-            #.style('position', 'absolute')
-            #.style('z-index', -1)
-            #.attr('height', timelineHeight)
-            #.attr('width', '100%')
             .attr('transform', "translate(#{propertyPanelWidth}, 0)")
             .attr('class','timeline')
             
@@ -213,7 +192,6 @@ module.exports = ->
             playlineHeight = sequence.height() - 15
             #playLine.style('height', playlineHeight + 'px')
             #propertyPanel.style('height', sequence.height() + 'px')
-            #debugger
             container.style('height', sequence.height() + 'px')
         
         playLine = container.append('rect')
@@ -292,33 +270,7 @@ module.exports = ->
     sequence.fireChange = ->
         dispatch.change()
     
-
-    # sequence.redraw = ->
-    #     join = tracksContainer.selectAll('.track')
-    #         .data(tracks, (d) -> d.id)
-
-    #     join.enter()
-    #         .append('div')
-    #         .attr('class','track')
-    #         .call(_track)
-
-    #     join.exit()
-    #         .each( (d,i) -> 
-    #             debugger
-    #             if (d.cleanup) then d.cleanup() 
-    #         )
-    #         .remove()
-
-    #     setPlaylinePosition()
     
-
-    # redraws all the tracks with their contents
-    # sequence.redrawContents = (options) ->
-    #     tracksContainer.selectAll('.track')
-    #         .data(tracks, (d) ->  d.src)
-    #         .call(_track, options)
-    
-
     sequence.scrubbing = (_scrubbing) ->
         if not arguments.length then return scrubbing
         scrubbing = _scrubbing
@@ -517,6 +469,12 @@ module.exports = ->
     sequence.x = (_x) ->
         if not arguments.length then return x
         x = _x
+        return sequence
+
+
+    sequence.editable = (_editable) ->
+        if not arguments.length then return editable
+        editable = _editable
         return sequence
 
 

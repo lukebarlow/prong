@@ -1,16 +1,17 @@
 ###
  thins out the data by taking chunks of samples at a time
  and applying an aggregating function to them. The aggregator function is
- optional, and will default to d3.max. So, for example if thinningFactor = 4
- and aggregator = d3.max, then the return value will be an array with 1/4 the
+ optional, and will default to one which takes the maximum sample in
+ the group of samples. So, for example if thinningFactor = 4
+ and aggregator = 'max', then the return value will be an array with 1/4 the
  number of elements, each element being the maximum of a group of 4 of the
  original array.
 ###
 
-d3 = require('d3-prong')
+
 
 aggregatorByName = {
-    'max' : d3.max,
+    'max' : 'max',
     'first' : (d) -> return d[0]
 }
 
@@ -35,7 +36,7 @@ downsampleMax = (data, thinningFactor) ->
     return thinnedArray
 
 
-module.exports = (data, thinningFactor, aggregator = d3.max) ->
+module.exports = (data, thinningFactor, aggregator = 'max') ->
 
     if (thinningFactor == 1) then return data
 
@@ -43,7 +44,7 @@ module.exports = (data, thinningFactor, aggregator = d3.max) ->
         aggregator = aggregatorByName[aggregator]
 
     # for max aggregator, we use a custom optimised code path
-    if aggregator == d3.max
+    if aggregator == 'max'
         return downsampleMax(data, thinningFactor)
 
     thinnedArray = []

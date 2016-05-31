@@ -29,6 +29,9 @@
             </li>
             <li>Two play/stop buttons are shown. When either one is clicked, the other should change state to reflect whether the sequence is
             playing or stopped</li>
+            <li>The sequence below has the 'editable' option set to true,
+            which means that when you roll over track names, a cross appears
+            which can be clicked to delete the track.</li>
         </ul>
         <span>
         <br />
@@ -91,6 +94,7 @@ sequence = prong.sequence()
     .fitTimelineToAudio(true)
     .zoomable(false)
     .scrollable(false)
+    .editable(true)
     .audioOut(prong.audioContext().destination);
 
 transport = prong.transport().sequence(sequence)

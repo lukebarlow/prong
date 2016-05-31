@@ -36,6 +36,8 @@ module.exports = ->
     mixer = (selection) ->
 
         selection = resolveElement(selection)
+        selection.html('')
+
         margin = {top: 40, right: 0, bottom: 40, left: 40}
         height = (if showPan then 50 else 0) + (if showVolume then 140 else 0) + 30
 
@@ -109,10 +111,7 @@ module.exports = ->
         draw()
 
         sequence.tracks().on('change', draw)
-        # console.log('watching the tracks')
-        # omniscience.watch(sequence.tracks(), () =>
-        #     draw()
-        # )
+
 
         mixer.loadPreset = (preset, duration) ->
             for track in tracks

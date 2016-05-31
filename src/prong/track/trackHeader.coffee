@@ -5,14 +5,17 @@ module.exports = ->
 
     trackHeader = (selection) ->
 
+        editable = trackHeader.sequence().editable()
+
         selection
             .attr('class', 'trackHeader')
 
-        selection.append('rect')
-            .attr('x', -95)
-            .attr('y', 0)
-            .attr('width', 95)
-            .attr('height', (d) => d.height)
+        if editable
+            selection.append('rect')
+                .attr('x', -95)
+                .attr('y', 0)
+                .attr('width', 95)
+                .attr('height', (d) => d.height)
 
         selection.append('text')
             .attr('x', -5)
@@ -22,20 +25,20 @@ module.exports = ->
             .attr('class', 'trackName')
             .text(trackName)
 
-        closeButton = selection.append('g')
-            .attr('transform', (d) => "translate(-80, #{d.height/2})")
-            .attr('class', 'closeButton')
+        if editable
+            closeButton = selection.append('g')
+                .attr('transform', (d) => "translate(-80, #{d.height/2})")
+                .attr('class', 'closeButton')
 
-        closeButton.append('circle')
-            .attr('r', 8)
+            closeButton.append('circle')
+                .attr('r', 8)
 
-        closeButton.append('text')
-            .attr('text-anchor', 'middle')
-            .attr('alignment-baseline', 'middle')
-            .text('x')
+            closeButton.append('text')
+                .attr('text-anchor', 'middle')
+                .attr('alignment-baseline', 'middle')
+                .text('x')
 
-        closeButton.on 'click', (d) => 
-            trackHeader.sequence().removeTrack(d)
-            #console.log('remove track', d)
+            closeButton.on 'click', (d) => 
+                trackHeader.sequence().removeTrack(d)
 
     return d3.rebind(trackHeader, commonProperties(), 'sequence')
