@@ -1,7 +1,7 @@
 {
   "name": "prong",
   "description": "A JavaScript library for web based audio applications",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "main": "lib/prong/index.js",
   "license": "MIT",
   "repository": {
