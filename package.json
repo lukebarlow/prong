@@ -21,7 +21,8 @@
     "clean": "rm -r lib",
     "build": "export NODE_ENV=production && npm run transpile && browserify ./lib/main.js > prong.js",
     "build:min": "export NODE_ENV=production && npm run transpile && browserify ./lib/main.js | uglifyjs -mt > prong-min.js",
-    "test": "jasmine-node --coffee --verbose --captureExceptions ./src/"
+    "test": "jasmine-node --coffee --verbose --captureExceptions ./src/",
+    "prepublish": "npm run build:min"
   },
   "dependencies": {
     "async": "latest",
