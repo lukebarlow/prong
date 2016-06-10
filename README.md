@@ -1,10 +1,32 @@
 prong
 =====
 
-JavaScript library for web audio related projects
+A collection of components to display and play DAW style
+multi-track sequences of audio
 
 Examples can be seen here http://forkaudio.org/prong/
 
-This is very much alpha software. The API is in flux, and this project
-is being used as a testbed to figure out concepts in how to organise
-time and track based web audio code. 
+
+sample usage
+------------
+
+import prong from 'prong'
+
+// draw a 3 track sequence to the element with id 'sequence'
+
+var sequence = prong.sequence()
+  .propertyPanelWidth(95)
+  .width(705)
+  .canSelectLoop(true)
+  .trackHeight(50)
+  .fitTimelineToAudio(false)
+  .zoomable(true)
+  .scrollable(true)
+  .waveformVerticalZoom(1)
+  .editable(true)
+  .tracks([
+
+
+  ])
+  .audioOut(prong.audioContext().destination)
+  .draw('#sequence')
