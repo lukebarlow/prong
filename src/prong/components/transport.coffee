@@ -22,7 +22,7 @@ module.exports = ->
                 else
                     sequence.currentTime(0)
 
-        selection.append('div').call(playStop)
+        selection.html('').append('div').call(playStop)
 
         if transport.sequence()
             updatePlayState = () -> 

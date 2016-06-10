@@ -25,7 +25,7 @@ audioDecodeTrack = (file) =>
             loadingMessage.text('decoding audio')
             track._originalFile = reader.result
             track._originalFileName = file.name
-            audioContext().decodeAudioData reader.result, (audioBuffer) =>
+            audioContext().decodeAudioData reader.result, (audioBuffer, err) =>
                 track._buffer = audioBuffer
                 track._channel = audioBuffer.getChannelData(0)
                 callback()
@@ -62,16 +62,16 @@ textDecodeTrack = (file) =>
     return track
 
 
-
-
 module.exports = (file) =>
     ending = file.name.split('.').pop()
 
     switch ending
-        when 'mp3', 'm4a', 'wav'
-            return audioDecodeTrack(file)
         when 'txt', 'text'
             return textDecodeTrack(file)
+    # for any other file type, try and decode the audio
+    #when 'mp3', 'm4a', 'wav',
+    return audioDecodeTrack(file)
+        
 
 
 

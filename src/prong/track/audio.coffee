@@ -280,11 +280,11 @@ module.exports = ->
             d.on 'change', () =>
                 svg.classed('over', d.over)
                 if (d.dead)
-                    stop()
                     sequence.on('play.audio' + _uid, null)
                     sequence.on('timeselect.audio' + _uid, null)
                     sequence.on('stop.audio' + _uid, null)
                     sequence.on('loop.audio' + _uid, null)
+                    stop()
 
 
     audio.redraw = (selection, options) ->

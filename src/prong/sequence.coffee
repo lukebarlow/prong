@@ -324,21 +324,21 @@ module.exports = ->
                 setPlaylinePosition()
                 dispatch.loop(loopStart)
                 return false
-
-                # else
-                #     sequence.stop()
-                #     currentTime = end
-                #     setPlaylinePosition()
-                #     return true
             else
                 dispatch.tick(currentTime)
 
-            if following
-                domain = x.domain()
-                if currentTime > domain[1]
+            domain = x.domain()
+            # if we have played off the right hand side of the visible area,
+            # then we might page over, or stop
+            if currentTime > domain[1]
+                if fitTimelineToAudio
+                    sequence.stop()
+                    sequence.currentTime(0)
+                else if following
                     width = domain[1] - domain[0]
                     domain = [domain[0] + width, domain[1] + width]
                     sequence.timeline().domain(domain)
+
             setPlaylinePosition()
             return (not playing)
 
